@@ -1,0 +1,4 @@
+spring:
+  dev:
+    port: 10086
+    hihi: true

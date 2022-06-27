@@ -1,0 +1,1916 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <IPBOC>
+    delete a
+    from
+        INDIASSUODETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIASSUOSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDICCRDETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDICCRSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDICLSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDICOURTINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIENDOWINSUPAY a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIENDOWINSUPROV a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIHOUSERESERVE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIICRSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIIDENTITY a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIINHABITANCY a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDILOANDETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDILOANSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNAdmReward a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNAdmSanction a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNAfterPayLabelDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNAfterPaySum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNAssDisp a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNBigStage a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNBreachSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNCertificate a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNCivilJudge a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNCreditLabelDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNCredSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNEndowInsuPay a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNEndowInsuProv a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNEnforce a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNFiveYearHisDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNFraudWarning a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNGuarODetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNGuarOSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNGuarRepay a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNHisTwoYearDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNHousRes a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNICRDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNICRSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNIdentity a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNInhabitancy a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLastMonthRepayment a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLastQuery a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLoanDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLoanObjLabel a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLoanOpenCardOrgDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLoanSelfDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNLoanSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNMate a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNNewRepayment a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNObjectionPrompt a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNObjLabel a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOccupation a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOdrawSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOdueInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOtherIdentity a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOtherLabelDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOtherSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNOwnTax a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNPBOCScore a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNPhoneInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNPubLabelDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNPublicInfoSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNQCRDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNQCRSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNQueryHisDet a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNQueryHisDet a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNQueryHisSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNRepaymentLabelDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNSelfDecl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNSpecialEvents a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNSpecTrade a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNSubAllow a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiNVehiTrans a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIOCCUPATION a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiPBOCHis a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIQCRSUM a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDIQUERYHIS a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndiQueryInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDISPECIALTRADE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDITAXBASE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDITAXDETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        INDITELEPAY a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        IndividualPBOCHandleInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+  </IPBOC>
+
+    <EPBOC>
+    delete a
+    from
+        COMPACCEPTANCE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPADMINISTRATIVE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPADVANCES a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPAGREEINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPAINVESTINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPAMTINCURRED a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompAssetDisposal a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPAUTHENTICATE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompBalanceSheet a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompBankDescription a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPBILLDISCOUNT a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCAPFORMATION a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCAPITAL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCashFlow a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCenterDescription a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCivilJudgement a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompContributive a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompControlPerson a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCOURTINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCreditDetail a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCREDITINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCreditProtocol a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCreditTagging a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCREDLETTER a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPCREDLOANINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompCredLoanSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompDebtHistoryInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompDiscountRefund a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPDUEBILL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPELIMIINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompEnforceExecuteRecord a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompExchangeRate a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompExemption a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPFACTORING a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompFamilyEnterprise a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompFinaBase a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPFINACEBUSIINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPFINADETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompFinancingControl a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPFUNDINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGradeInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPGROUP a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPGUARANTEE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGuaranteeBase a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGuaranteeCompensation a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGuaranteeDuty a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGuaranteeInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompGuaranteeRefund a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPGUARCONT a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPGUARDINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPGUARODETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompIdentity a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompIdentityCode a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompIncidentInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompIncomeStatement a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompInfoSummary a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPINSURED a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPINTERESTOWED a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPLICENCE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPLITIGATION a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPLOANACCEDETAIL a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompLoanBaseInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPLOANCONT a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompLoanDesignated a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPLOANINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompLoanRefund a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompLoanRefundHis a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPMANAGER a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPMEMORABILIA a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompOrganDiscount a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompOrganGuarantee a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPOTHERFUNDORWORK a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompOtherSum a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPATENTINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPAYVIOLATION a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompPBOCHis a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPREVFUND a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompPrevFund24 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPROFILE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPROFILE_OLD a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPPROJECTINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPQUALIFI a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompQuarantine a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompRelationInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompReportHeader a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPREWARD a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSubjectStatement a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryGuaranteeInfo a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryGuaranteeRefund a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryGuaranteeSettled a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryGuaranteeUnsettled a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryLoanRefund a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummGuaranteeOther a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummLoanOther a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummarySettled01 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummarySettled02 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummarySettled03 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummaryUnSettled01 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummarySettled02 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSummarySettled03 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSuperiorOrgan a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompSupervision a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPTAXINFO a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPTELEPAYMENT a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        COMPTRADEFINACE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompUnInfoSummary a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompUtilitiesFees a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        CompUtilitiesFees24 a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+    
+    delete a
+    from
+        PBOC_PDF_FILE a,
+        CAPAppBasic b,
+        DeletionBusinessData d
+    where
+        d.appId = b.AppID
+        and b.ReportNO = a.REPORTNO
+        and d.BatchNo = ?;
+  </EPBOC>
+</root>
