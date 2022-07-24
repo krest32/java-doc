@@ -160,7 +160,7 @@ private <K extends A, E extends B> E test(K arg1, E arg2){
 
 ​		在类型参数中使用 super 表示这个泛型中的参数必须是 E 或者 E 的父类。
 
-```
+```java
 private <T> void test(List<? super T> dst, List<T> src){
     for (T t : src) {
         dst.add(t);
@@ -187,7 +187,7 @@ class Dog extends Animal {
 
 ？和 T 都表示不确定的类型，区别在于我们可以对 T 进行操作，但是对 ？ 不行，比如如下这种 ：
 
-```
+```java
 // 可以
 T t = operate();
 
@@ -239,7 +239,7 @@ glmapperGeneric.testNon(dest,src);
 
 类型参数 T 只具有 一种 类型限定方式：
 
-```
+```java
 T extends A
 ```
 
@@ -247,7 +247,7 @@ T extends A
 
 但是通配符 ? 可以进行 两种限定：
 
-```
+```java
 ? extends A
 ? super A
 ```
