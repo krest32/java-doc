@@ -267,11 +267,11 @@ javap -v -p xxxx.class > test.txt
 
 **jvm中的常量池分为三种**
 
-  1.类文件常量池(Class Constant Pool)
+1. 类文件常量池(Class Constant Pool)
 
-  2.运行时常量池(Runtime Constant Pool)
+2. 运行时常量池(Runtime Constant Pool)
 
-  3.字符串常量池(String Constant Pool)
+3. 字符串常量池(String Constant Pool)
 
 在JVM内存区域中他们各自所处的位置：
 
