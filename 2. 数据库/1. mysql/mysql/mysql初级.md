@@ -22,11 +22,9 @@
 
 ### 数据库三大范式是什么
 
-第一范式：每个列都不可以再拆分。
-
-第二范式：在第一范式的基础上，非主键列完全依赖于主键，而不能是依赖于主键的一部分。
-
-第三范式：在第二范式的基础上，非主键列只依赖于主键，不依赖于其他非主键。
+1. 每个列都不可以再拆分。
+2. 在第一范式的基础上，非主键列完全依赖于主键，而不能是依赖于主键的一部分。
+3. 在第二范式的基础上，非主键列只依赖于主键，不依赖于其他非主键。
 
 在设计数据库结构的时候，要尽量遵守三范式，如果不遵守，必须有足够的理由。比如性能。事实上我们经常会为了性能而妥协数据库的设计。
 
@@ -73,16 +71,6 @@
 
 
 
-### MySQL的`binlog`有有几种录入格式？分别有什么区别？
-
-有三种格式，statement，row和mixed。
-
-- statement模式下，每一条会修改数据的sql都会记录在binlog中。不需要记录每一行的变化。
-- row级别下，基本是可以全部记下来但是由于很多操作，会导致大量行的改动(，因此这种模式的文件保存的信息太多，日志量太大。
-- mixed，一种折中的方案，普通操作使用statement记录，当无法使用statement的时候使用row。
-
-此外，新版的MySQL中对row级别也做了一些优化，当表结构发生变化的时候，会记录语句而不是逐行记录。
-
 
 
 ### 逻辑架构介绍
@@ -112,6 +100,18 @@
       5. 执行器：
            1. 开始执行的时候，要先判断一下你对这个表T有没有执行查询的权限，如果没有，就会返回没有权限的错误
            2. 如果有权限，就打开表继续执行
+
+
+
+### MySQL的`binlog`有有几种录入格式？分别有什么区别？
+
+有三种格式，statement，row和mixed。
+
+- statement模式下，每一条会修改数据的sql都会记录在binlog中。不需要记录每一行的变化。
+- row级别下，基本是可以全部记下来但是由于很多操作，会导致大量行的改动(，因此这种模式的文件保存的信息太多，日志量太大。
+- mixed，一种折中的方案，普通操作使用statement记录，当无法使用statement的时候使用row。
+
+此外，新版的MySQL中对row级别也做了一些优化，当表结构发生变化的时候，会记录语句而不是逐行记录。
 
 
 
@@ -158,33 +158,39 @@
 - `3、字符串类型`，包括VARCHAR、CHAR、TEXT、BLOB
   VARCHAR用于存储可变长字符串，它比定长类型更节省空间。
   VARCHAR使用额外1或2个字节存储字符串长度。列长度小于255字节时，使用1字节表示，否则使用2字节表示。
-  VARCHAR存储的内容超出设置的长度时，内容会被截断。
-  CHAR是定长的，根据定义的字符串长度分配足够的空间。
-  CHAR会根据需要使用空格进行填充方便比较。
-  CHAR适合存储很短的字符串，或者所有值都接近同一个长度。
-  CHAR存储的内容超出设置的长度时，内容同样会被截断。
-
+  
+  1. VARCHAR存储的内容超出设置的长度时，内容会被截断。
+  2. CHAR是定长的，根据定义的字符串长度分配足够的空间。
+  3. CHAR会根据需要使用空格进行填充方便比较。
+  4. CHAR适合存储很短的字符串，或者所有值都接近同一个长度。
+  5. CHAR存储的内容超出设置的长度时，内容同样会被截断。
+  
   **使用策略：**
-  对于经常变更的数据来说，CHAR比VARCHAR更好，因为CHAR不容易产生碎片。
-  对于非常短的列，CHAR比VARCHAR在存储空间上更有效率。
-  使用时要注意只分配需要的空间，更长的列排序时会消耗更多内存。
-  尽量避免使用TEXT/BLOB类型，查询时会使用临时表，导致严重的性能开销。
-
+  
+  1. 对于经常变更的数据来说，CHAR比VARCHAR更好，因为CHAR不容易产生碎片。
+  2. 对于非常短的列，CHAR比VARCHAR在存储空间上更有效率。
+  3. 使用时要注意只分配需要的空间，更长的列排序时会消耗更多内存。
+  4. 尽量避免使用TEXT/BLOB类型，查询时会使用临时表，导致严重的性能开销。
+  
 - `4、枚举类型（ENUM）`，把不重复的数据存储为一个预定义的集合。
-  有时可以使用ENUM代替常用的字符串类型。
-  ENUM存储非常紧凑，会把列表值压缩到一个或两个字节。
-  ENUM在内部存储时，其实存的是整数。
-  尽量避免使用数字作为ENUM枚举的常量，因为容易混乱。
-  排序是按照内部存储的整数
+  
+  1. 有时可以使用ENUM代替常用的字符串类型。
+  2. ENUM存储非常紧凑，会把列表值压缩到一个或两个字节。
+  3. ENUM在内部存储时，其实存的是整数。
+  4. 尽量避免使用数字作为ENUM枚举的常量，因为容易混乱。
+  5. 排序是按照内部存储的整数
+  
+- `5、日期和时间类型`，
+  
+  1. 尽量使用timestamp，空间效率高于datetime，
+  2. 用整数保存时间戳通常不方便处理。
+  3. 如果需要存储微妙，可以使用bigint存储。
+  4. 看到这里，这道真题是不是就比较容易回答了。
+  
 
-- `5、日期和时间类型`，尽量使用timestamp，空间效率高于datetime，
-  用整数保存时间戳通常不方便处理。
-  如果需要存储微妙，可以使用bigint存储。
-  看到这里，这道真题是不是就比较容易回答了。
 
 
-
-### 设置int长度有用？
+### 设置`int`长度有用？
 
 整数类型可以被指定长度，例如：INT(11)表示长度为11的INT类型。长度在大多数场景是没有意义的，它不会限制值的合法范围，只会影响显示字符的个数，而且需要和UNSIGNED ZEROFILL（自动用0补全其他位）属性配合使用才有意义。
 `例子`，假定类型设定为INT(5)，属性为UNSIGNED ZEROFILL，如果用户插入的数据为12的话，那么数据库实际存储数据为00012。
@@ -252,8 +258,6 @@ SHOW ENGINE INNODB STATUS;
 
 ### 存储引擎种类
 
-存储引擎Storage engine：MySQL中的数据、索引以及其他对象是如何存储的，是一套文件系统的实现。
-
 常用的存储引擎有以下：
 
 - **Innodb引擎**：提供了对数据库ACID事务的支持。并且还提供了行级锁和外键的约束。它的设计的目标就是处理大数据容量的数据库系统。会有数据的缓冲池，进而提高查询效率。
@@ -294,7 +298,7 @@ SHOW ENGINE INNODB STATUS;
 
 ### 什么是索引？
 
-​		索引是一种数据结构。索引的实现通常使用B树及其变种B+树**。更通俗的说，索引就相当于目录。它是一个文件。
+​		索引是一种数据结构。索引的实现通常使用B树及其变种B+树。更通俗的说，索引就相当于目录。它是一个文件。
 
 
 
@@ -341,29 +345,23 @@ SHOW ENGINE INNODB STATUS;
 
 
 
- B+tree性质：
+1. B+tree性质：
 
-1.）n 棵子 tree 的节点包含 n 个关键字，不用来保存数据而是保存数据的索引。
+   1. n 棵子 tree 的节点包含 n 个关键字，不用来保存数据而是保存数据的索引。	
+   2. 所有的叶子结点中包含了全部关键字的信息，及指向含这些关键字记录的指针，且叶子结点本身依关键字的大小自小而大顺序链接。
+   3. 所有的非终端结点可以看成是索引部分，结点中仅含其子树中的最大（或最小）关键字。
+   4. B+ 树中，数据对象的插入和删除仅在叶节点上进行。
+   5. B+树有2个头指针，一个是树的根节点，一个是最小关键码的叶节点。
 
-2.）所有的叶子结点中包含了全部关键字的信息，及指向含这些关键字记录的指针，且叶子结点本身依关键字的大小自小而大顺序链接。
+2. 哈希索引
 
-3.）所有的非终端结点可以看成是索引部分，结点中仅含其子树中的最大（或最小）关键字。
-
-4.）B+ 树中，数据对象的插入和删除仅在叶节点上进行。
-
-5.）B+树有2个头指针，一个是树的根节点，一个是最小关键码的叶节点。
-
-2）哈希索引
-
-​		简要说下，类似于数据结构中简单实现的HASH表（散列表）一样，当我们在mysql中用哈希索引时，主要就是通过Hash算法（常见的Hash算法有直接定址法、平方取中法、折叠法、除数取余法、随机数法），将数据库字段数据转换成定长的Hash值，与这条数据的行指针一并存入Hash表的对应位置；如果发生Hash碰撞（两个不同关键字的Hash值相同），则在对应Hash键下以链表形式存储。当然这只是简略模拟图。
+   简要说下，类似于数据结构中简单实现的HASH表（散列表）一样，当我们在mysql中用哈希索引时，主要就是通过Hash算法（常见的Hash算法有直接定址法、平方取中法、折叠法、除数取余法、随机数法），将数据库字段数据转换成定长的Hash值，与这条数据的行指针一并存入Hash表的对应位置；如果发生Hash碰撞（两个不同关键字的Hash值相同），则在对应Hash键下以链表形式存储。当然这只是简略模拟图。
 
 ![img](img/20201112225046.webp)
 
 ### 索引的基本原理
 
-索引用来快速地寻找那些具有特定值的记录。如果没有索引，一般来说执行查询时遍历整张表。
-
-索引的原理很简单，就是把无序的数据变成有序的查询
+​        索引用来快速地寻找那些具有特定值的记录。如果没有索引，一般来说执行查询时遍历整张表。索引的原理很简单，就是把无序的数据变成有序的查询。
 
 1. 把创建了索引的列的内容进行排序
 2. 对排序结果生成倒排表
@@ -466,7 +464,7 @@ UUID 占用空间会比自增ID 大一些，空间也比较浪费，UUD因为是
 ### 什么是最左前缀原则？什么是最左匹配原则
 
 - 顾名思义，就是最左优先，在创建多列索引时，要根据业务需求，where子句中使用最频繁的一列放在最左边。
-- 最左前缀匹配原则，非常重要的原则，**mysql会一直向右匹配直到遇到范围查询(>、<、between、like)就停止匹配，**比如a = 1 and b = 2 and c > 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。
+- 最左前缀匹配原则，非常重要的原则，**mysql会一直向右匹配直到遇到范围查询(>、<、between、like)就停止匹配，比如a = 1 and b = 2 and c > 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。
 - **=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序**，mysql的查询优化器会帮你优化成索引可以识别的形式
 
 
@@ -677,9 +675,8 @@ UUID 占用空间会比自增ID 大一些，空间也比较浪费，UUD因为是
 
 - **SERIALIZABLE(可串行化)：** 最高的隔离级别，完全服从ACID的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，**该级别可以防止脏读、不可重复读以及幻读**。
 
-  
 
-  这里需要注意的是：**Mysql 默认采用的 REPEATABLE_READ隔离级别 Oracle 默认采用的 READ_COMMITTED隔离级别**
+这里需要注意的是：**Mysql 默认采用的 REPEATABLE_READ隔离级别 Oracle 默认采用的 READ_COMMITTED隔离级别**
 
 ​       事务隔离机制的实现基于锁机制和并发调度。其中并发调度使用的是MVVC（多版本并发控制），通过保存修改的旧版本信息来支持并发一致性读和回滚等特性。
 
@@ -909,516 +906,6 @@ Innodb_row_lock_waits: 系统启动后到现在总共等待的次数
 ​		从上面对两种锁的介绍，我们知道两种锁各有优缺点，不可认为一种好于另一种，像**乐观锁适用于写比较少的情况下（多读场景）**，即冲突真的很少发生的时候，这样可以省去了锁的开销，加大了系统的整个吞吐量。
 
 ​		
-
-## 视图（了解即可）
-
-### 为什么要使用视图？什么是视图？
-
-​		为了提高复杂SQL语句的复用性和表操作的安全性，MySQL数据库管理系统提供了视图特性。所谓视图，本质上是一种虚拟表，在物理上是不存在的，其内容与真实的表相似，包含一系列带有名称的列和行数据。但是，视图并不在数据库中以储存的数据值形式存在。行和列数据来自定义视图的查询所引用基本表，并且在具体引用视图时动态生成。
-
-​		视图使开发者只关心感兴趣的某些特定数据和所负责的特定任务，只能看到视图中所定义的数据，而不是视图所引用表中的数据，从而提高了数据库中数据的安全性。
-
-
-
-### 视图有哪些特点？
-
-视图的特点如下:
-
-- 视图的列可以来自不同的表，是表的抽象和在逻辑意义上建立的新关系。
-- 视图是由基本表(实表)产生的表(虚表)。
-- 视图的建立和删除不影响基本表。
-- 对视图内容的更新(添加，删除和修改)直接影响基本表。
-- 当视图来自多个基本表时，不允许添加和删除数据。
-
-视图的操作包括创建视图，查看视图，删除视图和修改视图。
-
-### 视图的使用场景有哪些？
-
-视图根本用途：简化sql查询，提高开发效率。如果说还有另外一个用途那就是兼容老的表结构。
-
-下面是视图的常见使用场景：
-
-- 重用SQL语句；
-- 简化复杂的SQL操作。在编写查询后，可以方便的重用它而不必知道它的基本查询细节；
-- 使用表的组成部分而不是整个表；
-- 保护数据。可以给用户授予表的特定部分的访问权限而不是整个表的访问权限；
-- 更改数据格式和表示。视图可返回与底层表的表示和格式不同的数据。
-
-
-
-### 视图的优点
-
-1. 查询简单化。视图能简化用户的操作
-2. 数据安全性。视图使用户能以多种角度看待同一数据，能够对机密数据提供安全保护
-3. 逻辑数据独立性。视图对重构数据库提供了一定程度的逻辑独立性
-
-### 视图的缺点
-
-1. 性能。数据库必须把视图的查询转化成对基本表的查询，如果这个视图是由一个复杂的多表查询所定义，那么，即使是视图的一个简单查询，数据库也把它变成一个复杂的结合体，需要花费一定的时间。
-
-2. 修改限制。当用户试图修改视图的某些行时，数据库必须把它转化为对基本表的某些行的修改。事实上，当从视图中插入或者删除时，情况也是这样。对于简单视图来说，这是很方便的，但是，对于比较复杂的视图，可能是不可修改的
-
-   这些视图有如下特征：1.有UNIQUE等集合操作符的视图。2.有GROUP BY子句的视图。3.有诸如AVG\SUM\MAX等聚合函数的视图。 4.使用DISTINCT关键字的视图。5.连接表的视图（其中有些例外）
-
-### 什么是游标？
-
-​		游标是系统为用户开设的一个数据缓冲区，存放SQL语句的执行结果，每个游标区都有一个名字。用户可以通过游标逐一获取记录并赋给主变量，交由主语言进一步处理。
-
-
-
-## 存储过程与函数（了解即可）
-
-### 什么是存储过程？有哪些优缺点？
-
-​		存储过程是一个预编译的SQL语句，优点是允许模块化的设计，就是说只需要创建一次，以后在该程序中就可以调用多次。如果某次操作需要执行多次SQL，使用存储过程比单纯SQL语句执行要快。
-
-**优点**
-
-1）存储过程是预编译过的，执行效率高。
-
-2）存储过程的代码直接存放于数据库中，通过存储过程名直接调用，减少网络通讯。
-
-3）安全性高，执行存储过程需要有一定权限的用户。
-
-4）存储过程可以重复使用，减少数据库开发人员的工作量。
-
-**缺点**
-
-1）调试麻烦，但是用 PL/SQL Developer 调试很方便！弥补这个缺点。
-
-2）移植问题，数据库端代码当然是与数据库相关的。但是如果是做工程型项目，基本不存在移植问题。
-
-3）重新编译问题，因为后端代码是运行前编译的，如果带有引用关系的对象发生改变时，受影响的存储过程、包将需要重新编译（不过也可以设置成运行时刻自动编译）。
-
-4）如果在一个程序系统中大量的使用存储过程，到程序交付使用的时候随着用户需求的增加会导致数据结构的变化，接着就是系统的相关问题了，最后如果用户想维护该系统可以说是很难很难、而且代价是空前的，维护起来更麻烦。
-
-
-
-### 创建存储过程
-
-~~~
-CREATE PROCEDURE procedure_name ([proc_parameter[,...]])begin    -- SQL语句end ;
-~~~
-
-~~~sql
-# 先执行下面的定义分隔符的命令：DELIMITER $# 创建存储过程：CREATE PROCEDURE pro_test1()BEGIN    SELECT 'Hello World';END$# 再次执行命令，还是还原分隔符为分号：DELIMITER ;
-~~~
-
-###  调用存储过程
-
-~~~
-call procedure_name();如call pro_test1();
-~~~
-
-### 查看存储过程
-
-~~~
---查询db_name数据库中的所有的存储过程select name from mysql.proc where db='db_name';--例子：select name from mysql.proc where db='demo_01'; --查询存储过程的状态信息show procedure status; --查询某个存储过程的定义show create procedure pro_test1 \G;
-~~~
-
-
-
-### 删除存储过程
-
-~~~
-drop procedure if exists pro_test1;
-~~~
-
-
-
-### 语法
-
-#### 变量
-
-**DECLARE**：通过 DECLARE 可以定义一个局部变量，该变量的作用范围只能在 BEGIN…END 块中。
-
-~~~
-DECLARE var_name[,...] type [DEFAULT value]
-~~~
-
-示例：
-
-~~~SQl
-delimiter $create procedure pro_test2()begin    declare num int default 10;    select num+5;end$delimiter ;
-~~~
-
-
-
-**SET**：直接赋值使用 SET，可以赋常量或者赋表达式，具体语法如下：
-
-~~~SQlL
-SET var_name = expr [, var_name = expr] ...
-~~~
-
-
-示例：
-
-~~~SQL
-delimiter $create procedure pro_test3()begin    declare num int(11);    set num = 100;    select num;end$delimiter ;
-~~~
-
-
-也可以通过select ... into 方式进行赋值操作：
-
-~~~SQL
-delimiter $create procedure pro_test4()begin    declare countnum int(11);    select count(*) into countnum from city;    select countnum;end$delimiter ;
-~~~
-
-#### if条件判断
-
-语法结构 ：
-
-~~~SQL
-if search_condition then statement_list    [elseif search_condition then statement_list] ...    [else statement_list]end if;
-~~~
-
-
-需求：
-
-~~~
-根据定义的身高变量，判定当前身高的所属的身材类型180 及以上 ----------> 身材高挑170 - 180 ---------> 标准身材170 以下 ----------> 一般身材
-~~~
-
-
-存储过程实现如下：
-
-~~~SQL
-delimiter $create procedure pro_test5()begin    declare height int(11) default 175;    declare description varchar(50);    if height > 180 then        set description='身材高挑';    elseif height >=170 and height <= 180 then        set description='标准身材';    else set description='一般身材';    end if;    select description;end$delimiter ;
-~~~
-
-调用结果如下：
-
-![img](img/20190708103400383.png)
-
-
-
-
-
-#### 有参存储过程
-
-语法格式 :
-
-~~~SQL
-create procedure procedure_name([in/out/inout] 参数名 参数类型)...--其他部分和之前的是一样的IN : 该参数可以作为输入，也就是需要调用方传入值 , 默认OUT: 该参数作为输出，也就是该参数可以作为返回值INOUT: 既可以作为输入参数，也可以作为输出参数IN - 输入参数
-~~~
-
-需求 ：每次调用存储过程的时候动态的传入身高，返回体型值
-
-~~~SQL
-delimiter $create procedure pro_test6(in height int)begin    declare description varchar(50) default '';    if height >= 180 then        set description='身材高挑';      elseif height >=170 and height < 180 then        set description='标准身材';      else set description='一般身材';    end if;    select concat('身高 ', height , '对应的身材类型为:',description);end$delimiter ;
-~~~
-
-
-
-
-OUT-输出
-
-需求 ：定义两个参数，传入身高和身材描述的值（传出参数）
-
-~~~SQL
-delimiter $create procedure pro_test7(in height int(11),out description varchar(50))begin    if height >= 180 then        set description='身材高挑';      elseif height >= 170 and height < 180 then        set description='标准身材';      else set description='一般身材';    end if;end$delimiter ;
-~~~
-
-
-调用：
-
-~~~SQL
-call pro_test7(178, @description);
-~~~
-
-
-查询得到的身材描述的变量值，我们需要单独去查询下：
-
-~~~SQL
-select @description;
-~~~
-
-![img](img/20190708143325648.png)
-
-
-
-小知识
-       @description : 这种变量要在变量名称前面加上“@”符号，叫做用户会话变量，代表整个会话过程他都是有作用的，这个类似于全局变量一样。
-      @@global.sort_buffer_size : 这种在变量前加上 "@@" 符号, 叫做 系统变量
-
-#### case结构
-
-语法结构 :
-
-~~~SQL
-方式一 :CASE case_value    WHEN when_value THEN statement_list    [WHEN when_value THEN statement_list] ...    [ELSE statement_list]END CASE;方式二 :CASE    WHEN search_condition THEN statement_list    [WHEN search_condition THEN statement_list] ...    [ELSE statement_list]END CASE;
-~~~
-
-
-
-
-需求：给定一个月份, 然后计算出所在的季度
-
-~~~SQL
-delimiter $create procedure pro_test8(month int)begin    declare result varchar(50) default '';    case        when month >=1 and month <=3 then            set result ='第一季度';        when month >=4 and month <=6 then            set result ='第二季度';        when month >=7 and month <=9 then            set result ='第三季度';        when month >=10 and month <=12 then            set result ='第四季度';     end case;    select concat('您输入的月份是：',month,'，对应的季节是：',result) content;end$delimiter ;
-~~~
-
-
-#### while循环
-
-语法结构:
-
-~~~SQL
-while search_condition do    statement_listend while;
-~~~
-
-
-需求：计算从1加到n的值，传入参数是n
-
-~~~SQL
-delimiter $create procedure pro_test9(in n int)begin    declare countvalue int(11) default 0;    while n > 0 do        set countvalue=countvalue+n;        set n=n-1;    end while;    select concat('从1加到n的和是：',countvalue);end$delimiter ;
-~~~
-
-调用效果如下：
-
-~~~
-mysql> call pro_test9(10)$+----------------------------------------------+| concat('从1加到n的和是：',countvalue)        |+----------------------------------------------+| 从1加到n的和是：55                           |+----------------------------------------------+1 row in set (0.00 sec)Query OK, 0 rows affected (0.00 sec)
-~~~
-
-
-
-####  repeat结构
-
-有条件的循环控制语句, 当满足条件的时候退出循环 。while 是满足条件才执行，repeat 是满足条件就退出循环。
-语法结构 :
-
-~~~SQL
-REPEAT    statement_list    UNTIL search_conditionEND REPEAT;
-~~~
-
-
-需求：计算从1到n的和
-
-~~~SQL
-delimiter $create procedure pro_test10(n int)begin
-declare total int default 0;  
-repeat     
-set total = total + n;    
-set n = n - 1;      
-until n=0 
-end repeat;  
-select total ;
-end$delimiter ;
-~~~
-
-
-####  loop语句
-
-LOOP 实现简单的循环，退出循环的条件需要使用其他的语句定义，通常可以使用 LEAVE 语句实现，具体语法如下：
-
-~~~SQL
-[begin_label:] LOOP 
-statement_listEND 
-LOOP [end_label]
-~~~
-
-
-如果不在 statement_list 中增加退出循环的语句，那么 LOOP 语句可以用来实现简单的死循环。
-
-####  leave语句
-
-用来从标注的流程构造中退出，通常和 BEGIN ... END 或者循环一起使用。下面是一个使用 LOOP 和 LEAVE 的简单例子 , 退出循环：
-
-~~~SQL
-delimiter $create procedure pro_test11(in n int)begin 
-declare total int default 0; 
-ins:loop    
-if n<=0 then      
-leave ins;      
-end if;    
-set total = total+n;    
-set n = n-1;  
-end loop ins;
-select total;end $delimiter ;
-~~~
-
-
-
-
-
-#### 游标/光标
-
-​       游标是用来存储查询结果集的数据类型 , 在存储过程和函数中可以使用光标对结果集进行循环的处理。光标的使用包括光标的声明、OPEN、FETCH 和 CLOSE，其语法分别如下。
-
-~~~SQl
-# 声明光标：declare cursor_name cursor for select_statement;# OPEN 光标：open cursor_name;# FETCH 光标：FETCH cursor_name INTO var_name [, var_name] ...;# CLOSE 光标：CLOSE cursor_name ;
-~~~
-
-
-示例 :
-
-初始化脚本:
-
-~~~SQL
-create table emp(id int(11) not null auto_increment ,name varchar(50) not null comment '姓名',age int(11) comment '年龄',salary int(11) comment '薪水',primary key(`id`))engine=innodb default charset=utf8 ; insert into emp(id,name,age,salary) values(null,'金毛狮王',55,3800),(null,'白眉鹰王',60,4000),(null,'青翼蝠王',38,2800),(null,'紫衫龙王',42,1800);
-~~~
-
-
-需求：查询emp表中数据, 并逐行获取进行展示
-
-~~~SQL
-delimiter $ create procedure pro_test12()begin    declare e_id int(11);    declare e_name varchar(50);    declare e_age int(11);    declare e_salary int(11);    declare emp_result cursor for select * from emp;        open emp_result;        fetch emp_result into e_id,e_name,e_age,e_salary;    select concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary);        fetch emp_result into e_id,e_name,e_age,e_salary;    select concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary);        fetch emp_result into e_id,e_name,e_age,e_salary;    select concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary);        fetch emp_result into e_id,e_name,e_age,e_salary;    select concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary);        fetch emp_result into e_id,e_name,e_age,e_salary;    select concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary);     close emp_result;end$ delimiter ;
-~~~
-
-
-调用效果如下：
-
-~~~BASh
-mysql> call pro_test12();+---------------------------------------------------------------------------------+| concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary)    |+---------------------------------------------------------------------------------+| id=5, name=金毛狮王, age=55, 薪资为:3800                                        |+---------------------------------------------------------------------------------+1 row in set (0.00 sec)+---------------------------------------------------------------------------------+| concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary)    |+---------------------------------------------------------------------------------+| id=6, name=白眉鹰王, age=60, 薪资为:4000                                        |+---------------------------------------------------------------------------------+1 row in set (0.00 sec)+---------------------------------------------------------------------------------+| concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary)    |+---------------------------------------------------------------------------------+| id=7, name=青翼蝠王, age=38, 薪资为:2800                                        |+---------------------------------------------------------------------------------+1 row in set (0.00 sec)+---------------------------------------------------------------------------------+| concat('id=',e_id , ', name=',e_name, ', age=', e_age, ', 薪资为:',e_salary)    |+---------------------------------------------------------------------------------+| id=8, name=紫衫龙王, age=42, 薪资为:1800                                        |+---------------------------------------------------------------------------------+1 row in set (0.00 sec)ERROR 1329 (02000): No data - zero rows fetched, selected, or processed
-~~~
-
-
-​		可以看到最后的时候报了一个错误：ERROR 1329 (02000): No data - zero rows fetched, selected, or processed，这是因为游标中已经没有数据了，而我们还在fetch，所以就报错了。我们要防止这个错误，就要使用循环来从游标中获取数据，如下操作：
-
-~~~sql
-delimiter $ create procedure pro_test13()begin    declare e_id int(11);    declare e_name varchar(50);    declare e_age int(11);    declare e_salary int(11);    declare has_data int default 1;     declare emp_result cursor for select * from emp;    declare exit handler for not found set has_data=0;     open emp_result;         repeat        fetch emp_result into e_id,e_name,e_age,e_salary;        select concat('id=',e_id,'，name=',e_name,'，age=',e_age,'，薪资:',e_salary);        until has_data=0    end repeat;      close emp_result;end$ delimiter ;
-~~~
-
-
-注意：切记一点，until语句后面是没有分号结尾的
-
-调用效果：
-
-~~~Bash
-mysql> call pro_test13()$+----------------------------------------------------------------------------+| concat('id=',e_id,'，name=',e_name,'，age=',e_age,'，薪资:',e_salary)      |+----------------------------------------------------------------------------+| id=5，name=金毛狮王，age=55，薪资:3800                                     |+----------------------------------------------------------------------------+1 row in set (0.00 sec) +----------------------------------------------------------------------------+| concat('id=',e_id,'，name=',e_name,'，age=',e_age,'，薪资:',e_salary)      |+----------------------------------------------------------------------------+| id=6，name=白眉鹰王，age=60，薪资:4000                                     |+----------------------------------------------------------------------------+1 row in set (0.00 sec) +----------------------------------------------------------------------------+| concat('id=',e_id,'，name=',e_name,'，age=',e_age,'，薪资:',e_salary)      |+----------------------------------------------------------------------------+| id=7，name=青翼蝠王，age=38，薪资:2800                                     |+----------------------------------------------------------------------------+1 row in set (0.00 sec) +----------------------------------------------------------------------------+| concat('id=',e_id,'，name=',e_name,'，age=',e_age,'，薪资:',e_salary)      |+----------------------------------------------------------------------------+| id=8，name=紫衫龙王，age=42，薪资:1800                                     |+----------------------------------------------------------------------------+1 row in set (0.00 sec) Query OK, 0 rows affected (0.00 sec)
-~~~
-
-
-
-
-
-3.7 存储函数
-语法结构：
-
-~~~SQL
-CREATE FUNCTION function_name([param type ... ])RETURNS typeBEGIN    ...END;
-~~~
-
-
-
-案例 ：定义一个存储函数, 请求满足条件的总记录数 ;
-
-~~~SQL
-delimiter $create function fun_count_city(countryId int)returns intbegin    declare cnum int(11);    select count(1) into cnum from city where country_id=countryId;    return cnum;end$delimiter ;
-~~~
-
-
-调用：
-
-~~~Bash
-mysql> select fun_count_city(1);+-------------------+| fun_count_city(1) |+-------------------+|                 3 |+-------------------+1 row in set (0.00 sec)
-~~~
-
-
-
-
-
-## 触发器（了解即可）
-
-### 什么是触发器？
-
-触发器是用户定义在关系表上的一类由事件驱动的特殊的存储过程。触发器是指一段代码，当触发某个事件时，自动执行这些代码。
-
-使用场景
-
-- 可以通过数据库中的相关表实现级联更改。
-- 实时监控某张表中的某个字段的更改而需要做出相应的处理。
-- 例如可以生成某些业务的编号。
-- 注意不要滥用，否则会造成数据库及应用程序的维护困难。
-- 大家需要牢记以上基础知识点，重点是理解数据类型CHAR和VARCHAR的差异，表存储引擎InnoDB和MyISAM的区别。
-
-**空挂的触发器都会导致mysql写入性能下降的很厉害，单线程写入时间增加50%左右，多线程写入时间甚至会增长200%以上。即使在oracle上，空挂的触发器也会导致20%左右的写入时间增加。**这种情况可以考虑解析mysql binlog来做。
-
-
-
-## 常用SQL语句区别
-
-### mysql中 in 和 exists 区别
-
-mysql中的in语句是把外表和内表作hash 连接，而exists语句是对外表作loop循环，每次loop循环再对内表进行查询。一直大家都认为exists比in语句的效率要高，这种说法其实是不准确的。这个是要区分环境的。
-
-1. 如果查询的两个表大小相当，那么用in和exists差别不大。
-2. 如果两个表中一个较小，一个是大表，则子查询表大的用exists，子查询表小的用in。
-3. not in 和not exists：如果查询语句使用了not in，那么内外表都进行全表扫描，没有用到索引；而not extsts的子查询依然能用到表上的索引。所以无论那个表大，用not exists都比not in要快。
-
-### varchar与char的区别
-
-**char的特点**
-
-- char表示定长字符串，长度是固定的；
-- 如果插入数据的长度小于char的固定长度时，则用空格填充；
-- 因为长度固定，所以存取速度要比varchar快很多，甚至能快50%，但正因为其长度固定，所以会占据多余的空间，是空间换时间的做法；
-- 对于char来说，最多能存放的字符个数为255，和编码无关
-
-**varchar的特点**
-
-- varchar表示可变长字符串，长度是可变的；
-- 插入的数据是多长，就按照多长来存储；
-- varchar在存取方面与char相反，它存取慢，因为长度不固定，但正因如此，不占据多余的空间，是时间换空间的做法；
-- 对于varchar来说，最多能存放的字符个数为65532
-
-总之，结合性能角度（char更快）和节省磁盘空间角度（varchar更小），具体情况还需具体来设计数据库才是妥当的做法。
-
-
-
-### varchar(50)中50的涵义
-
-最多存放50个字符，varchar(50)和(200)存储hello所占空间一样，但后者在排序时会消耗更多内存，因为order by col采用fixed_length计算col长度(memory引擎也一样)。在早期 MySQL 版本中， 50 代表字节数，现在代表字符数。
-
-
-
-### int(20) 中 20 的涵义
-
-是指显示字符的长度。20表示最大显示宽度为20，但仍占4字节存储，存储范围不变；
-
-不影响内部存储，只是影响带 zerofill 定义的 int 时，前面补多少个 0，易于报表展示
-
-
-
-### mysql为什么这么设计
-
-对大多数应用没有意义，只是规定一些工具用来显示字符的个数；int(1)和int(20)存储和计算均一样；
-
-
-
-### mysql中int(10)和char(10)以及varchar(10)的区别
-
-- int(10)的10表示显示的数据的长度，不是存储数据的大小；chart(10)和varchar(10)的10表示存储数据的大小，即表示存储多少个字符。
-
-  int(10) 10位的数据长度 9999999999，占32个字节，int型4位
-  char(10) 10位固定字符串，不足补空格 最多10个字符
-  varchar(10) 10位可变字符串，不足补空格 最多10个字符
-
-- char(10)表示存储定长的10个字符，不足10个就用空格补齐，占用更多的存储空间
-
-- varchar(10)表示存储10个变长的字符，存储多少个就是多少个，空格也按一个字符存储，这一点是和char(10)的空格不同的，char(10)的空格表示占位不算一个字符
-
-
-
-### FLOAT和DOUBLE的区别是什么？
-
-- FLOAT类型数据可以存储至多8位十进制数，并在内存中占4字节。
-- DOUBLE类型数据可以存储至多18位十进制数，并在内存中占8字节。
-
-
-
-### drop、delete与truncate的区别
-
-三者都表示删除，但是三者有一些差别：
-
-因此，在不再需要一张表的时候，用drop；在想删除部分数据行时候，用delete；在保留表而删除所有数据的时候用truncate。
-
-
-
-### UNION与UNION ALL的区别？
-
-- 如果使用UNION ALL，不会合并重复的记录行
-- 效率 UNION 高于 UNION ALL
 
 
 
