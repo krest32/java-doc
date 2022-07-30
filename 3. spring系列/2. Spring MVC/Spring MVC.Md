@@ -66,19 +66,19 @@ Spring MVC是一个基于Java的实现了MVC设计模式的请求驱动类型的
 
 ### 请描述Spring MVC的工作流程？描述一下 DispatcherServlet 的工作流程？
 
-1. 用户发送请求至前端控制器DispatcherServlet；
-2.  DispatcherServlet收到请求后，调用HandlerMapping处理器映射器，请求获取Handle；
-3. 处理器映射器根据请求url找到具体的处理器，生成处理器对象及处理器拦截器(如果有则生成)一并返回给DispatcherServlet；
-4. DispatcherServlet 调用 HandlerAdapter处理器适配器；
-5. HandlerAdapter 经过适配调用 具体处理器(Handler，也叫后端控制器)；
-6. Handler执行完成返回ModelAndView；
-7. HandlerAdapter将Handler执行结果ModelAndView返回给DispatcherServlet；
-8. DispatcherServlet将ModelAndView传给ViewResolver视图解析器进行解析；
-9. ViewResolver解析后返回具体View；
-10. DispatcherServlet对View进行渲染视图（即将模型数据填充至视图中）
-11. DispatcherServlet响应用户。
+1. 用户发送请求至前端控制器`DispatcherServlet`；
+2.  `DispatcherServlet`收到请求后，调用`HandlerMapping`处理器映射器，请求获取`Handle`；
+3. 处理器映射器根据请求url找到具体的处理器，生成处理器对象及处理器拦截器(如果有则生成)一并返回给`DispatcherServlet`；
+4. `DispatcherServlet` 调用 `HandlerAdapter`处理器适配器；
+5. `HandlerAdapter` 经过适配调用 具体处理器(Handler，也叫后端控制器)；
+6. `Handler`执行完成返回`ModelAndView`；
+7. `HandlerAdapter`将`Handler`执行结果`ModelAndView`返回给`DispatcherServlet`；
+8. `DispatcherServlet`将`ModelAndView`传给`ViewResolver`视图解析器进行解析；
+9. `ViewResolver`解析后返回具体`View`；
+10. `DispatcherServlet`对`View`进行渲染视图（即将模型数据填充至视图中）
+11. `DispatcherServlet`响应用户。
 
-![img](img/20200208211439106.png)
+<img src="img/20200208211439106.png" alt="img" style="zoom: 200%;" />
 
 
 
@@ -106,7 +106,7 @@ mvc设计模式的好处
 
 ### Spring MVC常用的注解有哪些？
 
-@RequestMapping：用于处理请求 url 映射的注解，可用于类或方法上。用于类上，则表示类中的所有响应请求的方法都是以该地址作为父路径。
+###### @RequestMapping：用于处理请求 url 映射的注解，可用于类或方法上。用于类上，则表示类中的所有响应请求的方法都是以该地址作为父路径。
 
 @RequestBody：注解实现接收http请求的json数据，将json转换为java对象。
 

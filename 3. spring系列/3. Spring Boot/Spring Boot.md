@@ -593,7 +593,7 @@ profile
 
 ### Spring Boot 中如何解决跨域问题 ?
 
-跨域可以在前端通过 JSONP 来解决，但是 JSONP 只可以发送 GET 请求，无法发送其他类型的请求，在 RESTful 风格的应用中，就显得非常鸡肋，因此我们推荐在后端通过 （CORS，Cross-origin resource sharing） 来解决跨域问题。这种解决方案并非 Spring Boot 特有的，在传统的 SSM 框架中，就可以通过 CORS 来解决跨域问题，只不过之前我们是在 XML 文件中配置 CORS ，现在可以通过实现WebMvcConfigurer接口然后重写addCorsMappings方法解决跨域问题。
+​		跨域可以在前端通过 JSONP 来解决，但是 JSONP 只可以发送 GET 请求，无法发送其他类型的请求，在 RESTful 风格的应用中，就显得非常鸡肋，因此我们推荐在后端通过 （CORS，Cross-origin resource sharing） 来解决跨域问题。这种解决方案并非 Spring Boot 特有的，在传统的 SSM 框架中，就可以通过 CORS 来解决跨域问题，只不过之前我们是在 XML 文件中配置 CORS ，现在可以通过实现WebMvcConfigurer接口然后重写addCorsMappings方法解决跨域问题。
 
 ```java
 @Configuration
@@ -663,8 +663,6 @@ public class CorsConfig {
 
 ## 整合第三方项目
 
-
-
 ### 什么是 Spring Data ?
 
 ​		Spring Data 是 Spring 的一个子项目。用于简化数据库访问，支持NoSQL 和 关系数据存储。其主要目标是使数据库的访问变得方便快捷。Spring Data 具有如下特点：
@@ -718,6 +716,60 @@ SpringData 项目所支持的关系数据存储技术：
 
 ## 其他
 
+### 前端回显数据乱码（三种实现方式）
+
+1. 约定传参编码格式：不管是使用httpclient，还是okhttp，都要设置传参的编码，为了统一，这里全部设置为`utf-8`
+
+2. 修改application.properties文件，增加如下配置：
+
+   ~~~properties
+   spring.http.encoding.force=true
+   spring.http.encoding.charset=UTF-8
+   spring.http.encoding.enabled=true
+   server.tomcat.uri-encoding=UTF-8
+   ~~~
+
+   此时拦截器中返回的中文已经不乱码了，但是controller中返回的数据依旧乱码。
+
+3. 第三步，修改controller的@RequestMapping：修改如下：
+
+   ~~~java
+   produces="text/plain;charset=UTF-8"
+       
+   ~~~
+
+4. 这种方法的弊端是限定了数据类型
+
+5. 在`stackoverflow`上发现解决办法
+
+   ~~~java
+   @Configuration
+   public class CustomMVCConfiguration extends WebMvcConfigurerAdapter {
+   
+       @Bean
+       public HttpMessageConverter<String> responseBodyConverter() {
+           StringHttpMessageConverter converter = new StringHttpMessageConverter(
+                   Charset.forName("UTF-8"));
+           return converter;
+       }
+   
+       @Override
+       public void configureMessageConverters(
+               List<HttpMessageConverter<?>> converters) {
+           super.configureMessageConverters(converters);
+           converters.add(responseBodyConverter());
+       }
+   
+       @Override
+       public void configureContentNegotiation(
+               ContentNegotiationConfigurer configurer) {
+           configurer.favorPathExtension(false);
+       }
+   }
+   ~~~
+
+   
+
 ### 如何重新加载 Spring Boot 上的更改，而无需重新启动服务器？Spring Boot项目如何热部署？
 
 ​		这可以使用 DEV 工具来实现。通过这种依赖关系，您可以节省任何更改，嵌入式tomcat 将重新启动。Spring Boot 有一个开发工具（DevTools）模块，它有助于提高开发人员的生产力。Java 开发人员面临的一个主要挑战是将文件更改自动部署到服务器并自动重启服务器。开发人员可以重新加载 Spring Boot 上的更改，而无需重新启动服务器。这将消除每次手动部署更改的需要。Spring Boot 在发布它的第一个版本时没有这个功能。这是开发人员最需要的功能。DevTools 模块完全满足开发人员的需求。该模块将在生产环境中被禁用。它还提供 H2 数据库控制台以更好地测试应用程序。
@@ -751,43 +803,6 @@ SpringData 项目所支持的关系数据存储技术：
 6. 自动化的插件配置。
 7. 针对 application.properties 和 application.yml 的资源过滤，包括通过 profile 定义的不同环境的配置文件，例如 application-dev.properties 和 application-dev.yml。
 
-### Spring Boot 前端回显数据乱码问题？
-
-1. 注解配置：在requestMapping 中添加 produces
-
-~~~java
-@RequestMapping(
-	value = "/login", 
-	produces = "application/json;charset=utf-8", 
-	method = RequestMethod.POST
-)
-~~~
-
-2. 在application.yml 中添加配置
-
-~~~java
-spring:
-    http:
-        encoding:
-            force: true
-            charset: utf-8
-            enabled: true
-~~~
-
-3. 解决单个字符串乱码
-
-~~~java
-String name = new String(user.getName().getBytes("ISO-8859-1"),"UTF-8");
-~~~
-
-
-
-
-
-
-
-
-
 
 
 
@@ -808,9 +823,9 @@ String name = new String(user.getName().getBytes("ISO-8859-1"),"UTF-8");
 
 ### 开启 Spring Boot 特性有哪几种方式？
 
-1. 继承spring-boot-starter-parent 项目
+1. 继承`spring-boot-starter-parent `项目
 
-2. 导入spring-boot-dependencies 项目依赖
+2. 导入`spring-boot-dependencies` 项目依赖
 
 
 

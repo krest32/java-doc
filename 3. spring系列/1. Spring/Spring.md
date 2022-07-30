@@ -140,12 +140,12 @@ Spring 应用一般有以下组件：
 - 解耦，由容器去维护具体的对象
 - 托管了类的产生过程，最直接的例子就是代理，应用程序则无需去关心类是如何完成代理的
 
-### IOC的优点是什么？
+### `IOC`的优点是什么？
 
-- IOC 或 依赖注入把应用的代码量降到最低。
+- `IOC` 或 依赖注入把应用的代码量降到最低。
 - 它使应用容易测试，单元测试不再需要单例和JNDI查找机制。
 - 最小的代价和最小的侵入性使松散耦合得以实现。
-- IOC容器支持加载服务时的饿汉式初始化和懒加载。
+- `IOC`容器支持加载服务时的饿汉式初始化和懒加载。
 
 ### Spring IoC 的实现机制
 
@@ -210,7 +210,7 @@ Spring 的 IoC 设计支持以下功能：
 
 
 
-### BeanFactory 和 ApplicationContext 有什么区别？
+### `BeanFactory` 和 `ApplicationContext` 有什么区别？
 
 ​		BeanFactory和ApplicationContext是Spring的两大核心接口，都可以当做Spring的容器。其中ApplicationContext是BeanFactory的子接口。
 
@@ -372,12 +372,12 @@ Spring框架支持以下五种bean的作用域：
 1. SpringBean的实例化
 2. Bean的属性注入；
 3. Bean是否实现么某些接口？
-   1. 如果bean实现了BeanNameAware接口，Spring将bean的ID传递给setBean-Name()方法；
-   2. 如果bean实现了BeanFactoryAware接口，Spring将调用setBeanFactory()方法，将BeanFactory容器实例传入；
-   3. 如果bean实现了ApplicationContextAware接口，Spring将调用setApplicationContext()方法，将bean所在的应用上下文的引用传入进来；
-4. 如果继承BeanPostProcessor，执行初始化之前的方法；
-5. 执行Bean的初始化方法
-6. 如果继承BeanPostProcessor，执行初始化之后的方法；
+   1. 如果bean实现了`BeanNameAware`接口，Spring将bean的ID传递给setBean-Name()方法；
+   2. 如果bean实现了`BeanFactoryAware`接口，Spring将调用setBeanFactory()方法，将BeanFactory容器实例传入；
+   3. 如果bean实现了`ApplicationContextAware`接口，Spring将调用`setApplicationContext()`方法，将bean所在的应用上下文的引用传入进来；
+4. 如果继承`BeanPostProcessor`，执行初始化之前的方法；
+5. 执行`Bean`的初始化方法
+6. 如果继承`BeanPostProcessor`，执行初始化之后的方法；
 
 此时，bean已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；
 
@@ -412,10 +412,6 @@ Spring提供以下几种集合的配置元素：
 ### 什么是bean装配？
 
 ​		装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。
-
-### 什么是bean的自动装配？
-
-​		Spring 容器能够自动装配相互合作的bean，能通过**Bean工厂自动处理bean之间的协**作。这意味着 Spring可以通过向Bean Factory中注入的方式自动搞定bean之间的依赖关系。自动装配可以设置在每个bean上，也可以设定在特定的bean上。
 
 ### 解释不同方式的自动装配，spring 自动装配 bean 有哪些方式？
 

@@ -486,41 +486,44 @@ Object Relational Mapping
 
 #### IOC
 
-1. 什么是IOC，什么样的原因会出现IOC？
-2. IOC的实现原理？
-3. IOC实现了什么功能？
-4. BeanFactory 和 ApplicationContext 的区别？
+1. 什么是`IOC`，什么样的原因会出现`IOC`？
+2. `IOC`的实现机制？
+3. `IOC`优缺点？
+4. `BeanFactory` 和 `ApplicationContext` 的区别？
+   + 依赖关系、加载方式
 5. 什么是依赖查找？
 6. 什么是依赖注入？
-6. 依赖注入有哪些实现方式？
-6. 构造方法与Set 方法进行依赖注入这二者之间的区别是什么？
+7. 依赖注入有哪些实现方式？
+8. 构造方法与`Set`方法进行依赖注入这二者之间的区别是什么？
 
 #### Bean
 
-1. 什么是Bean？
-2. 如何为 Spring 容器提供配置元数据？
-3. 什么是 bean 的生命周期？
-4. 什么是 bean的 自动装配？
-5. Spring 有哪些自动装配的方式？
-6. 自动装配有哪些局限性？
+1. 什么是`Bean`？
+2. 如何为 `Spring` 容器提供配置元数据？
+3. 如何定义`Bean`的作用域？
+4. 详解 `bean` 的生命周期？
+5. 什么是 bean的 自动装配？
+6. Spring 有哪些自动装配的方式？（通过 xml 的方式对 bean 进行装配）
 7. `@Autowired` 自动装配的过程？
-8. bean的特点：作用域、线程安全
-9. 三级缓存分别是哪三级？
-10. 循环依赖的解决方案？
-11.  Bean 的 实例化和初始化有什么区别？
+8. 可以在Spring注入 null 或者 空字符串么？
+9. 当容器中有多个同类型的bean，如何指定注入哪一个Bean？（使用@Qualifier）
+10. 自动装配有哪些局限性？
+11. Bean的特点：作用域、线程安全
+12. 三级缓存分别是哪三级？
+13. 什么时循环依赖？
+14. 循环依赖的解决方案？
+15. Bean 的 实例化和初始化有什么区别？
 
-#### 注解
+#### `Spring Aop`
 
-1. 常用注解有哪些？
-2. 当容器中有多个同类型的bean，如何指定注入哪一个Bean？（使用@Qualifier）
+1. 什么是 `AOP`？
+2. 为什么要有`Spring Aop` 功能的出现
+3. 动态代理：`JDK`、`CGLIB` 之间有什么区别？
+4. `AspectJ AOP`  对比 `Spring Aop` ？
+5. `Aop`支持的5种通知方式？
+   1. 注意：多线程情况下，最好使用环绕通知，可以确定是同一个线程的结果。
 
-#### Spring Aop
-
-1. 什么是 AOP？
-1. 为什么要有Spring Aop 功能的出现
-2. 动态代理：JDK、CGLIB 之间有什么区别？
-3. AspectJ AOP  对比 Spring Aop ？
-4. Aop功能  对比 过滤器 和 拦截器 有什么区别？
+6. `Aop`功能  对比 过滤器 和 拦截器 有什么区别？
 
 #### Spring 事务
 
@@ -531,23 +534,32 @@ Object Relational Mapping
 
 ### Spring MVC
 
-1. 什么是 MVC，为什么要有MVC？
-2. Spring MVC 主要的工作组件（6个）
-3. 简述Spring MVC 的 工作流程是如何的？
+1. 什么是 `MVC`，为什么要有`MVC`？
+2. `Spring MVC` 主要的工作组件（6个）
+3. 简述`Spring MVC` 的 工作流程是如何的？
+4. 注解的作用
+   1. `@RequestBody`
 
-### Spring Boot
 
-1. 什么是 Spring Boot ? 与 Spring 之间的关系是怎么样的 ？
-2. 为什么要使用 Spring Boot？
-3. 核心注解有哪些？@SpringBootApplication 、@EnableAutoConfiguration、@ComponentScan？
-4. 说一下Spring Boot的启动流程 ？
-5. 前台数据回显的时候遇到乱码的情况 ？（三种实现方式）
-6. 不想一次性加载所有的实例，有什么方法么，或者说可以通过什么注解来实现么？ @Lazy
-7. Spring Starter是什么？
-8. 如何自己写一个Spring Starter？
-9. 什么是跨域？
-10. 常用的三种解决跨域的方式？
-6. Spring 如何实现 Session 共享的问题？
+### `Spring Boot`
+
+1. 什么是 `Spring Boot` ，它 与 `Spring` 之间的关系是怎么样的 ？
+2. 为什么要使用 `Spring Boot`？
+3. 核心注解有哪些？`@SpringBootApplication` 、`@EnableAutoConfiguration`、`@ComponentScan`
+4. 说一下`Spring Boot`的启动流程 ？
+5. 前台数据回显的时候遇到乱码的情况 ，怎么办？
+6. 不想一次性加载所有的实例，有什么方法？ `@Lazy`
+7. 如何使用 Spring Boot 实现异常处理？
+8. Spring Boot 种实现定时任务的三种方式？
+   1. Time
+   2. Schedule
+   3. Quartz
+
+9. `Spring Starter`是什么？
+10. 如何自己写一个`Spring Starter`？
+11. 常用的三种解决跨域的方式？
+12. `Spring` 如何实现 `Session` 共享的问题？
+13. 如何监控现在的 `Spring Boot` 微服务？
 
 
 
@@ -560,35 +572,39 @@ Object Relational Mapping
 3. Spring cloud 对比 Dubbo 有什么区别？
 4. Spring Cloud 中有哪些比较重要的组件？
 
+#### Spring Cloud Common
+
+
+
 #### 注册中心：Nacos
 
 1. 什么是注册中心？
 2. 服务是如何判定服务实例的状态？
-3. Nacos 满足了CP 还是AP？
+3. `Nacos` 满足了`CP` 还是`AP`？
 
-##### 对比 Eurka、zk、consul、etcd
+##### 对比 `Eurka(AP)`、`zk(CP)`、`consul`、`etcd`
 
-#### 配置中心：Nacos
+#### 配置中心：`Nacos`
 
 1. 为什么会存在配置中心？
-2. Spring Config 对比 Nacos？
+2. `Spring Config` 对比 `Nacos`？
 
-#### 服务调用：feign
+#### 服务调用：`feign`
 
-1. feign 的工作原理是什么样的？
+1. `feign` 的工作原理是什么样的？
 
-#### 负载均衡：Ribbon
+#### 负载均衡：`Ribbon`
 
 1. 为什么会有负债均衡？
-2. 常见负载均衡的分类：LVS 、Ngnix 、Ribbon，它们之间有什么区别？
+2. 常见负载均衡的分类：`LVS` 、`Ngnix` 、`Ribbon`，它们之间有什么区别？
 3. Ribbon 的内置负载均衡算法有哪些？
 
-#### 熔断降级：hystrix
+#### 熔断降级：`hystrix`
 
 1. 什么是服务雪崩？
-2. Hystrix 的工作流程
+2. `Hystrix` 的工作流程
 
-#### 网关：gateway
+#### 网关：`gateway`
 
 1. 为什么要使用网关？
 2. 网光常用的功能：路由、认证、限流、过滤器
@@ -616,16 +632,21 @@ Object Relational Mapping
 
 ### 分布式理论
 
-1. 什么是分布式？
-2. 什么是微服务？
-3. 什么是集群？
-4. 什么是 CAP 理论？
+1. 什么是分布式，为什么会有分布式？
+2. 分布式业务拆分的两种方式？
+   1. 水平拆分
+   2. 垂直拆分
 
-4. 什么是 BASE 理论？
-5. 什么是中心化与去中心化？分别的代表案例是什么？
-6. Paxos 算法、Raft 算法、Gossip 算法、ZAB算法
-7. 去中心化结构产生的脑裂问题？
-8. 中心化结构引发的领导安危问题？
+3. 什么是微服务？
+4. 什么是集群？
+5. 集群的两大特点（高扩展、高可用），两大能力（负载均衡、集群容错）？
+6. 什么是 CAP 理论？
+
+7. 什么是 BASE 理论？
+8. 什么是中心化与去中心化？分别的代表案例是什么？
+9. Paxos 算法、Raft 算法、Gossip 算法、ZAB算法
+10. 描述去中心化结构产生的脑裂问题？
+11. 描述中心化结构引发的领导安危问题？
 
 ### 分布式架构设计策略
 
@@ -740,54 +761,54 @@ Object Relational Mapping
 2. 为什么要使用消息队列？
 3. 消息队列如何选型？
 
+#### 常见的消息队列问题
+
+> 所有的问题都要考虑到使用场景，然后才能理解真正的含义
+
+1. 保证消息的可靠传输
+2. 消息的顺序消费
+3. 如何避免消息的重复消费
+4. 消息积压的问题
+5. 哪种队列支持消息事务
+
 #### Rabbit MQ
 
 1. 对比Rocket MQ有什么优势？
-2. 如何保证消息的顺序消费？
-3. 如何避免消息的重复消费？
-4. 如何保证消息的可靠传输？
-5. 你都用到过 Rabbit Mq 的哪些功能？
+2. 你都用到过 Rabbit Mq 的哪些功能？
    1. 消息路由
    2. 延时队列
    3. 消息持久化
-
-6. RabbitMQ 集群的模式概述？
+6. `RabbitMQ` 集群的模式概述？
    1. 普通集群模式
    2. 镜像集群模式
-
 7. 为什么不对所有的消息进行持久化操作？
-8. 如何解决消息积压的问题？
 
 #### Kafka
 
-1. 什么是Kafka？
-2. kafka 的优点和缺点？
-3. 为什么很多公司不会优先选择Kafka作为简单的消息队列？
-   1. 功能相对 简单
+1. 什么是`Kafka`？
+2. `kafka` 的优点和缺点？
+3. `kafka` 的主要使用场景有哪些？
+4. 为什么很多公司不会优先选择`Kafka`作为简单的消息队列？
+   1. 功能相对 简单（延时队列等）
    2. 即时性相对较差
-   3. 结合了zk，运维相对也会比较复杂
+   3. 结合了`zk`，运维相对也会比较复杂
+5. `Kafka` 与 `Zookeeper` 之间的关系？（2.0版本与3.0版本之间的差异）
+6. `Kafka` 推送消息，采用了哪种模式 pull ？还是push？
+7. `Kafka` 消费者是如何消费消息的？
+8. 什么是`ISR`？
+9. `Kafka`判断一个节点是否还活着有哪两个条件？
+10. `kafka consumer` 什么情况会触发再平衡`reblance`?
+11. `kafka consumer` 再平衡步骤
 
-4. kafka 的主要使用场景有哪些？
-5. Kafka 与 Zookeeper 之间的关系？（2.0版本与3.0版本之间的差异）
-6. Kafka 推送消息，采用了哪种模式 pull ？还是push？
-7. Kafka 消费者是如何消费消息的？
-8. 什么是ISR？
-9. kafka consumer 再平衡步骤
+#### `Rocket MQ`
 
-#### Rocket MQ
-
-1. 什么是Rocket MQ？
-2. Rocket MQ 的主要组成部分？
-3. Rocket MQ的容错机制（如何判断 broke 节点还存活）？
-3. 生产者发送消息的方式？
-3. 消息消费的两种模式？
-3. 消费者获取消息有几种模式？
-7. 常见的消息问题：
-   1. 可靠消息传递
-   2. 消息的重复消费
-   3. 分布式事务
-   4. 消息积压的问题
-   5. 顺序消费的问题
+1. 什么是`Rocket MQ`？
+2. `Rocket MQ` 的主要组成部分？
+3. `Rocket MQ`的容错机制（如何判断 `broke` 节点还存活）？
+4. 生产者发送消息的方式？
+   + 同步、异步、单向（无需回执）
+5. 消息消费的两种模式？单点、广播
+6. 消费者获取消息有2种模式？ `push`,`pull`
 
 
 ### 分布式实时流计算 
@@ -798,52 +819,55 @@ Object Relational Mapping
 
 ### 注册中心
 
-#### ZooKeeper
+#### `ZooKeeper`
 
-1. 什么是Zookeeper？
-2. ZK 的节点类型有哪些？
-3. ZK 如何保证主从节点的状态同步（ZAB协议）？
-4. ZK 的监听机制有什么特点？
-5. ZK 节点有哪些工作状态？
+1. 什么是`Zookeeper`？
+2. `ZK` 的节点类型有哪些？
+3. `ZK` 如何保证主从节点的状态同步（`Zab`协议）？
+4. `ZK` 的监听机制有什么特点？
+5. `ZK` 节点有哪些工作状态？
 6. 节点之间如何进行数据同步？
-7. 分布式集群，为什么会有一个Master?
-8. zk 节点宕机了如何处理？
-9. ZK 如何保证事务的顺序一致性？
-10. ZK 如何进行扩容？支持动态扩容么？
-7. Zookeeper 的使用场景有哪些？
+7. 分布式集群，为什么会有一个`Master`?
+8. `zk` 节点宕机了如何处理？（`leader` 或者 `follower` 宕机）
+9. `zk` 如何保证事务的顺序一致性？
+10. `ZK` 如何进行扩容？支持动态扩容么？
+11. `zk` 的使用场景有哪些？
+    + 负载均衡、命名服务、分布式锁、集群、数据订阅发布等
 
 ### Web 服务器
 
-#### Nginx
+#### `Nginx`
 
 1. 什么是反向代理和正向代理？
 2. 负载均衡的策略有哪些？
 
-#### Tomcat 服务器
+#### `Tomcat` 
 
-#### WebLogic
+1. `Tomcat`是什么？
 
-#### WebSphere
+#### `WebLogic`
+
+#### `WebSphere`
 
 
 
 ### 项目管理
 
-#### Maven
+#### `Maven`
 
-1. 什么是Maven？
-2. Maven 的作用是什么？
-3. 什么是 Maven 传递？
+1. 什么是`Maven`？
+2. `Maven` 的作用是什么？
+3. 什么是 `Maven` 传递？
 4. 什么是依赖冲突？如何解决（两种方案）？
-5. 什么是 Maven 的生命周期 ？
+5. 什么是 `Maven` 的生命周期 ？
 6. 什么是聚合？
 7. 什么是继承？
 8. 什么是可选依赖和依赖排出？
 
-#### Gradle
+#### `Gradle`
 
-1. 什么是Gradle？
-2. 为什么要开始使用Gradle？
+1. 什么是`Gradle`？
+2. 为什么要开始使用`Gradle`？
 
 #### Git
 
@@ -855,29 +879,32 @@ Object Relational Mapping
 
 ### 其他工具
 
-#### 模版引擎Velocity
+#### 模版引擎`Velocity`
 
-#### JVM 监控 Atrhas
+#### `JVM` 监控 `Atrhas`
 
 1. 作用、特点、线上问题
 2. 常用指令
-   1. trace : 追中使用时间
-   2. jad：反编译class文件
-   3. watch：查看方法的入参和返回值
+   1. `trace`: 追中使用时间
+   2. `jad`：反编译class文件
+   3. `watch`：查看方法的入参和返回值
 
 #### Netty 
 
-1. 什么是BIO、NION、AIO？
-2. 什么是Netty？
-3. 为什么要使用Netty？
-4. Netty 的功能模块有哪些？各自有什么作用？
-5. Netty 的工作原理？
-6. Netty 的线程模型？
-7. 什么 是Netty零拷贝？
-8. Netty 发送消息有几种方式？
-9. 如何选择序列化协议？
-10. Netty 与 Tomcat 之间的区别？
-11. TCP 粘包与拆包产生的原因以及解决方法？
+1. 什么是`BIO`、`NION`、`AIO`？
+2. 什么是`Netty`？
+3. 为什么要使用`Netty`，对比原生`JDK NIO`的特点？
+4. `Netty`对比`Tomcat`?
+5. `Netty`的使用场景 ？
+6. `Netty` 的功能模块有哪些？各自有什么作用？
+7. `Netty` 的工作原理？
+8. `Netty` 的线程模型？
+9. 什么 是`Netty`零拷贝？
+10. `Netty`的模块组件？
+11. `Netty` 发送消息有几种方式？
+12. 如何选择序列化协议？
+13. `Netty` 与 `Tomcat` 之间的区别？
+14. `TCP` 粘包与拆包产生的原因以及解决方法？
 
 ## 第六章 常见系统功能实践
 
