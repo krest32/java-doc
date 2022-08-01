@@ -1059,7 +1059,6 @@ Object Relational Mapping
 14. Feign
 15. Ribbon
 16. Hystrix
-17. 
 
 #  前端部分
 
@@ -1073,33 +1072,33 @@ Object Relational Mapping
 
 ### UI开发框架
 
-1. Element UI -> Vue2
-2. Element Plus -> Vue3
+1. `Element UI` -> `Vue2`
+2. `Element Plus` -> `Vue3`
 
 ### 前端开发框架
 
 #### 概念
 
 1. 三种开发框架的对比
-1. 目前来说 React 和 Vue 都比较流行，Angular 在市场的上份额反而越来越小
+1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
 
 #### 1. Vue
 
-1. Vue2 、 Vue3
-2. Vuex
-3. Axios
-4. Vue router
-5. Vite
-6. Nuxt
+1. `Vue2` 、`Vue3`
+2. `Vuex`
+3. `Axios`
+4. `Vue router`
+5. `Vite`
+6. `Nuxt`
 
-#### 2. React
+#### 2. `React`
 
-#### 3. Angular 
+#### 3. `Angular` 
 
 ### 微前端
 
-1. Single-SPA
-2. QianKun
+1. `Single-SPA`
+2. `QianKun`
 
 
 
@@ -1107,12 +1106,12 @@ Object Relational Mapping
 
 ## OKR
 
-1. 为什么会有OKR？
+1. 为什么会有`OKR`？
 2. O 代表什么？ KR 代表什么？
 3. Smart 原则？
-4. 如何制定OKR？
-5. 大公司与小公司的OKR 在执行上有什么不同的作用？
-6. OKR 的生命周期？
+4. 如何制定`OKR`？
+5. 大公司与小公司的`OKR` 在执行上有什么不同的作用？
+6. `OKR` 的生命周期？
 
 ## 敏捷开发
 
@@ -1123,10 +1122,10 @@ Object Relational Mapping
 5. 媒介开发的执行和监控 ？
 6. 敏捷开发的度量标准？
 
-## Devops
+## `Devops`
 
-1. 什么是CI、 CD？
-2. 为什么要有Devops？
+1. 什么是`CI`、 `CD`？
+2. 为什么要有`Devops`？
 
 ## 管理方案
 
