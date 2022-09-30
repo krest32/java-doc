@@ -129,7 +129,7 @@
 
 1. `Oracle JDK`版本将每三年发布一次，而`Open JDK`版本每三个月发布一次；
 2. `Open JDK` 是一个参考模型并且是完全开源的，而`Oracle JDK`是`Open JDK`的一个实现，并不是完全开源的；
-3. `Oracle JDK `比 `Open JDK` 更稳定，但`Oracle JDK`有更多的类和一些错误修复。如果开发企业/商业软件，建议选择`Oracle JD`K。
+3. `Oracle JDK `比 `Open JDK` 更稳定，但`Oracle JDK`有更多的类和一些错误修复。如果开发企业/商业软件，建议选择`Oracle JDK`。
 4. 在响应性和`JVM`性能方面，`Oracle JDK`与`Open JDK`相比提供了更好的性能；
 5. `Oracle JDK`不会为即将发布的版本提供长期支持，用户每次都必须通过更新到最新版本获得支持来获取最新版本；
 6. `Oracle JDK`根据二进制代码许可协议获得许可，而`Open JDK`根据`GPL v2`许可获得许可。
@@ -410,7 +410,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 ​		Java语言采用Unicode编码标准，Unicode（标准码）。
 
-​		它为每个字符制订了一个唯一的数值，因此在任何的语言，平台，程序都可以放心的使用。方便所有平台进行使用，能够代表人和语言，进行转化
+​		它为每个字符制订了一个唯一的数值，因此在任何的语言、平台、程序都可以放心的使用。方便所有平台进行使用，能够代表人和语言，进行转化
 
 
 
@@ -583,7 +583,8 @@ class Student extends Person{
         System.out.println(this.name);      //Child        
         System.out.println(super.name);     //Father    
     }
-}public class Test {    
+}
+public class Test {    
     public static void main(String[] args) {       
         Student s1 = new Student("Father","Child");      
         s1.getInfo();    
