@@ -29,6 +29,21 @@ Spring Boot 主要有如下优点：
 
 ​	 
 
+### 版本介绍
+
+1. jdk 1.7 + springboot 1.4.0 可以运行
+2. jdk 1.8 + springboot 2.0.0 
+3. jdk 17 + springboot 3.0
+
+Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更依赖项：
+
+- 最低要求 Java 17；
+- Java EE 迁移到了 Jakarta EE；
+
+
+
+
+
 ### Spring Boot 的核心注解是哪个？它主要由哪几个注解组成的？
 
 启动类上面的注解是@SpringBootApplication，它也是 Spring Boot 的核心注解，主要组合包含了以下 3 个注解：

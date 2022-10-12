@@ -10,6 +10,36 @@
 
 
 
+### redis 6.0 版本新特性
+
+1. **多线程IO**
+   Redis 6引入多线程IO，但多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。之所以这么设计是不想因为多线程而变得复杂，需要去控制 key、lua、事务，LPUSH/LPOP 等等的并发问题。
+
+2. 重新设计了客户端缓存功能
+   实现了Client-side-caching（客户端缓存）功能。放弃了caching slot，而只使用key names。Redis server-assisted client side caching
+
+3. RESP3协议
+   + RESP（Redis Serialization Protocol）是 Redis 服务端与客户端之间通信的协议。Redis 5 使用的是 RESP2，而 Redis 6 开始在兼容 RESP2 的基础上，开始支持 RESP3。
+   + 推出RESP3的目的：一是因为希望能为客户端提供更多的语义化响应，以开发使用旧协议难以实现的功能；另一个原因是实现 Client-side-caching（客户端缓存）功能。
+
+4. 支持SSL
+   连接支持SSL，更加安全。
+
+5. **ACL权限控制**
+   支持对客户端的权限控制，实现对不同的key授予不同的操作权限。有一个新的ACL日志命令，允许查看所有违反ACL的客户机、访问不应该访问的命令、访问不应该访问的密钥，或者验证尝试失败。这对于调试ACL问题非常有用。
+
+6. 提升了RDB日志加载速度
+   根据文件的实际组成（较大或较小的值），可以预期20/30%的改进。当有很多客户机连接时，信息也更快了，这是一个老问题，现在终于解决了。
+
+7. **发布官方的Redis集群代理模块 Redis Cluster proxy**
+   在 Redis 集群中，客户端会非常分散，现在为此引入了一个集群代理，可以为客户端抽象 Redis 群集，使其像正在与单个实例进行对话一样。同时在简单且客户端仅使用简单命令和功能时执行多路复用。
+
+相关阅读
+
++ [Redis6新特性详解](https://blog.csdn.net/b416055728/article/details/121759018?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-0-121759018-blog-113182479.pc_relevant_3mothn_strategy_and_data_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
+
+
+
 ### Redis有哪些优缺点
 
 优点

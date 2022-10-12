@@ -2,6 +2,29 @@
 
 ## 基础知识
 
+### 简史
+
+- 1995年，Michael Monty Widenius、David Axmark和 Allan Larsson，在瑞典创立了MySQL AB公司。1996年，发布MySQL 1.0版本，“My”取自联合创始人Micheal Monty Widenius女儿的名字。同年10月，MySQL 3.11.1发布，没有2.x版本。
+- 2000年，MySQL对原存储引擎进行了整理，命名为MyISAM
+- 2001年，MySQL集成Heikki Tuuri的存储引擎InnoDB，实现了事务处理和行级锁的支持。该年发布的3.23 版本已支持大多数的基本的SQL 操作，并集成了MyISAM和InnoDB 存储引擎。
+- 2003年3月，发布MySQL 4.0 ，支持查询缓存、集合并、全文索引，正式支持InnoDB存储引擎。
+- 2004年10月，发布经典的MySQL 4.1 ，增加了子查询，utf8字符集等。
+- 2005年10月，发布MySQL 5.0 ，增加了视图、存储过程、游标、触发器、分布式事务，迈出了高性能数据库步伐。
+- 2008年1月，MySQL AB公司被Sun公司以10亿美金收购。
+- 2009年4月，Oracle公司以74亿美元收购Sun公司，MySQL转入Oracle麾下。
+- 2010年12月，发布MySQL 5.5 ，增加了半同步复制、信号异常处理、unicode字符集，InnoDB成为默认存储引擎。
+- 2011年4月，发布MySQL 5.6 ，增加了GTID复制，支持延时复制、行级复制。
+- 2013年2月，发布MySQL 5.7 ，支持原生JSON数据类型。
+- 2016年9月，发布MySQL 8.0.0 ，速度要比 MySQL 5.7 快 2 倍；可使用JSON数据的SQL机制；支持GIS；可靠性更高。
+- 2018年4月，发布MySQL 8.0.11 GA ，支持NoSQL文档存储、原子的奔溃安全DDL语句、扩展JSON语法，新增JSON表函数，改进排序、分区更新功能。
+
+### 版本性能对比
+
++ [MySQL 5.7与MySQL 8.0性能比拼，结果怎么样？](https://javazhiyin.blog.csdn.net/article/details/113830129?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-113830129-blog-109376093.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-113830129-blog-109376093.pc_relevant_default&utm_relevant_index=5)
++ [MySQL数据库 5.7 vs 8.0性能测评](https://blog.csdn.net/u012811805/article/details/115038167?spm=1001.2101.3001.6650.10&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-10-115038167-blog-113903927.pc_relevant_layerdownloadsortv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-10-115038167-blog-113903927.pc_relevant_layerdownloadsortv1&utm_relevant_index=11)
+
+
+
 ### 什么是高级Mysql优化？
 
  完整的mysql优化需要很深的功底，大公司甚至有专门的DBA（**数据库管理员**Database Administrator）写上述
