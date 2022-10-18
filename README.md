@@ -27,6 +27,15 @@
 + [数字化新业态下数据安全创新——Token化](https://zhuanlan.zhihu.com/p/569035765)
 + [携程火车票iOS项目开发体验优化实践](https://zhuanlan.zhihu.com/p/562882234)
 + [AQS为什么要用双向链表？](https://zhuanlan.zhihu.com/p/559494261)
++ [流计算引擎数据正确性的挑战](https://zhuanlan.zhihu.com/p/573211728)
++ [4小时上线一个接口，高效统一的携程酒店数据服务平台实践](https://zhuanlan.zhihu.com/p/568693684)
++ [不掌握这些坑，你敢用BigDecimal吗？](https://juejin.cn/post/7121852516228136996)
++ [超越 Nginx！号称下一代 Web 服务器，用起来够优雅！](https://juejin.cn/post/7085519712901136392)
++ [吃透JAVA的Stream流操作，多年实践总结](https://juejin.cn/post/7118991438448164878)
++ [详细理解 SCG 路由、断言与过滤器](https://juejin.cn/post/7153854448798793735)
++ [详解闲鱼推荐系统（长文收藏）](https://juejin.cn/post/7153878508035391502)
++ [读完 RocketMQ 源码，我学会了如何优雅的创建线程](https://juejin.cn/post/7153919864665538567)
++ [canal 一个MySQL增量日志解析神器](https://juejin.cn/post/7154614268292251684)
 
 
 ### 2022年9月推荐
