@@ -36,6 +36,11 @@
 + [详解闲鱼推荐系统（长文收藏）](https://juejin.cn/post/7153878508035391502)
 + [读完 RocketMQ 源码，我学会了如何优雅的创建线程](https://juejin.cn/post/7153919864665538567)
 + [canal 一个MySQL增量日志解析神器](https://juejin.cn/post/7154614268292251684)
++ [有哪些适合程序员看的网站？](https://juejin.cn/post/7153529332332232712)
++ [一些可以显著提高大型 Java 项目启动速度的尝试](https://juejin.cn/post/7117815437559070734)
++ [为什么有HTTP协议，还要有websocket协议？](https://juejin.cn/post/7144161126652051464)
++ [Java 19中新推出的虚拟线程到底是怎么回事儿？](https://juejin.cn/post/7155406687598280740)
++ [三个线程顺序打印ABC?我有十二种做法！](https://juejin.cn/post/7149006608209543176)
 
 
 ### 2022年9月推荐
