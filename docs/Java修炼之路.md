@@ -129,7 +129,7 @@
 
 1. 有没有想过为什么会有集合框架的存在？
 2. 集合框架的三大组成？
-3. 谈谈你对 `java.util` 集合框架的理解？都有哪些接口和类，学习集合框架的五大部分？
+3. 谈谈你对 `java.util` 集合框架的理解？（都有哪些接口和类，集合框架的五大部分）
 4. 集合底层的数据结构是什么样子的？
 5. 集合和数组的区别？（长度、存储类型、性能）
 6. 常用的集合有哪些？
@@ -152,12 +152,13 @@
 22. 为什么不之间使用 `HashCode` 作为 table 下标？
 23. `HashMap` 的 扩容流程？
 24. `HashMap`中的链表转化红黑树需要哪两个条件？
-25. 可以使用`Object`对象作为`key`么？
-26. 关于 `TreeMap` 的理解说一下？新元素插入需要提起准备什么？
-27. `HashTable` 中 `key` `value` 为什么不能为`null`，而 `HashMap` 中却可以？
-28. `HashTable`与`HashMap`之间的区别是什么？
-29. `CopyOnWriteArrayList` 的具体实现原理 ？
-30. `ConcurrentHashMap` 的具体实现原理 ？
+25. 为什么`String`和`Integer`适合作为`Map`的`Key`?
+26. 可以使用`Object`对象作为`key`么？
+27. 关于 `TreeMap` 的理解说一下？新元素插入需要提起准备什么？
+28. `HashTable` 中 `key` `value` 为什么不能为`null`，而 `HashMap` 中却可以？
+29. `HashTable`与`HashMap`之间的区别是什么？
+30. `CopyOnWriteArrayList` 的具体实现原理 ？
+31. `ConcurrentHashMap` 的具体实现原理 ？
 
 
 
