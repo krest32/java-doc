@@ -17,10 +17,8 @@
 
 ### 2022年10月推荐
 
-+ [TIOBE 10 月编程语言排行榜](https://blog.csdn.net/csdnnews/article/details/127255405?spm=1000.2115.3001.5927)
 + [【转】爬虫与反爬虫技术简介](https://www.jianshu.com/p/ba7576b94ccc)
 + [这几种常见的 JVM 调优场景，你知道吗？](https://www.jianshu.com/p/96e2469b4505)
-+ [美团动态线程池实践思路，开源了](https://www.jianshu.com/p/e5c931119f5a)
 + [Java19 正式 GA！看虚拟线程如何大幅提高系统吞吐量](https://www.jianshu.com/p/443011c295ef)
 + [腾讯三面：40 亿个 QQ 号码如何去重？](https://www.jianshu.com/p/e2c46b9c46d3)
 + [全网显示 IP 归属地，是怎么实现的？](https://www.jianshu.com/p/e649666520f2)
