@@ -41,6 +41,8 @@
 + [为什么有HTTP协议，还要有websocket协议？](https://juejin.cn/post/7144161126652051464)
 + [Java 19中新推出的虚拟线程到底是怎么回事儿？](https://juejin.cn/post/7155406687598280740)
 + [三个线程顺序打印ABC?我有十二种做法！](https://juejin.cn/post/7149006608209543176)
++ [携程酒店慢查询治理之路](https://zhuanlan.zhihu.com/p/576875838?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568932550311129088&utm_source=wechat_session)
++ [聊一聊分布式锁的设计模型](https://zhuanlan.zhihu.com/p/574807053?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568933222423150593&utm_source=wechat_session)
 
 
 ### 2022年9月推荐
