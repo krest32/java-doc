@@ -417,14 +417,25 @@ apt-get updateapt-get install vim
 在配置文件中添加
 
 ```
-clientPort=2181dataDir=/datadataLogDir=/datalogtickTime=2000initLimit=5syncLimit=5maxClientCnxns=60server.1=172.17.0.2:2888:3888server.2=172.17.0.3:2888:3888server.3=172.17.0.4:2888:3888
+clientPort=2181
+dataDir=/data
+dataLogDir=/datalog
+tickTime=2000
+initLimit=5
+syncLimit=5
+maxClientCnxns=60
+server.1=172.17.0.2:2888:3888
+server.2=172.17.0.3:2888:3888
+server.3=172.17.0.4:2888:3888
 ```
 
 请注意，如果你是在**Linux环境下直接搭建zookeeper**，请修改本机所在节点的ip为0.0.0.0
 例如我当前节点是server.1，则ip修改为0.0.0.0（非docker环境）
 
 ```
-server.1=0.0.0.0:2888:3888server.2=172.17.0.8:2888:3888server.3=172.17.0.9:2888:3888
+server.1=0.0.0.0:2888:3888
+server.2=172.17.0.8:2888:3888
+server.3=172.17.0.9:2888:3888
 ```
 
 这里172.17.0.x表示的是三台zookeeper容器对应的ip地址；2888是zookeeper容器间通信的端口，3888是zookeeper选举投票的端口，一般来说都是固定的
@@ -471,7 +482,11 @@ server.1=0.0.0.0:2888:3888server.2=172.17.0.8:2888:3888server.3=172.17.0.9:2888:
 ### Java 客户端操作
 
 ~~~java
-ZkClient zkClient = new ZkClient(                "192.168.42.132:2181,192.168.42.132:2182,192.168.42.132:2183",                6000*30,                60000,                new SerializableSerializer());
+ZkClient zkClient = new ZkClient(      
+    "192.168.42.132:2181,192.168.42.132:2182,192.168.42.132:2183",       
+    6000*30,               
+    60000,             
+    new SerializableSerializer());
 ~~~
 
 

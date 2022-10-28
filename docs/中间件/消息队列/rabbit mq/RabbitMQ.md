@@ -157,7 +157,7 @@ RabbitMQ是一款开源的，Erlang编写的，基于AMQP协议的消息中间�
 
 **一.simple模式（即最简单的收发模式）**
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTE3OGI3ZTVlMjA)
+![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTE3OGI3ZTVlMjA.png)
 
 1. 消息产生消息，将消息放入队列
 
@@ -165,13 +165,13 @@ RabbitMQ是一款开源的，Erlang编写的，基于AMQP协议的消息中间�
 
 **二.work工作模式(资源的竞争)**
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTdiYzA1YzUyMjY)
+![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3NTdiYzA1YzUyMjY.png)
 
 1. 消息产生者将消息放入队列消费者可以有多个,消费者1,消费者2同时监听同一个队列,消息被消费。C1 C2共同争抢当前的消息队列内容,谁先拿到谁负责消费消息(隐患：高并发情况下,默认会产生某一个消息被多个消费者共同使用,可以设置一个开关(syncronize) 保证一条消息只能被一个消费者使用)。
 
 **三.publish/subscribe发布订阅(共享资源)**
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3Njk2NGMxMGM3NWI)
+![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3Njk2NGMxMGM3NWI.png)
 
 1. 每个消费者监听自己的队列；
 
@@ -179,7 +179,7 @@ RabbitMQ是一款开源的，Erlang编写的，基于AMQP协议的消息中间�
 
 **四.routing路由模式**
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3ODFiZWFjOWMxNzQ)
+![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3ODFiZWFjOWMxNzQ.png)
 
 1. 消息生产者将消息发送给交换机按照路由判断,路由是字符串(info) 当前产生的消息携带路由字符(对象的方法),交换机根据路由的key,只能匹配上路由key对应的消息队列,对应的消费者才能消费消息;
 
@@ -191,7 +191,7 @@ RabbitMQ是一款开源的，Erlang编写的，基于AMQP协议的消息中间�
 
 **五.topic 主题模式(路由模式的一种)**
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3ODQ2ZjYxNjk2NjE)
+![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOS84LzI4LzE2Y2Q3ODQ2ZjYxNjk2NjE.png)
 
 1. 星号井号代表通配符
 

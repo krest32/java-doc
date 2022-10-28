@@ -10,7 +10,7 @@
 
 ## B树(B-树)
 
-![image-20210311131957897](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210311131958.png)
+![image-20221028105607448](img/image-20221028105607448.png)
 
 
 
@@ -56,7 +56,7 @@ ceil（m/2） 即是 (m+1)/2，向上取整
 
 ## B+树
 
-![image-20210311132234470](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210311132234.png)
+![image-20221028105635475](img/image-20221028105635475.png)
 
 
 

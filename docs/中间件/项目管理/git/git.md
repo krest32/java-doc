@@ -64,7 +64,7 @@ https://blog.csdn.net/ThinkWon/article/details/101449611)
 
 Git 的工作流程图如下：
 
-![Git 的工作流程图](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi9HaXQlMjAlRTclOUElODQlRTUlQjclQTUlRTQlQkQlOUMlRTYlQjUlODElRTclQTglOEIlRTUlOUIlQkUucG5n)
+![11111111111111111111111](img/11111111111111111111111.png)
 
 ## Git的几个核心概念
 
@@ -72,7 +72,7 @@ Git 的工作流程图如下：
 
 Git和其他版本控制系统如SVN的一个不同之处就是有暂存区的概念。
 
-![Git工作流程](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL2dpdC9HaXQlRTUlQjclQTUlRTQlQkQlOUMlRTYlQjUlODElRTclQTglOEIucG5n)
+![6](img/6.png)
 
 **Workspace**： 工作区，就是你平时存放项目代码的地方
 
@@ -88,29 +88,27 @@ Git和其他版本控制系统如SVN的一个不同之处就是有暂存区的�
 
 一开始的时候，master分支是一条线，Git用master指向最新的提交，再用HEAD指向master，就能确定当前分支，以及当前分支的提交点：
 
-![分支1](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi8lRTUlODglODYlRTYlOTQlQUYxLnBuZw)
-
 每次提交，master分支都会向前移动一步，这样随着不断提交，master分支的线也越来越长。
 
 当我们创建新的分支，例如dev时，Git新建了一个指针叫dev，指向master相同的提交，再把HEAD指向dev，就表示当前分支在dev上：
 
-![分支2](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi8lRTUlODglODYlRTYlOTQlQUYyLnBuZw)
+![4](img/4.png)
 
 Git创建一个分支很快，因为除了增加一个dev指针，改改HEAD的指向，工作区的文件都没有任何变化！
 
 不过切换到了dev分，对工作区的修改和提交就是针对dev分支了，比如新提交一次后，dev指针往前移动一步，而master指针不变：
 
-![分支3](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi8lRTUlODglODYlRTYlOTQlQUYzLnBuZw)
+![5](img/5.png)
 
 假如我们在dev上的工作完成了，就可以把dev合并到master上。Git怎么合并呢？最简单的方法，就是直接把master指向dev的当前提交，就完成了合并：
 
-![分支4](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi8lRTUlODglODYlRTYlOTQlQUY0LnBuZw)
+
 
 所以Git合并分支也很快！就改改指针，工作区内容也不变！
 
 合并完分支后，甚至可以删除dev分支。删除dev分支就是把dev指针给删掉，删掉后就剩下了一条master分支：
 
-![分支5](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi8lRTUlODglODYlRTYlOTQlQUY1LnBuZw)
+![2](img/2.png)
 
 ### 远程仓库
 
@@ -134,7 +132,7 @@ Git创建一个分支很快，因为除了增加一个dev指针，改改HEAD的�
 
 Github支持两种同步方式“https”和“ssh”。如果使用https很简单基本不需要配置就可以使用，但是每次提交代码和下载代码时都需要输入用户名和密码。而且如果是公司配置的私有git服务器一般不提供https方式访问。
 
-![GitHub官网](img/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0pvdXJXb24vaW1hZ2UvbWFzdGVyL0dpdCVFNyVBRSU4MCVFNCVCQiU4Qi9HaXRIdWIlRTUlQUUlOTglRTclQkQlOTEucG5n)
+![7](img/7.png)
 
 ### 忽略文件
 
@@ -214,12 +212,3 @@ Git 与 SVN 区别点：
 ​		比如我们的增量特别特别多的话，如果我们要得到最终的文件是不是会耗费时间和性能。
 
 ​		Git 不按照以上方式对待或保存数据。 反之，Git 更像是把数据看作是对小型文件系统的一组快照。 每次你提交更新，或在 Git 中保存项目状态时，它主要对当时的全部文件制作一个快照并保存这个快照的索引。 为了高效，如果文件没有修改，Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。 Git 对待数据更像是一个 快照流。下图来源于Git官网。
-
-
-
-
-
-
-
-# 
-

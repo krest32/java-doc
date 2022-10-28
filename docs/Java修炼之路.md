@@ -427,10 +427,10 @@
    1. `MySql`-> 最流行的
    2. `PostgreSQL`-> 最先进的
    3. `Oracle` -> 最完善的
-   4. `Redis`
+   4. `Redis`-> 主流的缓存
    5. `Sql Server`->仅支持 `windows`
-   6. `MongoDB`
-   7. `ES`
+   6. `MongoDB` -> 大数据
+   7. `ES` -> 搜索引擎
 
 ### 常见 Sql 语句
 
