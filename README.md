@@ -23,8 +23,6 @@
 + [腾讯三面：40 亿个 QQ 号码如何去重？](https://www.jianshu.com/p/e2c46b9c46d3)
 + [全网显示 IP 归属地，是怎么实现的？](https://www.jianshu.com/p/e649666520f2)
 + [数字化新业态下数据安全创新——Token化](https://zhuanlan.zhihu.com/p/569035765)
-+ [携程火车票iOS项目开发体验优化实践](https://zhuanlan.zhihu.com/p/562882234)
-+ [AQS为什么要用双向链表？](https://zhuanlan.zhihu.com/p/559494261)
 + [流计算引擎数据正确性的挑战](https://zhuanlan.zhihu.com/p/573211728)
 + [4小时上线一个接口，高效统一的携程酒店数据服务平台实践](https://zhuanlan.zhihu.com/p/568693684)
 + [不掌握这些坑，你敢用BigDecimal吗？](https://juejin.cn/post/7121852516228136996)
@@ -50,7 +48,6 @@
 + [不要重复造轮子](https://zhuanlan.zhihu.com/p/530162228?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1544980757659181056&utm_source=wechat_session)
 + [月活 12.8 亿的微信如何防止崩溃？| 后台过载保护策略](https://zhuanlan.zhihu.com/p/520699351)
 + [怎么提高自己的系统设计和架构理论水平？](https://www.zhihu.com/question/395652253/answer/2458366961)
-+ [是什么让一段20行代码的性能提升了10倍](https://mp.weixin.qq.com/s/MAszOfaRMinhTbLFmxDacQ)
 + [java应用提速(速度与激情)](https://mp.weixin.qq.com/s/CTFcwer2htssKszjhnOXtQ)
 + [高性能 Java 计算服务的性能调优实战](https://zhuanlan.zhihu.com/p/564562925?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1556193749054758912&utm_source=wechat_session)
 

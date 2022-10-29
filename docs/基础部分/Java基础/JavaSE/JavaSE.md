@@ -858,13 +858,11 @@ System.out.println(str3 == str2);  // 返回了true
 
 
 
-
+1. 
 
 
 
 ## 面向对象
-
-
 
 ### 面向对象概述
 
@@ -876,15 +874,11 @@ System.out.println(str3 == str2);  // 返回了true
 
 ​		缺点：没有面向对象易维护、易复用、易扩展
 
-
-
 **面向对象**：
 
 ​		优点：易维护、易复用、易扩展，由于面向对象有封装、继承、多态性的特性，可以设计出低耦合的系统，使系统更加灵活、更加易于维护，面向对象的底层其实还是面向过程，把面向过程抽象成类，然后封装，
 
 ​		缺点：性能比面向过程低
-
-
 
 **对比：**
 
@@ -1675,10 +1669,7 @@ BufferedWriter bufw = new BufferedWriter(new OutputStreamWriter(System.out));
 
 ### Linux IO基础原理
 
-应用程序的IO读写，依赖于底层操作系统的IO读写，它是通过操作系统的两大系统调用Read/Write实现的。在Linux操作系统中设置了唯一的一个内核缓冲区，并为每个上层应用程序设置一个用户缓冲区，当应用程序进行数据读取时，内核将数据从内核缓冲区复制到用户缓冲区，当应用程序进行数据写入时，内核将数据从用户缓冲区复制到内核缓冲区，设置缓冲区的目的是减少性能消耗，因为直接对外部设备进行IO 读写会造成操作系统中断，操作系统频繁访问外部设备会，会造成不必要的性能开销。
-
-1. Linux IO读取操作流程，分为两个阶段，第一个阶段：等待数据准备好，它是等待数据从网络中到达网卡，操作系统将数据从网卡复制到内核缓冲区；第二个阶段：内核复制数据，内核将数据从内核缓冲区拷贝到用户缓冲区，供应用程序使用。
-2. Linux IO写入操作流程，分为连个阶段，第一个阶段：内核复制数据，内核将数据从应用程序的用户缓冲区拷贝到内核的内核缓冲区；第二个阶段：操作系统将内核缓冲区的数据复制到网卡，网卡基于底层通信协议将数据发送到目标客户端。
+应用程序的I/O读写，依赖于底层操作系统的I/O读写，它是通过操作系统的两大系统调用Read/Write实现的。在Linux操作系统中设置了唯一的一个内核缓冲区，并为每个上层应用程序设置一个用户缓冲区，当应用程序进行数据读取时，内核将数据从内核缓冲区复制到用户缓冲区，当应用程序进行数据写入时，内核将数据从用户缓冲区复制到内核缓冲区，设置缓冲区的目的是减少性能消耗，因为直接对外部设备进行IO 读写会造成操作系统中断，操作系统频繁访问外部设备会，会造成不必要的性能开销。
 
 ### Linux IO模型
 
@@ -1727,6 +1718,9 @@ IO多路复用的实现机制有三种：select、poll、epoll。
       1. select: 单个进程默认处理1000个左右的连接，不修改宏定义需要1000个进程；
       2. poll: 虽然没有最大fd数量限制，但是100万个fd在进行复制和轮询消耗严重；
       3. epoll: 1G内存一般可以同时处理10万连接，需要16G内存即可实现百万连接；
+4. 在目前的JDK实现中，优先选择epoll实现。
+
+![image-20221029221111653](img/image-20221029221111653.png)
 
 #### 信号驱动IO
 
@@ -2011,7 +2005,7 @@ void add(int field, int amount); //给指定字段添加或减去amount个时间
 
 - 日期格式的抽象类
 
-1. ava.text.DateFormat类是表示日期时间格式的抽象类，提供基于默认或给定语言环境和多种格式化风格的时间日期
+1. java.text.DateFormat类是表示日期时间格式的抽象类，提供基于默认或给定语言环境和多种格式化风格的时间日期
 
    DateFormat df = new SimpleDateFormat(String pattern); //yyyy年MM月dd日 HH时mm分ss秒
 
@@ -2028,7 +2022,46 @@ void add(int field, int amount); //给指定字段添加或减去amount个时间
 
 
 
+### 日期的格式化方式
 
+#### 1. 菜鸟实现
+
+![image-20221029210403711](img/image-20221029210403711.png)
+
+#### 2. LocalDateTime
+
+![image-20221029210332876](img/image-20221029210332876.png)
+
+#### 3. common-lang3老鸟实现
+
+相信大家在项目开发过程中都多少使用过common-lang3中的一些API，都非常简单实用。在时间格式化方面，也给我们提供了非常好用的工具类DateFormatUtils。这也是我最推荐的方式。首先需要在项目中引入common-lang3的依赖。
+
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.11</version>
+    </dependency>
+
+~~~java
+Date now = new Date(); // 创建一个Date对象，获取当前时间
+String strDateFormat = "yyyy-MM-dd HH:mm:ss";
+String result  = DateFormatUtils.format(now,strDateFormat);
+System.out.println("DateFormatUtils:"+result);
+~~~
+
+**好处：**
+
+1. 线程安全
+2. 简单高效
+3. 占用更小的内存
+
+DateFormatUtils.format的内部实现中，是通过FastDateFormat进行时间格式化，而且对FastDateFormat对象进行了缓存处理，保证相同模式的格式化类型下不用重复生成FastDateFormat对象。
+
+#### 总结
+
+1. SimpleDateFormat时间格式化主要的问题是非线程安全，多线程情况下会出现问题，通过跟踪源码说明了SimpleDateFormat非线程安全的原因，并提供了相应的解决方案。
+2. java8下推荐的采用DateTimeFormatter进行时间格式化的使用方式，并提供了date到LocalDateTime、LocalDate的转换方式。
+3. 采用common-lang3中的DateFormatUtils实现时间格式化是最推荐的，线程安全、API简单高效、占用内存低。并推荐了通过继承DateFormatUtils对象封装自己的时间工具类DateUtils方式。
 
 ## 日志
 
