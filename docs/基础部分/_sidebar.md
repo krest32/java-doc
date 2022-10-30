@@ -16,6 +16,7 @@
   * [JVM基础](./docs/基础部分/虚拟机/JVM.md)
   * [JVM常用调优参数](./docs/基础部分/虚拟机/JVM优化.md)
   * [在线工具-Arthas](./docs/基础部分/虚拟机/Arthas.md)
+  * [Class文件解析](./docs/基础部分/虚拟机/Class文件解析)
 * [序列化](./docs/基础部分/数据处理/)
   * [Json](./docs/基础部分/数据处理/1.Json/Json.md)
   * [Xml](./docs/基础部分/数据处理/2.Xml-dom4j/Xml.md)
