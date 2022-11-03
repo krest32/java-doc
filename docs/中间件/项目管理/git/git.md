@@ -64,7 +64,7 @@ https://blog.csdn.net/ThinkWon/article/details/101449611)
 
 Git 的工作流程图如下：
 
-![11111111111111111111111](img/11111111111111111111111.png)
+![8](img/8.png)
 
 ## Git的几个核心概念
 

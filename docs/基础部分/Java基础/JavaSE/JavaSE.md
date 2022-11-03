@@ -283,7 +283,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 | :------ | :----------------------------------------------------------- |
 | Java 9  | **模块化系统**， Java Shell : 交互式命令行控制台             |
 | Java 10 | **局部变量类型推导**                                         |
-| Java 11 | 各种加强：Stream , String, Collection 标准化的 HTTP Client **ZGC** |
+| Java 11 | 各种加强：Stream 、String、Collection 标准化的 HTTP Client、ZGC |
 | Java 12 | Switch表达式扩展                                             |
 | Java 13 | 重新实现Socket API文本块(多行字符串)                         |
 
@@ -304,7 +304,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 ![img](img/59db3cff816bb9b4258e947501e5c1d6.png)
 
-
+​		JDK 17 这个版本提供了 14 个增强功能，另外在性能、稳定性和安全性上面也得到了大量的提升，以及还有一些孵化和预览特性，有了这些新变化，Java 会进一步提高开发人员的生产力。
 
 #### GC 对比
 
@@ -375,7 +375,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 
 
-#### switch 是否能作用在 String 上，可以使用Long么？为色和呢么
+#### switch 是否能作用在 String 上，可以使用Long么？
 
 1. 在 Java 5 以前，switch (expr) 中，expr 只能是 byte、short、char、int。
 
@@ -535,7 +535,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 #### Java 有没有 goto
 
-​		goto 是 Java 中的保留字，一般可以结合break来进行使用。
+​		goto 是 Java 中的保留字，但是目前几乎不会使用，所以不必要太关心
 
 
 
@@ -591,9 +591,7 @@ class Person{
 
 
 
-#### `super`关键字的用法
-
-super也有三种用法：
+#### `super`关键字的三种用法
 
 1. 普通的直接引用与this类似，super相当于是指向当前对象的父类的引用，这样就可以用`super.xxx`来引用父类的成员。
 
@@ -728,7 +726,12 @@ public static void main(String[] args) {
 
 ​		在`JDK1.5`之前，例如，想定义一个Color类，它只能有RED、GREEN、BLUE 3种值，其他的任何值都是非法的，那么`JDK1.5`之前虽然可以构造这样的代码，但是要做很多的工作，就可能带来很多不安全的问题。而`JDK1.5`之后引入的枚举类型就能解决这些问题。
 
+所以枚举的原因是：
 
+1. 枚举本身线程安全，可以用于单例
+2. 将有限的常量固定下来，避免其他人非法创建值
+3. 每一个常量可以附带信息和行为，封装性好方便使用
+4. 枚举需要的内容空间很小，如果使用枚举集合，会非常高效
 
 #### 使用方法
 
@@ -852,13 +855,25 @@ System.out.println(str3 == str2);  // 返回了true
 
    
 
-#### `G1` 的 String 去重
+#### `G1` 的 String 去重操作
 
-​		大型应用中String对象占到25%，有的甚至占用到50%，所以对于String的非常有必要，经过去重以后，避免浪费内存
+**原因：**
 
+​		大型应用中String对象占到25%，有的甚至占用到50%，所以对于String的非常有必要，经过去重以后，避免浪费内存。许多大规模的Java应用的瓶颈在于内存，测试表明，堆上存在重复的String对象必然是一种内存的浪费。这个项目将在G1垃圾收集器中实现自动持续对重复的String对象进行去重，这样就能避免浪费内存。
 
+**实现：**
 
-1. 
++ 当垃圾收集器工作的时候，会访问堆上存活的对象。对每一个访问的对象都会检查是否是候选的要去重的string对象。
++ 如果是，把这个对象的一个引用插入到队列中等待后续的处理。一个去重的线程在后台运行，处理这个队列。处理队列的一-个元素意味着从队列删除这个元素，然后尝试去重它引用的String对象。
++ 使用一个hashtable来 记录所有的被String对象使用的不重复的char数组。当去重的时候，会查这个hashtable,来看堆上是否已经存在一个一模一样的char数组。
++ 如果存在，String对象会被调整引用那个数组，释放对原来的数组的引用，最终会被垃圾收集器回收掉。
++ 如果查找失败，char数组会被插入到hashtable， 这样以后的时候就可以共享这个数组了
+
+**命令行选项：**
+
++ UseStringDeduplication (bool) :开启String去重，默认是不开启的，需要手动开启。
++ PrintStringDedupl icationStatistics (bool) :打印详细的去重统计信息
++ StringDedupl icationAgeThreshold (uintx) :达到这个年龄的String对象被认为是去重的候选对象
 
 
 
