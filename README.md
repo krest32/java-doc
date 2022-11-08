@@ -21,7 +21,14 @@
 + [为什么说MySQL单表行数不要超过2000w?](https://juejin.cn/post/7160487684358537246)
 + [恭喜 Apache ShenYu 毕业成为 Apache 顶级项目！](https://juejin.cn/post/7125611044520591368)
 + [实现真正的高性能高并发的上亿级别秒杀系统！](https://juejin.cn/post/7160001411181346824)
-
++ [MyBatis这样用，同事直呼哇塞，堪称最佳实践！](https://juejin.cn/post/7160857023544819742)
++ [ElasticSearch这些坑记得避开](https://juejin.cn/post/7161953511683391525)
++ [Java中的线程中断](https://juejin.cn/post/7163295063844323335)
++ [Java线程池是怎么统计线程的空闲时间的](https://juejin.cn/post/7163186630273007647)
++ [源码级深度理解 Java SPI](https://juejin.cn/post/7163177020615032863)
++ [NB的Github项目，看到最后一个我惊呆了！](https://juejin.cn/post/7162105483338678280)
++ [检索式对话系统在美团客服场景的探索与实践](https://zhuanlan.zhihu.com/p/581189748)
++ [详解 Serverless 架构的 6 大应用场景](https://zhuanlan.zhihu.com/p/581086768)
 
 ### 2022年10月推荐
 
