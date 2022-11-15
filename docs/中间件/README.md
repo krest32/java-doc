@@ -16,7 +16,8 @@
 4. 注册中心
    1. ZooKeeper
 5. 其他
-   1. Velocity
-   2. 百度地图
-   3. Jmeter
+   1. Activi7
+   2. Velocity
+   3. 百度地图
+   4. Jmeter
 
