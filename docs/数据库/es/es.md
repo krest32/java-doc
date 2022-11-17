@@ -466,8 +466,13 @@ ELK架构为数据分布式存储、可视化查询和日志解析创建了一�
 
 ### 6.2 ES必要的插件
 
-必要的Head、kibana、IK（中文分词）、graph等插件的详细安装和使用。 
-http://blog.csdn.net/column/details/deep-elasticsearch.html
+必要的Head、kibana、IK（中文分词）、graph等插件的详细安装和使用。
+
+ [简单使用](https://blog.csdn.net/qq_26002283/article/details/107062665?ops_request_misc=&request_id=&biz_id=102&utm_term=server.port:%205601%20server.host:&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-107062665.142^v63^control_1,201^v3^add_ask,213^v2^t3_esquery_v1&spm=1018.2226.3001.4187)
+
+
+
+
 
 ### 6.3 ES windows下一键安装
 

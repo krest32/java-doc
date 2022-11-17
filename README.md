@@ -20,7 +20,7 @@
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
 
 ### 2022年11月推荐
-
++ [刨根问底 Redis， 面试过程真好使](https://juejin.cn/post/7165359197125607455)
 + [为什么说MySQL单表行数不要超过2000w?](https://juejin.cn/post/7160487684358537246)
 + [恭喜 Apache ShenYu 毕业成为 Apache 顶级项目！](https://juejin.cn/post/7125611044520591368)
 + [实现真正的高性能高并发的上亿级别秒杀系统！](https://juejin.cn/post/7160001411181346824)

@@ -16,6 +16,7 @@
   * [zookeeper](./docs/中间件/注册中心/zookeeper/zookeeper.md)
 * [其他](./docs/中间件/其他/)
   * [Activi7](./docs/中间件/工作流/Activi7.md)
+  * [Canal](./docs/中间件/其他/Canal/Canal.md)
   * [Velocity](./docs/中间件/其他/Velocity/Velocity.md)
   * [百度地图](./docs/中间件/其他/百度地图/百度地图.md)
   * [Shiro](./docs/中间件/其他/Shiro/Shiro.md)
