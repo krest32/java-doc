@@ -18,6 +18,7 @@
 
 + [元动力课堂的课件(他们家还不错，文档挺好)](https://www.ydlclass.com/doc21xnv/)
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
++ [后端架构师技术图谱](https://juejin.cn/post/6844903602369232904)
 
 ### 2022年11月推荐
 + [刨根问底 Redis， 面试过程真好使](https://juejin.cn/post/7165359197125607455)
@@ -32,6 +33,9 @@
 + [NB的Github项目，看到最后一个我惊呆了！](https://juejin.cn/post/7162105483338678280)
 + [检索式对话系统在美团客服场景的探索与实践](https://zhuanlan.zhihu.com/p/581189748)
 + [详解 Serverless 架构的 6 大应用场景](https://zhuanlan.zhihu.com/p/581086768)
++ [6种MySQL数据库平滑扩容方案剖析](https://juejin.cn/post/7166859294615273480)
++ [用了CDN就一定比不用更快吗？](https://juejin.cn/post/7166782260933296142)
++ [架构师写的BUG，非比寻常](https://juejin.cn/post/6854573213427433480)
 
 ### 2022年10月推荐
 
