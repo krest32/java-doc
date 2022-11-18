@@ -36,6 +36,8 @@
 + [6种MySQL数据库平滑扩容方案剖析](https://juejin.cn/post/7166859294615273480)
 + [用了CDN就一定比不用更快吗？](https://juejin.cn/post/7166782260933296142)
 + [架构师写的BUG，非比寻常](https://juejin.cn/post/6854573213427433480)
++ [美团外卖搜索基于Elasticsearch的优化实践](https://zhuanlan.zhihu.com/p/584648660)
++ [为了写好代码，你坚持了哪些好习惯？](https://www.zhihu.com/question/535244045/answer/2719894116)
 
 ### 2022年10月推荐
 
