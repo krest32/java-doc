@@ -2120,6 +2120,31 @@ DEBUG 为程序的调试信息
 
 
 
+### SLF4J日志门面
+
+ 简单日志门面(Simple Logging Facade For Java) SLF4J主要是为了给Java日志访问提供一套标准、规范的API框架，其主要意义在于提供接口，具体的实现可以交由其他日志框架，例如log4j和logback等。 当然slf4j自己也提供了功能较为简单的实现，但是一般很少用到。对于一般的Java项目而言，日志框架 会选择slf4j-api作为门面，配上具体的实现框架（log4j、logback等），中间使用桥接器完成桥接。官方网站： https://www.slf4j.org/
+
+SLF4J是目前市面上最流行的日志门面。现在的项目中，基本上都是使用SLF4J作为我们的日志系统。
+
+SLF4J日志门面主要提供两大功能：
+
+1. 日志框架的绑定
+2. 日志框架的桥接
+
+### 我们为什么要使用日志门面：
+
+1. 面向接口开发，不再依赖具体的实现类。减少代码的耦合
+2. 项目通过导入不同的日志实现类，可以灵活的切换日志框架
+3. 统一API，方便开发者学习和使用
+4. 统一配置便于项目日志的管理
+
+### SLF4J原理解析
+
+1. SLF4J通过LoggerFactory加载日志具体的实现对象。
+2. LoggerFactory在初始化的过程中，会通过performInitialization()方法绑定具体的日志实现。
+3. 在绑定具体实现的时候，通过类加载器，加载org/slf4j/impl/StaticLoggerBinder.class
+4. 所以，只要是一个日志实现框架，在org.slf4j.impl包中提供一个自己的StaticLoggerBinder类，在其中提供具体日志实现的LoggerFactory就可以被SLF4J所加载
+
 
 
 ###  `SpringBoot` 日志

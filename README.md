@@ -63,6 +63,7 @@
 + [三个线程顺序打印ABC?我有十二种做法！](https://juejin.cn/post/7149006608209543176)
 + [携程酒店慢查询治理之路](https://zhuanlan.zhihu.com/p/576875838?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568932550311129088&utm_source=wechat_session)
 + [聊一聊分布式锁的设计模型](https://zhuanlan.zhihu.com/p/574807053?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568933222423150593&utm_source=wechat_session)
++ [Redis客户端Jedis与Luttuce](https://blog.csdn.net/honger_hua/article/details/106529643?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166956598516782428677430%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166956598516782428677430&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-106529643-null-null.142^v66^control,201^v3^control_2,213^v2^t3_control2&utm_term=Jedis%E3%80%81lettuce&spm=1018.2226.3001.4187)
 
 
 ### 2022年9月推荐
