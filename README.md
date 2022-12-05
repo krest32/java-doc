@@ -19,6 +19,9 @@
 + [元动力课堂的课件(他们家还不错，文档挺好)](https://www.ydlclass.com/doc21xnv/)
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
 + [后端架构师技术图谱](https://juejin.cn/post/6844903602369232904)
+### 2022年12月推荐
++ [GC 可达性分析 回收算法 卡表 G1](https://blog.csdn.net/m0_46690280/article/details/121941158?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522167021167016782412582345%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=167021167016782412582345&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-121941158-null-null.142^v67^control,201^v4^add_ask,213^v2^t3_control2&utm_term=JVM%20G1%20%E5%8D%A1%E8%A1%A8&spm=1018.2226.3001.4187)
+
 
 ### 2022年11月推荐
 + [刨根问底 Redis， 面试过程真好使](https://juejin.cn/post/7165359197125607455)
