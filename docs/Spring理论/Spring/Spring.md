@@ -15,7 +15,7 @@
 
 ### Spring 的优缺点是什么？
 
-优点
+**优点**
 
 - 方便解耦，简化开发，IOC实现对象的托管
 
@@ -29,9 +29,7 @@
 
 - 降低JavaEE API的使用难度，Spring对JavaEE开发中非常难用的一些API（JDBC、JavaMail、远程调用等），都提供了封装。
 
-
-
-缺点
+**缺点**
 
 - Spring明明一个很轻量级的框架，却给人感觉大而全
 - Spring依赖反射，反射影响性能
@@ -71,8 +69,6 @@ Spring 总共大约有 20 个模块， 由 1300 多个不同的文件构成。 �
 - **spring Web：**提供了针对 Web 开发的集成特性，例如文件上传，利用 servlet listeners 进行 ioc 容器初始化和针对 Web 的 ApplicationContext。
 - **spring test：**主要为测试提供支持的，支持使用JUnit或TestNG对Spring组件进行单元测试和集成测试。
 
-
-
 ### Spring 框架中都用到了哪些设计模式？
 
 1. 工厂模式：BeanFactory就是简单工厂模式的体现，用来创建对象的实例；
@@ -81,27 +77,11 @@ Spring 总共大约有 20 个模块， 由 1300 多个不同的文件构成。 �
 4. 模板方法：用来解决代码重复的问题。比如. RestTemplate, JmsTemplate, JpaTemplate。
 5. 观察者模式：定义对象键一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都会得到通知被制动更新，如Spring中listener的实现–ApplicationListener。
 
-
-
-### 详细讲解一下核心容器（spring context) 模块
+### 详细讲解一下spring context 模块
 
 ​		这是基本的Spring模块，提供spring 框架的基础功能，BeanFactory 是任何以spring为基础的应用的核心。Spring 框架建立在此模块之上，它使Spring成为一个容器。
 
 ​		Bean 工厂是工厂模式的一个实现，提供了控制反转功能，用来把应用的配置和依赖从真正的应用代码中分离。最常用的就是org.springframework.beans.factory.xml.XmlBeanFactory ，它根据XML文件中的定义加载beans。该容器从XML 文件读取配置元数据并用它去创建一个完全配置的系统或应用。
-
-
-
-### Spring 框架中有哪些不同类型的事件
-
-Spring 提供了以下5种标准的事件：
-
-1. 上下文更新事件（ContextRefreshedEvent）：在调用ConfigurableApplicationContext 接口中的refresh()方法时被触发。
-2. 上下文开始事件（ContextStartedEvent）：当容器调用ConfigurableApplicationContext的Start()方法开始/重新开始容器时触发该事件。
-3. 上下文停止事件（ContextStoppedEvent）：当容器调用ConfigurableApplicationContext的Stop()方法停止容器时触发该事件。
-4. 上下文关闭事件（ContextClosedEvent）：当ApplicationContext被关闭时触发该事件。容器被关闭时，其管理的所有单例Bean都被销毁。
-5. 请求处理事件（RequestHandledEvent）：在Web应用中，当一个http请求（request）结束触发该事件。如果一个bean实现了ApplicationListener接口，当一个ApplicationEvent 被发布以后，bean会自动被通知。
-
-
 
 ### Spring 应用程序有哪些不同组件？
 
@@ -113,8 +93,6 @@ Spring 应用一般有以下组件：
 - Spring 面向切面编程（AOP） - 提供面向切面编程的功能。
 - 用户程序 - 它使用接口。
 
-
-
 ### 使用 Spring 有哪些方式？
 
 使用 Spring 有以下方式：
@@ -123,8 +101,6 @@ Spring 应用一般有以下组件：
 - 作为第三方 Web 框架，使用 Spring Frameworks 中间层。
 - 作为企业级 Java Bean，它可以包装现有的 POJO（Plain Old Java Objects）。
 - 用于远程使用。
-
-
 
 ## Spring控制反转(IOC)
 
@@ -489,6 +465,10 @@ Spring解决循环依赖是有前置条件的
 9. A 实例获取 B 实例引用后，A 实例也能继续完成依赖注入及后续初始化操作
 10. A 是从 earlySingletonObjects 中删除，添加到 singletonObjects 缓存中
 ~~~
+
+### 三级缓存为什么要使用工厂而不是直接使用引用？直接通过二级缓存不行吗？
+
+如果要使用二级缓存解决循环依赖，意味着所有Bean在实例化后就要完成AOP代理，这样违背了Spring设计的原则，Spring在设计之初就是通过AnnotationAwareAspectJAutoProxyCreator这个后置处理器来在Bean生命周期的最后一步来完成AOP代理，而不是在实例化后就立马进行AOP代理。
 
 
 

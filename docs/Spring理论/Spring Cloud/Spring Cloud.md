@@ -322,6 +322,14 @@ LB 由可以分为如下两种：
 
 一句话总结就是：Ribbon 可以实现负载均衡 + RestTemplate 调用。（更多关于 RestTemplate 用法可以参考[官网文档](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html)）
 
+### Ribbon 工作原理
+
++ 拦截远程调用请求
++ 获取服务名称
++ 从服务中心拉取服务列表
++ IRule利用内置负载均衡规则，从列表中选择一个
++ 发起真实请求
+
 ### Ribbon 核心组件 IRule
 
 #### IRule 简介
