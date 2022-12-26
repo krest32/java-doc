@@ -1,23 +1,23 @@
 
 
-# Sql查询的基本
+# Sql查询
 
-## 其他资料
+## 基本用法
+
+### 其他资料
+
 + [知乎：如何学习Sql](https://www.zhihu.com/question/19552975/answer/2594604218)
 
-
-## 查询的基本原理
+### 查询的基本原理
 
 1. 单表查询：根据WHERE条件过滤表中的记录，形成中间表（这个中间表对用户是不可见的）；然后根据SELECT的选择列选择相应的列进行返回最终结果。
 2. 两表连接查询：对两表求积（笛卡尔积）并用ON条件和连接连接类型进行过滤形成中间表；然后根据WHERE条件过滤中间表的记录，并根据SELECT指定的列返回查询结果。
 3. 多表连接查询：先对第一个和第二个表按照两表连接做查询，然后用查询结果和第三个表做连接查询，以此类推，直到所有的表都连接上为止，最终形成一个中间的结果表，然后根据WHERE条件过滤中间表的记录，并根据SELECT指定的列返回查询结果。
    理解SQL查询的过程是进行SQL优化的理论依据。
 
+## 常用Sql语句
 
-
-# 常用Sql语句
-
-## Select
+### Select
 
 ~~~Sql
 SELECT
@@ -101,9 +101,7 @@ ORDER BY
     column_name ASC | DESC;
 ~~~
 
-
-
-## INSERT INTO
+### INSERT INTO
 
 ~~~Sql
 # 插入新的数据
@@ -122,9 +120,7 @@ FROM
     apps;
 ~~~
 
-
-
-## Update
+### Update
 
 ~~~sql
 # 更新数据库
@@ -137,9 +133,7 @@ WHERE
     name = '菜鸟教程';
 ~~~
 
-
-
-## Delete
+### Delete
 
 ~~~Sql
 # 删除相关信息
@@ -149,9 +143,7 @@ WHERE
     some_column = some_value;
 ~~~
 
-
-
-##  通配符
+### 通配符
 
 ~~~SQL
 # url 以字母 "https" 开始的所有网站：
@@ -172,9 +164,7 @@ WHERE
 
 ~~~
 
-
-
-## In
+### In
 
 ~~~Sql
 # IN 操作符允许您在 WHERE 子句中规定多个值。
@@ -193,9 +183,7 @@ WHERE
     NAME IN ('Google', '菜鸟教程');
 ~~~
 
-
-
-## BETWEEN 
+### BETWEEN 
 
 ~~~SQl
 # 取介于两个值之间的数据范围内的值。这些值可以是数值、文本或者日期。
@@ -239,9 +227,7 @@ WHERE
 
 ~~~
 
-
-
-## 别名
+### 别名
 
 ~~~Sql
 # 可以为表名称或列名称指定别名
@@ -251,9 +237,7 @@ FROM
     table_name;
 ~~~
 
-
-
-## Join
+### Join
 
 ~~~sql
 # 左连接
@@ -268,9 +252,7 @@ ORDER BY
     access_log.count DESC;
 ~~~
 
-
-
-## union
+### union
 
 ~~~sql
 # UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
@@ -289,9 +271,7 @@ ORDER BY
     country;
 ~~~
 
-
-
-##  CREATE 
+### CREATE 
 
 ~~~SQl
 CREATE TABLE Persons
@@ -323,11 +303,7 @@ CREATE TABLE `t_order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单表';
 ~~~
 
-
-
-
-
-## 约束
+### 约束
 
 ~~~SQl
 在 SQL 中，我们有如下约束：
@@ -339,9 +315,7 @@ CHECK - 保证列中的值符合指定的条件。
 DEFAULT - 规定没有给列赋值时的默认值。
 ~~~
 
-
-
-## Drop
+### Drop
 
 ~~~sql
 # 删除某个索引
@@ -355,9 +329,7 @@ DROP TABLE table_name
 DROP DATABASE database_name
 ~~~
 
-
-
-## ALTER 
+### ALTER 
 
 ~~~sql
 # 在表中添加列
@@ -377,9 +349,7 @@ MODIFY
     COLUMN column_name datatype
 ~~~
 
-
-
-## AUTO INCREMENT
+### AUTO INCREMENT
 
 ~~~sql
 # 定义自增
@@ -398,13 +368,9 @@ ALTER TABLE
     Persons AUTO_INCREMENT = 100
 ~~~
 
+## 函数
 
-
-# 函数
-
-
-
-##  AVG() 
+### AVG() 
 
 ~~~sql
 # 求取平均值
@@ -424,9 +390,7 @@ WHERE
     );
 ~~~
 
-
-
-## COUNT()
+### COUNT()
 
 ~~~sql
 # 返回指定列的值的数目（NULL 不计入）
@@ -441,9 +405,7 @@ WHERE
     site_id = 3;
 ~~~
 
-
-
-## FIRST() / LAST() 
+### FIRST() / LAST() 
 
 （只有 MS Access 支持 FIRST() 函数。）
 
@@ -460,9 +422,7 @@ LIMIT
     1;
 ~~~
 
-
-
-## MAX() 
+### MAX() 
 
 ~~~sql
 # 选取在最大值
@@ -472,9 +432,7 @@ FROM
     websites;
 ~~~
 
-
-
-## MIN() 
+### MIN() 
 
 ~~~sql
 # 选取最小值
@@ -484,9 +442,7 @@ FROM
     websites;
 ~~~
 
-
-
-## SUM()
+### SUM()
 
 ~~~sql
 # 去取总和
@@ -496,9 +452,7 @@ FROM
     websites;
 ~~~
 
-
-
-## GROUP BY
+### GROUP BY
 
 ​		用于结合聚合函数，根据一个或多个列对结果集进行分组。
 
@@ -518,9 +472,7 @@ GROUP BY
     Websites.name;
 ~~~
 
-
-
-## HAVING
+### HAVING
 
 增加 HAVING 子句原因是，WHERE 关键字无法与聚合函数一起使用。HAVING 子句可以让我们筛选分组后的各组数据。
 
@@ -541,21 +493,15 @@ HAVING
     SUM(access_log.count) > 200;
 ~~~
 
-
-
-## UCASE()
+### UCASE()
 
 把字段的值转换为大写
 
-
-
-## LCASE()
+### LCASE()
 
  函数把字段的值转换为小写。
 
-
-
-## MID() 
+### MID() 
 
 MID() 函数用于从文本字段中提取字符。
 
@@ -573,9 +519,7 @@ FROM
     Websites;
 ~~~
 
-
-
-## LEN() 函数
+### LEN() 函数
 
 LEN() 函数返回文本字段中值的长度。
 
@@ -589,9 +533,7 @@ FROM
     Websites;
 ~~~
 
-
-
-## NOW()
+### NOW()
 
 返回当前系统的日期和时间。
 
@@ -604,9 +546,7 @@ FROM
     Websites;
 ~~~
 
-
-
-## FORMAT()
+### FORMAT()
 
 函数用于对字段的显示进行格式化。
 
@@ -625,3 +565,104 @@ FROM
     Websites;
 ~~~
 
+## 高级
+
+### 递归
+
+~~~ sql
+CREATE TABLE `t_elsign_document` (
+  `fid` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键',
+  `ffile_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '附件id',
+  `fcontranct_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '合同名称',
+  `fstatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态 签署状态；DRAFT（草稿），FILLING（填参中），WAITING（等待签署）SIGNING（签署中），COMPLETE（已完成），TERMINATING（作废中），TERMINATED（作废完成）',
+  `fdocument_id` bigint DEFAULT NULL COMMENT '文档id',
+  `fsource_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '关联业务主键',
+  `fcontranct_id` bigint DEFAULT NULL COMMENT '合同id',
+  `fsign_type` tinyint DEFAULT NULL COMMENT '用印方式：1 线上 2 线下',
+  `ffilenum` int DEFAULT NULL COMMENT '线下用印份数',
+  `fcreate_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `fupdate_time` datetime DEFAULT NULL COMMENT '修改时间',
+  `fcreate_user` int DEFAULT NULL COMMENT '创建人',
+  `fupdate_user` int DEFAULT NULL COMMENT '最近修改人',
+  `fdel` tinyint(1) DEFAULT NULL COMMENT '删除 1 是 0 否',
+  `fis_Appended` tinyint NOT NULL DEFAULT '0' COMMENT '是否被追加补盖的文件',
+  `ffrom_fileId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '被此文件补盖的文件',
+  `fsigned_file_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '签署完成后下载的文件',
+  `frequire_position` tinyint(1) DEFAULT '0' COMMENT '是否需要手动指定位置',
+  PRIMARY KEY (`fid`) USING BTREE,
+  KEY `idx_el_doc_file_id` (`ffile_id`) USING BTREE,
+  KEY `idx_el_doc_source_id` (`fsource_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+~~~
+
+~~~sql
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219143644000001', '12191436330909514946', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 14:36:45', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219150728000001', '12191507245611366417', '说明3', 'COMPLETE', 3042353692238783217, NULL, 3042353692444304115, 1, NULL, '2022-12-19 15:07:28', '2022-12-19 15:07:58', 172, 172, 0, 0, NULL, '12191507580251399881', 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219150926000001', '12191507580251399881', '说明3', 'COMPLETE', 3042354189054092224, '12191507245611366417', 3042354189179921346, 1, NULL, '2022-12-19 15:09:26', '2022-12-19 15:09:48', 172, NULL, 0, 1, '12191507245611366417', '12191509476031509459', 1);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219151731000001', '12191516149241896780', 'test1', 'COMPLETE', 3042356316514132705, NULL, 3042356316618990307, 1, NULL, '2022-12-19 15:17:54', '2022-12-19 16:06:49', 136, 136, 0, 0, NULL, '12191606486184930474', 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219153944000001', '12191515053781827234', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 15:39:44', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219154620000001', '12191546169963698852', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 15:46:21', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219154629000001', '12191546095853691441', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 15:46:30', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219154825000001', '12191548166383818494', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 15:48:25', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219160857000001', '12191606486184930474', 'test1', 'COMPLETE', 3042369165659579313, '12191516149241896780', 3042369165802185651, 1, NULL, '2022-12-19 16:08:57', '2022-12-19 16:09:23', 172, NULL, 0, 1, '12191516149241896780', '12191609229905084846', 1);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219162124000001', '12191621083925790248', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 16:21:24', NULL, 134, NULL, 0, 0, NULL, NULL, 0);
+INSERT INTO plm_base_admin.t_elsign_document
+(fid, ffile_id, fcontranct_name, fstatus, fdocument_id, fsource_id, fcontranct_id, fsign_type, ffilenum, fcreate_time, fupdate_time, fcreate_user, fupdate_user, fdel, fis_Appended, ffrom_fileId, fsigned_file_id, frequire_position)
+VALUES('20221219162227000001', '12191621536835835539', NULL, 'DRAFT', NULL, NULL, NULL, 2, NULL, '2022-12-19 16:22:27', NULL, 136, NULL, 0, 0, NULL, '12191639031586865014', 0);
+~~~
+
+查询
+
+~~~sql
+select 
+	t2.*
+from (
+	select 
+		@fsigned_file_id as _fsigned_file_id,	
+		(
+			select @fsigned_file_id := ffile_id from t_elsign_document where fsigned_file_id = _fsigned_file_id
+		) as _ffile_id,
+		@beforeFile := (
+			select ffile_id from t_elsign_document where fsigned_file_id = _fsigned_file_id
+		)as file_flag,
+		@l := @l+1 as lvl
+	from 
+		(
+			select  @fsigned_file_id :=fsigned_file_id, @l :=0, @beforeFile := fsigned_file_id
+			from t_elsign_document 
+			where fsigned_file_id = '1110133059195948347'
+		) vars,
+		t_elsign_document
+	where 
+		@beforeFile is not null
+	) t4,
+	t_elsign_document t2
+where 
+	t2.ffile_id = t4._ffile_id
+order by 
+	t2.fupdate_time
+asc
+
+~~~
+
+![image-20221219234212406](img/image-20221219234212406.png)
