@@ -1246,11 +1246,11 @@
 
 #### Jenkies
 
-1. Pipeline 流水线语法
+1. Pipeline 流水线语法，控制持续Dev流程
 
 #### SonarQube
 
-1. 代码审查
+1. 代码审查的一个工具
 
 #### Harbor
 
@@ -1338,22 +1338,23 @@
 
 ### 服务监控
 
-1. `Prometheus`
-2. `Grafana`
+1. `Prometheus`（需要结合K8s进行使用）
+2. `Grafana`（可视化工具，结合`Prometheus`使用）
 3. `Zabbix`
 
 ### 日志采集
 
-1. `Flume`
+1. `Flume`（主要使用方式 Data -> Flume -> Kafka -> Hbase/Spark）
 2. `ELK`
 
 ### 工作流
 
 1. `JBPM`
-2. `Activiti`
+2. `Activiti7`
 3. `Flowable`
 4. `Snaker`
-5. `compileflow`- 阿里，推荐试用下
+5. `compileflow`
+6. `Camunda`（目前看起来是个不错的版本）
 
 ## 第八章 源码
 
@@ -1537,56 +1538,6 @@ scavage 使用标记整理
 
 
 
-#  前端部分
-
-### 基础部分
-
-#### `Html`
-
-#### `CSS`
-
-#### `JS/TS`
-
-### UI开发框架
-
-1. `Element UI` -> `Vue2`
-2. `Element Plus` -> `Vue3`
-
-### 前端开发框架
-
-#### 概念
-
-1. 三种开发框架的对比
-1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
-
-#### 1.` Vue`
-
-1. `Vue2` 、`Vue3`
-2. `Vuex`
-3. `Axios`
-4. `Vue router`
-5. `Vite`
-6. `Nuxt`
-
-#### 2. `React`
-
-#### 3. `Angular` 
-
-### 微前端
-
-#### `Single-SPA`
-
-#### `QianKun`
-
-### 个人建站工具
-
-1. [VuePress](https://www.vuepress.cn/)
-2. [Docsify](https://docsify.js.org/#/zh-cn/)
-3. Hexo
-4. GitBook
-
-
-
 # 技术管理
 
 ## 项目开发流程
@@ -1693,6 +1644,58 @@ scavage 使用标记整理
 
 1. ER 图：实体——属性——关系 图
 
+
+
+#  前端部分
+
+### 基础部分
+
+#### `Html`
+
+#### `CSS`
+
+#### `JS/TS`
+
+### UI开发框架
+
+1. `Element UI` -> `Vue2`
+2. `Element Plus` -> `Vue3`
+
+### 前端开发框架
+
+#### 概念
+
+1. 三种开发框架的对比
+1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
+
+#### 1.` Vue`
+
+1. `Vue2` 、`Vue3`
+2. `Vuex`
+3. `Axios`
+4. `Vue router`
+5. `Vite`
+6. `Nuxt`
+
+#### 2. `React`
+
+#### 3. `Angular` 
+
+### 微前端
+
+#### `Single-SPA`
+
+#### `QianKun`
+
+### 个人建站工具
+
+1. [VuePress](https://www.vuepress.cn/)
+2. [Docsify](https://docsify.js.org/#/zh-cn/)
+3. Hexo
+4. GitBook
+
+
+
 # 大数据领域
 
 ## 概述
@@ -1796,3 +1799,7 @@ scavage 使用标记整理
 1. 通过监听实现单词数量的实时统计
 
 ### 架构
+
+
+
+# 机器学习
