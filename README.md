@@ -25,6 +25,8 @@
 + [怎样快速地迁移 MySQL 中的数据？](https://juejin.cn/post/7187313594093010981)
 + [多线程代码，性能怎么优化！](https://juejin.cn/post/7188029263201697851)
 + [一文梳理Code Review方法论与实践总结](https://zhuanlan.zhihu.com/p/598751710)
++ [MYSQL中的14个神仙功能，惊艳到我了！！！](https://juejin.cn/post/7179239346967412773)
++ [大白话DDD](https://juejin.cn/post/7184800180984610873)
 
 ### 2022年12月推荐
 + [GC 可达性分析 回收算法 卡表 G1](https://blog.csdn.net/m0_46690280/article/details/121941158?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522167021167016782412582345%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=167021167016782412582345&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-121941158-null-null.142^v67^control,201^v4^add_ask,213^v2^t3_control2&utm_term=JVM%20G1%20%E5%8D%A1%E8%A1%A8&spm=1018.2226.3001.4187)
