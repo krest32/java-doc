@@ -1,4 +1,36 @@
-# 1.Hive入门
+# 数据仓库基本理论
+
+## 概论
+
++ 用于存储、分析、生成报告的数据系统
++ 数据仓库的目的是构建面向分析的集成化数据环境，分析结果为企业提供决策支持
++ 数据仓库不生产数据，它产生的结果供给各个部门进行使用
+
+## 特征
+
++ 面向主题
++ 集成性：数据很多
++ 非易变性：数据不易发生改变
++ 时变性：随时间而增加
+
+## OLTP、OLAP
+
+OLTP：操作性处理，联机事务处理，MySql，MongoDB等
+
+OLAP：联机分析系统，数据仓库就是一种
+
+## 数据集市
+
+它是一个部门的子集，也就是一个小型的数据仓库
+
+## 分层架构
+
++ 数据仓库不产生数据，也不消费数据
++ 每个企业根据自己的业务需求可以分成不同的层次：**操作数据层、数据仓库层、数据应用层**
++ ETL：从各种数据源获取数据，抽取过来，放在缓存区，然后将转化为结构化的数据加载到数据仓库中
++ ELT：先抽取数据，然后转存，最后在进行转化
+
+# 1.Hive
 
 ## 1.1 什么是Hive
 
@@ -84,7 +116,12 @@ hiveserver2
 新建命令窗口，输入以下命令
 
 ~~~bash
-beeline -u "jdbc:hive2://localhost:10000"
+bin/hive --service beeline
+
+
+beeline -u "jdbc:hive2://hadoop100:10000"
+
+! connect "jdbc:hive2://hadoop100:10000"
 ~~~
 
 
@@ -368,17 +405,39 @@ SerDe是Serialize/Deserilize的简称，目的是用于序列化和反序列化�
 
 ### 4.4.1内部表
 
-​		默认创建的表都是所谓的管理表，有时也被称为内部表。因为这种表，Hive会（或多或少地）控制着数据的生命周期。Hive默认情况下会将这些表的数据存储在由配置项hive.metastore.warehouse.dir(例如，/opt/hive/warehouse)所定义的目录的子目录下。 当我们删除一个管理表时，Hive也会删除这个表中数据。管理表不适合和其他工具共享数据。
+​		默认创建的表都是所谓的管理表，有时也被称为内部表。因为这种表，**Hive会（或多或少地）控制着数据的生命周期**。Hive默认情况下会将这些表的数据存储在由配置项hive.metastore.warehouse.dir(例如，/opt/hive/warehouse)所定义的目录的子目录下。 当我们删除一个管理表时，Hive也会删除这个表中数据。管理表不适合和其他工具共享数据。
 
-普通创建表
+普通创建表，通过制表符分割字段
 
 ~~~sql
-create table if not exists student2(
-id int, name string
-)
-row format delimited fields terminated by '\t';
+create table if not exists student2(id int, name string) 
+        row format delimited fields terminated by '\t';
 ~~~
 
+**复杂分割字段**
+
+~~~sql
+create table t_hot_hero_skin_price(
+    id int,
+    name string,
+    win_rate int,
+    skin_price map < string,
+    int >
+) row format delimited fields terminated by ',' --字段之间分隔符
+collection items terminated by '-' --集合元素之间分隔符
+map keys terminated by ':'; --集合元素kv之间分隔符;
+~~~
+
+**默认分割符字段**
+
+~~~sql
+create table t_team_ace_player(
+    id int,
+    team_name string,
+    ace_player_name string
+);
+--没有指定row format语句 此时采用的是默认的\001作为字段的分隔符
+~~~
 
 根据查询结果创建表（查询的结果会添加到新创建的表中）
 
@@ -403,7 +462,7 @@ desc formatted student2;
 
 ### 4.4.2外部表
 
-因为表是外部表，所以Hive并非认为其完全拥有这份数据。删除该表并不会删除掉这份数据，不过描述表的元数据信息会被删除掉。
+**因为表是外部表，所以Hive并非认为其完全拥有这份数据。删除该表并不会删除掉这份数据，不过描述表的元数据信息会被删除掉。**
 
 管理表和外部表的使用场景
 每天将收集到的网站日志定期流入HDFS文本文件。在外部表（原始日志表）的基础上做大量的统计分析，用到的中间表、结果表使用内部表存储，数据通过SELECT+INSERT进入内部表。
@@ -418,22 +477,35 @@ Shelley|New York|Female,27|Python:80|Test:Lead,COE:Architect
 Lucy|Vancouver|Female,57|Sales:89|Sales:Lead
 ~~~
 
-
 建表语句
+
+~~~SQL
+--默认情况下 创建的表就是内部表
+create table student(
+     num int,
+     name string,
+     sex string,
+     age int,
+     dept string)
+row format delimited
+fields terminated by ',';
+~~~
+
+
 
 创建员工表
 
 ~~~sql
 create external table if not exists employee(
-name string,
-address array<string>,
-personalInfo array<string>,
-technol map<string,int>,
-jobs map<string,string>)
-row format delimited
-fields terminated by '|'
-collection items terminated by ','
-map keys terminated by ':'
+    name string,
+    address array < string >,
+    personalInfo array < string >,
+    technol map < string,int >,
+    jobs map < string,string >
+) 
+row format delimited fields terminated by '|' 
+collection items terminated by ',' 
+map keys terminated by ':' 
 lines terminated by '\n';
 ~~~
 
@@ -458,7 +530,7 @@ select * from employee;
 
 
 
-### 4.4.3管理表与外部表的互相转换
+### 4.4.3管理内部表与外部表的互相转换
 
 修改内部表student2为外部表
 
@@ -478,6 +550,100 @@ alter table student2 set tblproperties('EXTERNAL'='FALSE');
 ## 4.5分区表（partition）
 
 ​		分区表实际上就是对应一个HDFS文件系统上的独立的文件夹，该文件夹下是该分区所有的数据文件。Hive中的分区就是分目录，把一个大的数据集根据业务需要分割成小的数据集。在查询时通过WHERE子句中的表达式选择查询所需要的指定的分区，这样的查询效率会提高很多。
+
+### 静态分区
+
+创建分区表（单分区）
+
+~~~sql
+--注意分区表创建语法规则
+--分区表建表
+create table t_all_hero_part(
+   id int,
+   name string,
+   hp_max int,
+   mp_max int,
+   attack_max int,
+   defense_max int,
+   attack_range string,
+   role_main string,
+   role_assist string
+) partitioned by (role string)--注意哦 这里是分区字段
+row format delimited
+fields terminated by "\t";
+~~~
+
+配置静态分区
+
+~~~sql
+load data inpath '/user/hive/warehouse/t_all_hero_part/archer.txt' into table t_all_hero_part partition(role='sheshou');
+load data inpath '/user/hive/warehouse/t_all_hero_part/assassin.txt' into table t_all_hero_part partition(role='cike');
+load data inpath '/user/hive/warehouse/t_all_hero_part/mage.txt' into table t_all_hero_part partition(role='fashi');
+load data inpath '/user/hive/warehouse/t_all_hero_part/support.txt' into table t_all_hero_part partition(role='fuzhu');
+load data inpath '/user/hive/warehouse/t_all_hero_part/tank.txt' into table t_all_hero_part partition(role='tanke');
+load data inpath '/user/hive/warehouse/t_all_hero_part/warrior.txt' into table t_all_hero_part partition(role='zhanshi');
+~~~
+
+
+
+多重分区
+
+~~~sql
+----多重分区表
+--单分区表，按省份分区
+create table t_user_province (id int, name string,age int) partitioned by (province string);
+--双分区表，按省份和市分区
+--分区字段之间是一种递进的关系 因此要注意分区字段的顺序 谁在前在后
+create table t_user_province_city (id int, name string,age int) partitioned by (province string, city string);
+~~~
+
+### 动态分区
+
+~~~sql
+--创建一张新的分区表 t_all_hero_part_dynamic
+create table t_all_hero_part_dynamic(
+    id int,
+    name string,
+    hp_max int,
+    mp_max int,
+    attack_max int,
+    defense_max int,
+    attack_range string,
+    role_main string,
+    role_assist string
+) partitioned by (role string)
+row format delimited
+fields terminated by "\t";
+
+
+select * from t_all_hero;
+
+--执行动态分区插入
+
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+-- 设置允许动态分区最大分区数量
+Set hive.exec.max.dynamic.partitions=1000;
+
+
+select * from t_all_hero_part_dynamic;
+~~~
+
+
+
+### 总结
+
+1. 分区表是一种优化手段，并非必要语法规则，但是分区在企业中的应用会比较多
+
+2. 分区字段不能是表中已经存在的字段，不能重复
+
+3. 分区字段是虚拟字段，其数据并不存储在底层的文件中
+
+4. 分区字段值的确定来自于用户价值收据手动指定（静态分区）或者根据查询结果指定结果位置（动态分区）
+
+5. Hive支持动态分区，也就是在分区的基础上继续分区，划分更细力度
+
+   
 
 ### 4.5.1分区表基本操作
 
@@ -502,7 +668,7 @@ alter table student2 set tblproperties('EXTERNAL'='FALSE');
 /opt/hive/warehouse/log_partition/20170704/20170704.log
 ~~~
 
-2．创建分区表语法
+2．创建分区表语 法
 
 ~~~sql
 create table dept_partition(
@@ -585,6 +751,13 @@ show partitions dept_partition;
 ~~~sql
 desc formatted dept_partition;
 ~~~
+
+## 4.5 分桶表
+
+也是查询优化的一种逻辑，理论上就是将文件分割成多个。类似于MapShuffle阶段的文件分片
+
+分桶表，可以在联表查询的时候，大量减少无用关联数据的产生
+
 
 
 ## 4.6修改表
@@ -818,6 +991,32 @@ export table hivetest.dept_partition to '/opt/datas/dept2';
 truncate table student;
 ~~~
 
+### 5.4 事务表
+
+**概述**
+
++ Hive对事务的支持并不太好，主要原因是这款软件设计之初就是为了数据分析
++ 可是后来产生了流式传输数据，所以Hive也就可是需要支持事务
+
+**局限性**
+
++ 不支持 Begin commit Rollback
++ 仅支持ORC文件格式
++ 配置为关闭
++ 表必须是分桶表
++ 表参数Transactional必须为true
++ 外部表不能成为ACID表
+
+### 5.5 视图
+
++ 视图是一种虚拟表，只保存定义，不实际存储数据
++ 通常从真是的物理表查询中创建生成视图，也可以从已经存在的视图中创建行视图
++ 创建视图的同时需要东建视图的架构，如果删除或者更改基础表，则视图将失效
++ 视图是用来简化操作的，不缓存记录，也没有提高查询性能
+
+**Hive 3.0新特性：物化视图**
+
++ 通过预计算、提高查询性能，当然需要占用一定的存储空间
 
 # 6.查询
 
