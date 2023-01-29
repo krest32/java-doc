@@ -328,9 +328,37 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 ##### 行动算子
 
+##### 缓存
+
+可以保存数据，避免数据丢失
+
+##### 检查点
+
+可以在检查点进行持久化存储
+
+##### 数据存储的区别
+
++ cache：缓存数据保存在内存中，数据可能会丢失
++ persist：将数据临时放在磁盘文件中，进行数据重用，但是涉及到磁盘IO，性能较低，但是数据安全，如果作业执行完毕，那么临时保存的数据文件会丢失
++ checkpoint：可以将数据长久的保存在磁盘文件当中，对数据进行重用，为了保证数据安全，一般情况下，会独立进行作业，所以效率会更低。为了提高效率，一般会联合Cache进行使用。先cache后checkpoint，可以提高效率
+
+##### 分区器
+
+对数据进行分区的类，我们同样可以自定义分区器
+
+
+
+##### 数据读取和保存
+
+通常有三种方式
+
+text、object、sequence
+
 
 
 #### 累加器
+
+分布式共享只写变量
 
 ##### 实现原理
 
@@ -338,11 +366,37 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 #### 广播变量
 
+分布式共享只读变量
+
 ##### 实现原理
 
 ​		广播变量用来高效分发较大的对象。向所有工作节点发送一个较大的只读值，以供一个或多个 Spark 操作使用。比如，如果你的应用需要向所有节点发送一个较大的只读查询表， 广播变量用起来都很顺手。在多个并行操作中使用同一个变量，但是 Spark 会为每个任务分别发送。  
 
 
+
+## 源码
+
+### 流程概述
+
+1. 环境准备（Yarn）
+   + Driver，Executor
+2. 组件通信
+   + Driver => Ececutor
+   + Ececutor  => Ececutor
+   + Executor => Ececutor
+3. 应用程序的执行
+   + RDD 依赖
+   + 阶段的划分
+   + 任务的切分
+   + 任务的调度
+   + 任务的执行
+4. Shuffle
+   + shuffle 的原理和执行过程
+   + Suffle 写磁盘
+   + Shuffle 读取磁盘
+5. 内存的管理
+   + 内存的分类
+   + 内存的配置
 
 
 
@@ -352,7 +406,7 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 #### 概念
 
-​		Spark SQL 是Spark 用于结构化数据(structured data)处理的 Spark 模块。
+​		Spark SQL 是Spark 用于结构化数据(structured data)处理的 Spark 模块。它是基于Spark core 衍生出来的新的模块，目的就是通过Sql的方式来简化RDD的开发难度
 
 #### Hive and SparkSQL
 
@@ -366,7 +420,7 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 ​        其中 Shark 是伯克利实验室 Spark 生态环境的组件之一，是基于Hive 所开发的工具，它修改了内存管理、物理计划、执行三个模块，并使之能运行在 Spark 引擎上。Shark 的出现，使得SQL-on-Hadoop 的性能比Hive 有了 10-100 倍的提高。
 
-​		但是，随着Spark 的发展，对于野心勃勃的Spark 团队来说，**Shark 对于 Hive 的太多依赖（如采用 Hive 的语法解析器、查询优化器等等），制约了 Spark 的One Stack Rule Them All 的既定方针，制约了 Spark 各个组件的相互集成，所以提出了 SparkSQL 项目。**SparkSQL 抛弃原有 Shark 的代码，汲取了 Shark 的一些优点，如内存列存储（In-Memory Columnar Storage）、Hive 兼容性等，重新开发了SparkSQL 代码；由于摆脱了对Hive 的依赖性，SparkSQL无论在数据兼容、性能优化、组件扩展方面都得到了极大的方便，真可谓“退一步，海阔天空”。2014 年 6 月 1 日 Shark 项目和 SparkSQL 项目的主持人Reynold Xin 宣布：停止对 Shark 的开发，团队将所有资源放SparkSQL 项目上，至此，Shark 的发展画上了句话，**但也因此发展出两个支线：SparkSQL 和 Hive on Spark**。
+​		但是，随着Spark 的发展，对于野心勃勃的Spark 团队来说，**Shark 对于 Hive 的太多依赖（如采用 Hive 的语法解析器、查询优化器等等），制约了 Spark 的One Stack Rule Them All 的既定方针，制约了 Spark 各个组件的相互集成，所以提出了 SparkSQL 项目。**SparkSQL 抛弃原有 Shark 的代码，汲取了 Shark 的一些优点，如内存列存储（In-Memory Columnar Storage）、Hive 兼容性等，重新开发了SparkSQL 代码；由于摆脱了对Hive 的依赖性，SparkSQL无论在数据兼容、性能优化、组件扩展方面都得到了极大的方便，真可谓“退一步，海阔天空”。2014 年 6 月 1 日 Shark 项目和 SparkSQL 项目的主持人Reynold Xin 宣布：停止对 Shark 的开发，团队将所有资源放SparkSQL 项目上，至此，Shark 的发展画上了句话，但也因此发展出两个支线：**SparkSQL 和 Hive on Spark**。
 
 + 数据兼容方面 SparkSQL 不但兼容Hive，还可以从RDD、parquet 文件、JSON 文件中获取数据，未来版本甚至支持获取RDBMS 数据以及 cassandra 等NOSQL 数据；
 + 性能优化方面 除了采取 In-Memory Columnar Storage、byte-code generation 等优化技术外、将会引进Cost Model 对查询进行动态评估、获取最佳物理计划等等；
@@ -374,7 +428,7 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 ​        其中 SparkSQL 作为 Spark 生态的一员继续发展，而不再受限于 Hive，只是兼容 Hive；而Hive on Spark 是一个Hive 的发展计划，该计划将 Spark 作为Hive 的底层引擎之一，也就是说，Hive 将不再受限于一个引擎，可以采用 Map-Reduce、Tez、Spark 等引擎。
 
-​		对于开发人员来讲，SparkSQL 可以简化RDD 的开发，提高开发效率，且执行效率非常快，所以实际工作中，基本上采用的就是 SparkSQL。Spark SQL 为了简化RDD 的开发， 提高开发效率，提供了 2 个编程抽象，类似Spark Core 中的RDD
+​		对于开发人员来讲，SparkSQL 可以简化RDD 的开发，提高开发效率，且执行效率非常快，所以实际工作中，基本上采用的就是 SparkSQL。**Spark SQL 为了简化RDD 的开发， 提高开发效率，提供了 2 个编程抽象**，类似Spark Core 中的RDD
 
 + DataFrame
 + DataSet
@@ -385,7 +439,7 @@ Spark 计算框架为了能够进行高并发和高吞吐的数据处理，封�
 
 + 易整合：无缝的整合了 SQL 查询和 Spark 编程
 + 统一的数据访问：使用相同的方式连接不同的数据源
-+ 兼容 Hive：在已有的仓库上直接运行 SQL 或者 HiveQL
++ **兼容 Hive**：在已有的仓库上直接运行 SQL 或者 HiveQL
 + 标准数据连接：通过 JDBC 或者 ODBC 来连接
 
 
@@ -634,11 +688,35 @@ def main(args: Array[String]): Unit = {
     //将相同的单词次数做统计
     val wordAndCountStreams = wordAndOneStreams.reduceByKey(_+_)
 
-    //打印wordAndCountStreams.print()
+    //打印
+    wordAndCountStreams.print()
 
-    //启动 SparkStreamingContext ssc.start() ssc.awaitTermination()
+    //启动 
+    SparkStreamingContext ssc.start() ssc.awaitTermination()
     }
 }
 
 ~~~~
+
+
+
+
+
+### 结合Kafka
+
+### DStream 转化
+
+Dstream的操作类似于RDD，分为转化和输出
+
+### 无状态输出
+
+在时间周期的的状态进行汇总
+
+### 有状态转化
+
+会有一块内存区域记录所有的时间周期汇总数据，需要设置检查点
+
+
+
+
 
