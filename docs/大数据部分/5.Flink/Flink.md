@@ -27,13 +27,13 @@
    1. 对于 Spark Streaming 任务，我们可以设置 checkpoint，然后假如发生故障并重启，我们可以从上次 checkpoint 之处恢复，但是这个行为只能使得数据不丢失，可能会重复处理，不能做到恰好一次处理语义。
    2. Flink 则使用两阶段提交协议来解决这个问题。
 5. Github Star
-   1. 目前Spark 仍然是主流：33.1 K
+   1. 目前Spark 仍然是主流：33.1 K，spark 的生态会更加成熟
    2. Flink 后来居上，目前：19.1 K
 
 
 ### Flink 历史
 
-​		2019 年是[大数据](https://so.csdn.net/so/search?q=大数据&spm=1001.2101.3001.7020)实时计算领域最不平凡的一年，2019 年 1 月阿里巴巴 Blink （内部的 Flink 分支版本）开源，大数据领域一夜间从 Spark 独步天下走向了两强争霸的时代。Flink 因为其天然的流式计算特性以及强大的处理性能成为炙手可热的大数据处理框架。
+​		2019 年是大数据实时计算领域最不平凡的一年，2019 年 1 月阿里巴巴 Blink （内部的 Flink 分支版本）开源，大数据领域一夜间从 Spark 独步天下走向了两强争霸的时代。Flink 因为其天然的流式计算特性以及强大的处理性能成为炙手可热的大数据处理框架。
 
 ### 为什么用 Flink
 
@@ -74,183 +74,70 @@
 
 
 
-## 快速上手
+## 基本概念
 
-### 创建Maven工程
+### 源数据类型
 
-### 导入依赖
++ 批处理：原本的文本文件处理（DataSet Api - Flink1.12后处于软弃用状态）
++ 流处理文件：将文件看成是有界（DataStream Api， 通过流的方式处理文件）
 
-### 基本配置
+### 部署模式
 
-1. 日志配置
++  会话模式（Session Mode）
++ 单作业模式（Per-Job Mode）
++ 应用模式（Application Mode）
 
-### 示例代码
+#### 会话模式
 
-#### 批处理
+我们需要先启动一个集群，保持一个会话，在这个会话中通过客户端提交作业。集群启动时所有资源就都已经确定，所以所有提交的作业会竞争集群中的资源。
 
-计算wordcount
+这样的好处很明显，我们只需要一个集群，就像一个大箱子，所有的作业提交之后都塞进去；集群的生命周期是超越于作业之上的，铁打的营盘流水的兵，作业结束了就释放资源，集群依然正常运行。当然缺点也是显而易见的：因为资源是共享的，所以资源不够了，提交新的作业就会失败。另外，同一个 TaskManager 上可能运行了很多作业，如果其中一个发生故障导致 TaskManager 宕机，那么所有作业都会受到影响。
 
-~~~java
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.operators.AggregateOperator;
-import org.apache.flink.api.java.operators.DataSource;
-import org.apache.flink.api.java.operators.FlatMapOperator;
-import org.apache.flink.api.java.operators.UnsortedGrouping;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.util.Collector;
+会话模式比较适合于单个规模小、执行时间短的大量作业。
 
-public class BatchWordCount {
-    public static void main(String[] args) throws Exception {
-        // 1. 创建执行环境
-        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        // 2. 从文件读取数据 按行读取(存储的元素就是每行的文本)
-        DataSource<String> lineDS = env.readTextFile("input/words.txt");
-        // 3. 转换数据格式
-        FlatMapOperator<String, Tuple2<String, Long>> wordAndOne = lineDS
-            .flatMap((String line, Collector<Tuple2<String, Long>> out) -> {
-                String[] words = line.split(" ");
-                for (String word : words) {
-                  out.collect(Tuple2.of(word, 1L));
-                }
-        }).returns(Types.TUPLE(Types.STRING, Types.LONG)); 
-        //当 Lambda 表达式使用 Java 泛型的时候, 由于泛型擦除的存在, 需要显示的声明类型信息
-        // 4. 按照 word 进行分组
-        UnsortedGrouping<Tuple2<String,  Long>>  wordAndOneUG  =wordAndOne.groupBy(0);
-        // 5. 分组内聚合统计
-        AggregateOperator<Tuple2<String, Long>> sum = wordAndOneUG.sum(1);
-        // 6. 打印结果
-        sum.print();    
-    }
-}
-~~~
+#### 单作业模式
 
-#### 流处理
+会话模式因为资源共享会导致很多问题，所以为了更好地隔离资源，我们可以考虑为每个提交的作业启动一个集群，这就是所谓的单作业。
 
-wordcount
+单作业模式也很好理解，就是严格的一对一，集群只为这个作业而生。同样由客户端运行应用程序，然后启动集群，作业被提交给 JobManager，进而分发给 TaskManager 执行。作业作业完成后，集群就会关闭，所有资源也会释放。
 
-~~~java
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.Collector;
-import java.util.Arrays;
+这些特性使得单作业模式在生产环境运行更加稳定，所以是实际应用的首选模式。
 
-public class BoundedStreamWordCount {
-    public static void main(String[] args) throws Exception {
-        // 1. 创建流式执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 2. 读取文件
-        DataStreamSource<String> lineDSS = env.readTextFile("input/words.txt");
-        // 3. 转换数据格式
-        SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOne = lineDSS
-                .flatMap((String line, Collector<String> words) -> {
-                    Arrays.stream(line.split(" ")).forEach(words::collect);
-                }).returns(Types.STRING)
-                .map(word -> Tuple2.of(word, 1L))
-                .returns(Types.TUPLE(Types.STRING, Types.LONG));
-        // 4. 分组
-        KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOne
-                .keyBy(t -> t.f0);
-        // 5. 求和
-        SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS
-                .sum(1);
-        // 6. 打印
-        result.print();
-        // 7. 执行
-        env.execute();
-    }
-}
-~~~
+需要注意的是，Flink 本身无法直接这样运行，所以单作业模式一般需要借助一些资源管理框架来启动集群，比如 YARN、Kubernetes。
 
+#### 应用模式
 
+前面提到的两种模式下，应用代码都是在客户端上执行，然后由客户端提交给 JobManager的。但是这种方式客户端需要占用大量网络带宽，去下载依赖和把二进制数据发送给JobManager；加上很多情况下我们提交作业用的是同一个客户端，就会加重客户端所在节点的资源消耗。
 
-#### 说明
+所以解决办法就是，我们不要客户端了，直接把应用提交到 JobManger 上运行。而这也就代表着，我们需要为每一个提交的应用单独启动一个 JobManager，也就是创建一个集群。这个 JobManager 只为执行这一个应用而存在，执行结束之后JobManager 也就关闭了，这就是所谓的应用模式，
 
-​		在实际的生产环境中，真正的数据流其实是无界的，有开始却没有结束，这就要求我们需要保持一个监听事件的状态，持续地处理捕获的数据。为了模拟这种场景，我们就不再通过读取文件来获取数据了，而是监听数据发送端主机的指定端口，统计发送来的文本数据中出现过的单词的个数。具体实现上，我们只要对BoundedStreamWordCount 代码中读取数据的步骤稍做修改，就可以实现对真正无界流的处理。
+应用模式与单作业模式，都是提交作业之后才创建集群；单作业模式是通过客户端来提交的，客户端解析出的每一个作业对应一个集群；而应用模式下，是直接由 JobManager 执行应用程序的，并且即使应用包含了多个作业，也只创建一个集群。
 
-1. 新建一个 Java 类 StreamWordCount，将 BoundedStreamWordCount 代码中读取文件数据的 readTextFile 方法，替换成读取socket 文本流的方法 socketTextStream。具体代码实现如下：
+总结一下，在会话模式下，集群的生命周期独立于集群上运行的任何作业的生命周期，并且提交的所有作业共享资源。而单作业模式为每个提交的作业创建一个集群，带来了更好的资源隔离，这时集群的生命周期与作业的生命周期绑定。最后，应用模式为每个应用程序创建一个会话集群，在 JobManager 上直接调用应用程序的 main()方法。
 
-~~~java
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.Collector;
-import java.util.Arrays;
+#### 总结 
 
-public class StreamWordCount {
-    public static void main(String[] args) throws Exception {
-        // 1. 创建流式执行环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        // 2. 读取文本流
-        DataStreamSource<String> lineDSS = env.socketTextStream("hadoop102",7777);
-        // 3. 转换数据格式
-        SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOne = lineDSS
-                .flatMap((String line, Collector<String> words) -> {
-                    Arrays.stream(line.split(" ")).forEach(words::collect);
-                })
-                .returns(Types.STRING).map(word -> Tuple2.of(word, 1L))
-                .returns(Types.TUPLE(Types.STRING, Types.LONG));
-        // 4. 分组
-        KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOne
-                .keyBy(t -> t.f0);
-        // 5. 求和
-        SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS
-                .sum(1);
-        // 6. 打印
-        result.print();
-        // 7. 执行
-        env.execute();
-    }
-}
-~~~
-
-代码说明和注意事项：
-
-+ socket 文本流的读取需要配置两个参数：发送端主机名和端口号。这里代码中指定了主机“hadoop102”的 7777 端口作为发送数据的 socket 端口，读者可以根据测试环境自行配置。
-
-+ 在实际项目应用中，主机名和端口号这类信息往往可以通过配置文件，或者传入程序运行参数的方式来指定。
-
-+ socket文本流数据的发送，可以通过Linux系统自带的netcat工具进行模拟。
-
-2. 在 Linux 环境的主机 hadoop102 上，执行下列命令，发送数据进行测试：
-   [atguigu@hadoop102 ~]$ nc -lk 7777
-
-3. 启动 StreamWordCount 程序我们会发现程序启动之后没有任何输出、也不会退出。这是正常的——因为 Flink 的流处理是事件驱动的，当前程序会一直处于监听状态，只有接收到数据才会执行任务、输出统计结果。
-
-4. 从 hadoop102 发送数据：
-
-   ~~~bash
-   hello flink
-   hello world
-   hello java
-   
-   ~~~
-
-5. 可以看到控制台输出结果如下：
-
-~~~bash
-4> (flink,1)
-2> (hello,1)
-3> (world,1)
-2> (hello,2)
-2> (hello,3)
-1> (java,1)
-~~~
-
-6. 我们会发现，输出的结果与之前读取文件的流处理非常相似。而且可以非常明显地看到，每输入一条数据，就有一次对应的输出。具体对应关系是：输入“hello flink”，就会输出两条统计结果（flink，1）和（hello，1）；之后再输入“hello world”，同样会将 hello 和 world 的个28数统计输出，hello 的个数会对应增长为 2。
-
-
-
-
+基于Yarn最好会单作业模式或者会话模式中的其中一个
 
 ## 架构
+
+### 运行时架构图
+
+![image-20230202130703765](img/image-20230202130703765.png)
+
+
+
+JobManager 和 TaskManagers 可以以不同的方式启动：
+
++ 作为独立（Standalone）集群的进程，直接在机器上启动
++ 在容器中启动
++ 由资源管理平台调度启动，比如 YARN、K8S
+
+这其实就对应着不同的部署方式。
+
+TaskManager 启动之后，JobManager 会与它建立连接，并将作业图（JobGraph）转换成可执行的“执行图”（ExecutionGraph）分发给可用的 TaskManager，然后就由 TaskManager 具体执行任务。接下来，我们就具体介绍一下 JobManger 和 TaskManager 在整个过程中扮演的角色。
+
+
 
 ### 基本概念
 
@@ -259,8 +146,6 @@ public class StreamWordCount {
 ​		Flink可以完全独立于Hadoop，在不依赖Hadoop组件下运行。但是做为大数据的基础设施，Hadoop体系是任何大数据框架都绕不过去的。Flink可以集成众多Hadooop 组件，例如Yarn、Hbase、HDFS等等。例如，Flink可以和Yarn集成做资源调度，也可以读写HDFS，或者利用HDFS做检查点。
 
 #### Flink集群有哪些角色？各自有什么作用？
-
-
 
 Flink 程序在运行时主要有 TaskManager，JobManager，Client三种角色。
 
@@ -280,9 +165,64 @@ Flink 程序在运行时主要有 TaskManager，JobManager，Client三种角色�
 
 ​		简单的说，TaskManager会将自己节点上管理的资源分为不同的Slot：固定大小的资源子集。这样就避免了不同Job的Task互相竞争内存资源，但是需要主要的是，Slot只会做内存的隔离。没有做CPU的隔离。
 
+#### 作业提交流程
+
+高层级抽象视角
+
+![image-20230202132304998](img/image-20230202132304998.png)
+
+
+
+
+
+1.  一般情况下，由客户端（App）通过分发器提供的 REST 接口，将作业提交给JobManager。
+2. 由分发器启动 JobMaster，并将作业（包含 JobGraph）提交给 JobMaster。
+3. JobMaster 将 JobGraph 解析为可执行的 ExecutionGraph，得到所需的资源数量，然后向资源管理器请求资源（slots）。
+4. 资源管理器判断当前是否由足够的可用资源；如果没有，启动新的 TaskManager
+5. TaskManager 启动之后，向 ResourceManager 注册自己的可用任务槽（slots）。
+6. 资源管理器通知 TaskManager 为新的作业提供 slots。
+7. TaskManager 连接到对应的 JobMaster，提供 slots。
+8. JobMaster 将需要执行的任务分发给 TaskManager。
+9. TaskManager 执行任务，互相之间可以交换数据。
+
+如果部署模式不同，或者集群环境不同（例如 Standalone、YARN、K8S 等），其中一些步骤可能会不同或被省略，也可能有些组件会运行在同一个 JVM 进程中。比如独立集群环境的会话模式，就是需要先启动集群，如果资源不够，只能等待资源释放，而不会直接启动新的TaskManager。
+
+#### 数据流图
+
+Flink 是流式计算框架。它的程序结构，其实就是定义了一连串的处理操作，每一个数据输入之后都会依次调用每一步计算。在 Flink 代码中，我们定义的每一个处理转换操作都叫作“算子”（Operator），所以我们的程序可以看作是一串算子构成的管道，数据则像水流一样有序地流过。比如在之前的 WordCount 代码中，基于执行环境调用的 socketTextStream()方法，就是一个读取文本流的算子；而后面的 flatMap()方法，则是将字符串数据进行分词、转换成二元组的算子。
+
+所有的 Flink 程序都可以归纳为由三部分构成：Source、Transformation 和 Sink。
+
++ Source 表示“源算子”，负责读取数据源。
++ Transformation 表示“转换算子”，利用各种算子进行处理加工。
++ Sink 表示“下沉算子”，负责数据的输出。
+
+在运行时，Flink 程序会被映射成所有算子按照逻辑顺序连接在一起的一张图，这被称为“逻辑数据流”（logical dataflow），或者叫“数据流图”（dataflow graph）。我们提交作业之后，打开 Flink 自带的 Web UI，点击作业就能看到对应的 dataflow，
+
+数据流图类似于任意的有向无环图（DAG），这一点与 Spark 等其他框架是一致的。每一条数据流（dataflow）以一个或多个 source 算子开始，以一个或多个 sink 算子结束。
+
+#### Flink的并行度了解吗？Flink的并行度设置是怎样的？
+
+Flink中的任务被分为多个并行任务来执行，其中每个并行的实例处理一部分数据。这些并行实例的数量被称为并行度。
+
+我们在实际生产环境中可以从四个不同层面设置并行度：
+
+- 操作算子层面(Operator Level)
+- 执行环境层面(Execution Environment Level)
+- 客户端层面(Client Level)
+- 系统层面(System Level)
+
+需要注意的优先级：算子层面>环境层面>客户端层面>系统层面。
+
 #### Flink 的常用算子？
 
-Flink 最常用的常用算子包括：Map：DataStream → DataStream，输入一个参数产生一个参数，map的功能是对输入的参数进行转换操作。Filter：过滤掉指定条件的数据。KeyBy：按照指定的key进行分组。Reduce：用来进行结果汇总合并。Window：窗口函数，根据某些特性将每个key的数据进行分组（例如：在5s内到达的数据）
+Flink 最常用的常用算子包括：
+
++ Map：DataStream → DataStream，输入一个参数产生一个参数，map的功能是对输入的参数进行转换操作。
++ Filter：过滤掉指定条件的数据。
++ KeyBy：按照指定的key进行分组。
++ Reduce：用来进行结果汇总合并。
++ Window：窗口函数，根据某些特性将每个key的数据进行分组（例如：在5s内到达的数据）
 
 ####  Flink 的组件栈有哪些？
 
@@ -298,6 +238,24 @@ Flink 最常用的常用算子包括：Map：DataStream → DataStream，输入�
 2. Runtime 层：Runtime层提供了支持 Flink 计算的核心实现，比如：支持分布式 Stream 处理、JobGraph到ExecutionGraph的映射、调度等等，为上层API层提供基础服务。
 3. API层：API 层主要实现了面向流（Stream）处理和批（Batch）处理API，其中面向流处理对应DataStream API，面向批处理对应DataSet API，后续版本，Flink有计划将DataStream和DataSet API进行统一。
 4. Libraries层：该层称为Flink应用框架层，根据API层的划分，在API层之上构建的满足特定应用的实现计算框架，也分别对应于面向流处理和面向批处理两类。面向流处理支持：CEP（复杂事件处理）、基于SQL-like的操作（基于Table的关系操作）；面向批处理支持：FlinkML（机器学习库）、Gelly（图处理）。
+
+#### 基本数据类型
+
+对于常见的 Java 和 Scala 数据类型，Flink 都是支持的。Flink 在内部，Flink对支持不同的类型进行了划分，这些类型可以在 Types 工具类中找到：
+
+1. 基本类型：所有 Java 基本类型及其包装类，再加上 Void、String、Date、BigDecimal 和 BigInteger。
+2. 数组类型：包括基本类型数组（PRIMITIVE_ARRAY）和对象数组(OBJECT_ARRAY)
+3. 复合数据类型：
+   + Java 元组类型（TUPLE）：这是 Flink 内置的元组类型，是 Java API 的一部分。最多25 个字段，也就是从 Tuple0~Tuple25，不支持空字段
+   +  Scala 样例类及 Scala 元组：不支持空字段
+   + 行类型（ROW）：可以认为是具有任意个字段的元组,并支持空字段
+   + POJO：Flink 自定义的类似于 Java bean 模式的类
+4. 辅助类型：Option、Either、List、Map 等
+5. 泛型类型（GENERIC）
+6. Flink 对 POJO 类型的要求如下：
+   + 类是公共的（public）和独立的（standalone，也就是说没有非静态的内部类）；
+   + 类有一个公共的无参构造方法；
+   + 类中的所有字段是 public 且非 final 的；或者有一个公共的 getter 和 setter 方法，这些方法需要符合 Java bean 的命名规范
 
 #### Flink分区策略？
 
@@ -331,18 +289,7 @@ static classCustomPartitionerimplementsPartitioner<String> {
  
 ```
 
-#### Flink的并行度了解吗？Flink的并行度设置是怎样的？
 
-Flink中的任务被分为多个并行任务来执行，其中每个并行的实例处理一部分数据。这些并行实例的数量被称为并行度。
-
-我们在实际生产环境中可以从四个不同层面设置并行度：
-
-- 操作算子层面(Operator Level)
-- 执行环境层面(Execution Environment Level)
-- 客户端层面(Client Level)
-- 系统层面(System Level)
-
-需要注意的优先级：算子层面>环境层面>客户端层面>系统层面。
 
 
 
@@ -669,6 +616,225 @@ Flink 为了避免JVM的固有缺陷例如java对象存储密度低，FGC影响�
 
 
 
+
+## 快速上手
+
+### 创建Maven工程
+
+### 导入依赖
+
+~~~xml
+
+
+<properties>
+    <flink.version>1.13.0</flink.version>
+    <java.version>1.8</java.version>
+    <scala.binary.version>2.12</scala.binary.version>
+    <slf4j.version>1.7.30</slf4j.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>org.apache.flink</groupId>
+        <artifactId>flink-java</artifactId>
+        <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.flink</groupId>
+        <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+        <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.flink</groupId>
+        <artifactId>flink-clients_${scala.binary.version}</artifactId>
+        <version>${flink.version}</version>
+    </dependency>
+    <!-- 引入日志管理相关依赖-->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-to-slf4j</artifactId>
+        <version>2.14.0</version>
+    </dependency>
+</dependencies>
+~~~
+
+
+
+### 基本配置
+
+1. 日志配置
+
+### 示例代码
+
+#### 批处理
+
+计算wordcount
+
+~~~java
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.operators.AggregateOperator;
+import org.apache.flink.api.java.operators.DataSource;
+import org.apache.flink.api.java.operators.FlatMapOperator;
+import org.apache.flink.api.java.operators.UnsortedGrouping;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.util.Collector;
+
+public class BatchWordCount {
+    public static void main(String[] args) throws Exception {
+        // 1. 创建执行环境
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        // 2. 从文件读取数据 按行读取(存储的元素就是每行的文本)
+        DataSource<String> lineDS = env.readTextFile("input/words.txt");
+        // 3. 转换数据格式
+        FlatMapOperator<String, Tuple2<String, Long>> wordAndOne = lineDS
+            .flatMap((String line, Collector<Tuple2<String, Long>> out) -> {
+                String[] words = line.split(" ");
+                for (String word : words) {
+                  out.collect(Tuple2.of(word, 1L));
+                }
+        }).returns(Types.TUPLE(Types.STRING, Types.LONG)); 
+        //当 Lambda 表达式使用 Java 泛型的时候, 由于泛型擦除的存在, 需要显示的声明类型信息
+        // 4. 按照 word 进行分组
+        UnsortedGrouping<Tuple2<String,  Long>>  wordAndOneUG  =wordAndOne.groupBy(0);
+        // 5. 分组内聚合统计
+        AggregateOperator<Tuple2<String, Long>> sum = wordAndOneUG.sum(1);
+        // 6. 打印结果
+        sum.print();    
+    }
+}
+~~~
+
+#### 有界流处理
+
+wordcount
+
+~~~java
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.Collector;
+import java.util.Arrays;
+
+public class BoundedStreamWordCount {
+    public static void main(String[] args) throws Exception {
+        // 1. 创建流式执行环境
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 2. 读取文件
+        DataStreamSource<String> lineDSS = env.readTextFile("input/words.txt");
+        // 3. 转换数据格式
+        SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOne = lineDSS
+                .flatMap((String line, Collector<String> words) -> {
+                    Arrays.stream(line.split(" ")).forEach(words::collect);
+                }).returns(Types.STRING)
+                .map(word -> Tuple2.of(word, 1L))
+                .returns(Types.TUPLE(Types.STRING, Types.LONG));
+        // 4. 分组
+        KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOne
+                .keyBy(t -> t.f0);
+        // 5. 求和
+        SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS
+                .sum(1);
+        // 6. 打印
+        result.print();
+        // 7. 执行
+        env.execute();
+    }
+}
+~~~
+
+
+
+#### 无界流
+
+​		在实际的生产环境中，真正的数据流其实是无界的，有开始却没有结束，这就要求我们需要保持一个监听事件的状态，持续地处理捕获的数据。为了模拟这种场景，我们就不再通过读取文件来获取数据了，而是监听数据发送端主机的指定端口，统计发送来的文本数据中出现过的单词的个数。具体实现上，我们只要对BoundedStreamWordCount 代码中读取数据的步骤稍做修改，就可以实现对真正无界流的处理。
+
+1. 新建一个 Java 类 StreamWordCount，将 BoundedStreamWordCount 代码中读取文件数据的 readTextFile 方法，替换成读取socket 文本流的方法 socketTextStream。具体代码实现如下：
+
+~~~java
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.Collector;
+import java.util.Arrays;
+
+public class StreamWordCount {
+    public static void main(String[] args) throws Exception {
+        // 1. 创建流式执行环境
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 2. 读取文本流
+        DataStreamSource<String> lineDSS = env.socketTextStream("hadoop102",7777);
+        // 3. 转换数据格式
+        SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOne = lineDSS
+                .flatMap((String line, Collector<String> words) -> {
+                    Arrays.stream(line.split(" ")).forEach(words::collect);
+                })
+                .returns(Types.STRING).map(word -> Tuple2.of(word, 1L))
+                .returns(Types.TUPLE(Types.STRING, Types.LONG));
+        // 4. 分组
+        KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOne
+                .keyBy(t -> t.f0);
+        // 5. 求和
+        SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS
+                .sum(1);
+        // 6. 打印
+        result.print();
+        // 7. 执行
+        env.execute();
+    }
+}
+~~~
+
+代码说明和注意事项：
+
++ socket 文本流的读取需要配置两个参数：发送端主机名和端口号。这里代码中指定了主机“hadoop102”的 7777 端口作为发送数据的 socket 端口，读者可以根据测试环境自行配置。
+
++ 在实际项目应用中，主机名和端口号这类信息往往可以通过配置文件，或者传入程序运行参数的方式来指定。
+
++ socket文本流数据的发送，可以通过Linux系统自带的netcat工具进行模拟。
+
+2. 在 Linux 环境的主机 hadoop102 上，执行下列命令，发送数据进行测试：
+   [atguigu@hadoop102 ~]$ nc -lk 7777
+
+3. 启动 StreamWordCount 程序我们会发现程序启动之后没有任何输出、也不会退出。这是正常的——因为 Flink 的流处理是事件驱动的，当前程序会一直处于监听状态，只有接收到数据才会执行任务、输出统计结果。
+
+4. 从 hadoop102 发送数据：
+
+   ~~~bash
+   hello flink
+   hello world
+   hello java
+   
+   ~~~
+
+5. 可以看到控制台输出结果如下：
+
+~~~bash
+4> (flink,1)
+2> (hello,1)
+3> (world,1)
+2> (hello,2)
+2> (hello,3)
+1> (java,1)
+~~~
+
+6. 我们会发现，输出的结果与之前读取文件的流处理非常相似。而且可以非常明显地看到，每输入一条数据，就有一次对应的输出。具体对应关系是：输入“hello flink”，就会输出两条统计结果（flink，1）和（hello，1）；之后再输入“hello world”，同样会将 hello 和 world 的个28数统计输出，hello 的个数会对应增长为 2。
 
 ## 项目
 

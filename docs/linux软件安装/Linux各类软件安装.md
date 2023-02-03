@@ -886,6 +886,10 @@ docker run -d \
 
 访问路径 ： http://192.168.160.128:8081/
 
+
+
+
+
 # Canal
 
 ### 地址
@@ -901,6 +905,674 @@ docker run -d \
    + 原生支持aliyun rds的binlog订阅 (解决自动主备切换/oss binlog离线解析) 
    + 原生支持docker镜像 
 2. canal 1.1.4版本，迎来最重要的WebUI能力，引入canal-admin工程，支持面向WebUI的canal动态管理能力，支持配置、任务、日志等在线白屏运维能力，具体文档：[Canal Admin Guide](
+
+# Zookeeper
+
+# Kafka
+
+## 安装
+
+上传kafka安装文件
+
+解压文件：
+
+~~~bash
+ tar -zxvf kafka_2.11-2.1.0.tgz 
+~~~
+
+修改server.properties文件
+
+~~~bash
+vim server.properties
+~~~
+
+修改 zookeeper.perproties
+
+~~~properties
+dataDir=/opt/monitor/kafka/kafka_data/zookeeper  #zookeeper数据目录  (可以修改可以不修改)
+clientPort=2181
+maxClientCnxns=100
+tickTimes=2000
+initLimit=10
+syncLimit=5
+admin.enableServer=false
+~~~
+
+## 启动
+
+kafka中自带了zookeeper组件
+
+### zookeeper
+
+~~~bash
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+bin/zookeeper-server-start.sh -daemon  config/zookeeper.properties          #建议使用这种方式，不需要启动多个窗口
+~~~
+
+### kafka
+
+~~~bash
+bin/kafka-server-start.sh config/server.properties
+
+bin/kafka-server-start.sh -daemon  config/server.properties                 #建议使用这种方式，不需要启动多个窗口
+~~~
+
+## 操作
+
+### 创建topic
+
+~~~bash
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic demo
+
+bin/kafka-topics.sh --create --zookeeper localhost:2181  --topic demo
+~~~
+
+### 查询topic列表
+
+~~~bash
+bin/kafka-topics.sh --list --zookeeper localhost:2181
+bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic demo
+~~~
+
+### 删除topic
+
+~~~bash
+bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic demo
+~~~
+
+
+
+### 启动生产者
+
+~~~bash
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic demo
+bin/kafka-console-producer.sh --broker-list 192.168.113.xxx:9092 --topic prometheusMonitor_event
+bin/kafka-console-producer.sh --broker-list 192.168.xxx.xxx:9092 --topic zabbixVm
+~~~
+
+
+
+### 启动消费者
+
+旧版本
+
+~~~bash
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic demo --from-beginning
+~~~
+
+新版本
+
+~~~bash
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic demo --from-beginning
+bin/kafka-console-consumer.sh --bootstrap-server 192.168.xxx.xxx:9092 --topic 名称 --from-beginning
+~~~
+
+### 查看kafka生产最大位置偏移量
+
+~~~bash
+bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic demo --time -1
+~~~
+
+### 消费消息查看
+
+~~~bash
+(1)、topic: redis_event
+
+./kafka-console-consumer.sh --bootstrap-server 192.168.xxx.xxx:9092 --topic redis_event --from-beginning 
+
+（2）、topic: zabbixVm 
+./kafka-console-consumer.sh --bootstrap-server 192.168.xxx.xxx:9092 --topic zabbixVm #查看最新的数据
+~~~
+
+
+
+
+
+# Hadoop环境搭建
+
+## 搭建虚拟机环境
+
+~~~bash
+# 查看是否能够上网
+ping www.baidu.com
+
+# 安装基本工具
+ yum install -y epel-release
+ 
+ # 安装网络工具
+ yum install -y net-tools
+ # 安装编辑工具
+ yum install -y vim
+ 
+ # 设置防火墙 关闭开机启动
+systemctl stop firewalld
+systemctl disable firewalld.service
+
+# 批量卸载，卸载虚拟机自带JDK
+ rpm -qa | grep -i java | xargs -n1 rpm -e --nodeps
+# rpm -qa：查询所安装的所有rpm软件包
+# grep -i：忽略大小写
+# xargs -n1：表示每次只传递一个参数
+# rpm -e --nodeps：强制卸载软件
+
+# 单独卸载删除旧的 jdk
+yum list installed | grep java
+
+yum -y remove java-1.7.0-openjdk.x86_64
+yum -y remove java-1.7.0-openjdk-headless.x86_64
+yum -y remove java-1.8.0-openjdk.x86_64
+yum -y remove java-1.8.0-openjdk-headless.x86_64
+yum -y remove javamail.noarch
+yum -y remove javapackages-tools.noarch
+yum -y remove javassist.noarch
+yum -y remove python-javapackages.noarch
+yum -y remove tzdata-java.noarch
+
+# 下载JDK
+wget --no-check-certificate https://repo.huaweicloud.com/java/jdk/8u151-b12/jdk-8u151-linux-x64.tar.gz
+# 解压
+tar -zxvf jdk-8u151-linux-x64.tar.gz
+# .移动并重命名JDK包。
+mv jdk1.8.0_151/ /usr/java8
+# 配置Java环境变量。
+echo 'export JAVA_HOME=/usr/java8' >> /etc/profile
+echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile
+source /etc/profile
+
+# 查看是否安装成功
+java -version
+~~~
+
+
+
+## 安装 Hadoop
+
+~~~bash
+# 添加 hostname 配置
+vim /etc/hosts
+
+192.168.160.129 hadoop100
+192.168.160.130 hadoop101
+192.168.160.131 hadoop102
+192.168.160.132 hadoop103
+
+
+# 下载hadoop
+wget --no-check-certificate https://repo.huaweicloud.com/apache/hadoop/common/hadoop-3.1.3/hadoop-3.1.3.tar.gz
+
+# 解压
+tar -zxvf hadoop-3.1.3.tar.gz -C /opt/
+mv /opt/hadoop-3.1.3 /opt/hadoop
+
+# 添加配置环境
+echo 'export HADOOP_HOME=/opt/hadoop/' >> /etc/profile
+echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> /etc/profile
+echo 'export PATH=$PATH:$HADOOP_HOME/sbin' >> /etc/profile
+source /etc/profile    
+
+# 查看是否安装成功
+hadoop version
+~~~
+
+
+
+## 配置 hadoop
+
+Hadoop官方网站： http://hadoop.apache.org/
+
+Hadoop运行模 式包括：本地模式 、伪分布式模式以及完全分布式模式
+
++ 本地模式：单机运行，只是用来演示一下官方案例。 生产环境不用。
++ 伪分布式模式： 也是单机运行，但是具备 Hadoop集群的所有功能。一台服务器模拟一个分布式的环境 。个别缺钱的公司用来测试，生产环境不用。
++ 完全分布式模式： 多台服务器组成分布式环境。 生产环境使用。
+
+
+
+### SSH 登陆
+
+系统之间，需要相互配置这个ssh登陆信息
+
+~~~bash
+# 生成密钥
+ssh-keygen -t rsa
+
+# 分发密钥到其他机器
+ssh-copy-id hadoop100
+ssh-copy-id hadoop101
+ssh-copy-id hadoop102
+
+# 配置本机
+cat id_rsa.pub >> authorized_keys
+~~~
+
+
+
+
+
+### 编写集群分发脚本 xsync
+
+~~~bash
+vi ./bin/xsync 
+~~~
+
+
+
+~~~shell
+#!/bin/bash
+
+#1. 判断参数个数
+if [ $# -lt 1 ]
+then
+        echo Not Enough Arguement!
+        exit;
+fi
+
+#2. 遍历集群所有机器
+for host in hadoop102 hadoop103 hadoop104
+do
+        echo ==================== $host ====================
+        #3. 遍历所有目录，挨个发送
+
+        for file in $@
+        do
+                #4. 判断文件是否存在
+                if [ -e $file ]
+                        then
+                                #5. 获取父目录
+                                pdir=$(cd -P $(dirname $file); pwd)
+
+                                #6. 获取当前文件的名称
+                                fname=$(basename $file)
+                                ssh $host "mkdir -p $pdir"
+                                rsync -av $pdir/$fname $host:$pdir
+                        else
+                                echo $file does not exists!
+                fi
+        done
+done
+
+~~~
+
+
+
+~~~bash
+# 增加执行权限
+chmod +x xsync 
+
+# 让环境变量生效
+source /etc/profile
+~~~
+
+
+
+## 集群配置
+
+### 配置说明
+
+|      | hadoop100              | hadoop101                        | hadoop102                   |
+| ---- | ---------------------- | -------------------------------- | --------------------------- |
+| HDFS | **NameNode**、DataNode | DataNode                         | SecondaryNameNode、DataNode |
+| YARN | NodeManager            | **ResourceManager、**NodeManager | NodeManager                 |
+
+### 自定义配置文件
+
++ core-site.xml：hadoop-3.1.3/etc/hadoop/core-site.xml 
+
+  ~~~xml
+  <configuration>
+  <!--指定NameNode的地址-->
+  <property>
+          <name>fs.defaultFS</name>
+          <value>hdfs://hadoop102:8020</value>
+  </property>
+  
+  <!--指定hadoop数据的存储目录-->
+  <property>
+          <name>hadoop.tmp.dir</name>
+          <value>/opt/module/hadoop-3.1.3/data</value>
+  </property>
+  
+  <!--配置HDFS网页登录使用的静态用户为Tom -->
+  <property>
+          <name>hadoop.http.staticuser.user</name>
+  		<value>root</value>
+  </property>
+  </configuration>
+  
+  ~~~
+
++ hdfs-site.xml：hadoop-3.1.3//hadoop/hdfs-site.xml 
+
+  ~~~xml
+  <configuration>
+          <!--nn web端访问地址-->
+          <property>
+                  <name>dfs.namenode.http-address</name>
+                  <value>hadoop102:9870</value>
+          </property>
+          <!--2nn web端访问地址-->
+          <property>
+                  <name>dfs.namenode.secondary.http-address</name>
+                  <value>hadoop104:9868</value>
+          </property>
+          <property>
+                  <name>dfs.webhdfs.enabled</name>
+                  <value>true</value>
+      </property>
+  </configuration>
+  
+  ~~~
+
++ yarn-site.xml：hadoop-3.1.3/etc/hadoop/yarn-site.xml 
+
+  ~~~xml
+  <configuration>
+          <!--指定MR走shuffle -->
+          <property>
+                  <name>yarn.nodemanager.aux-services</name>
+                  <value>mapreduce_shuffle</value>
+          </property>
+          <!--指定ResourceManager的地址-->
+          <property>
+                  <name>yarn.resourcemanager.hostname</name>
+                  <value>hadoop103</value>
+          </property>
+          <!--环境变量的继承-->
+          <property>
+                  <name>yarn.nodemanager.env-whitelist</name>
+                  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+          </property>
+  </configuration>
+  
+  ~~~
+
++ mapred-site.xml：hadoop-3.1.3/etc/hadoop/mapred-site.xml 
+
+  ~~~xml
+  <configuration>
+      <!--指定MapReduce程序运行在Yarn上-->
+      <property>
+          <name>mapreduce.framework.name</name>
+          <value>yarn</value>
+      </property>
+  </configuration>
+  
+  ~~~
+
+  
+
+### 配置工作节点
+
+~~~
+ vim /opt/module/hadoop-3.1.3/etc/hadoop/workers 
+
+hadoop102
+hadoop103
+hadoop104
+
+
+# 增加用户
+vi /etc/profile
+
+export HDFS_NAMENODE_USER=root
+export HDFS_DATANODE_USER=root
+export HDFS_SECONDARYNAMENODE_USER=root
+export YARN_RESOURCEMANAGER_USER=root
+export YARN_NODEMANAGER_USER=root
+
+source /etc/profile
+~~~
+
+
+
+
+
+
+
+### 启动命令
+
+~~~
+hadoop namenode -format
+# 在 dfs 上启动该服务
+start-dfs.sh
+# 在 yarn 上启动资源服务
+start-yarn.sh
+
+# 刪除旧资源
+rm -rf /usr/local/krest/hadoop/logs/
+rm -rf /usr/local/krest/data/hadoop/
+~~~
+
+
+
+### 终止命令
+
+~~~bash
+stop-dfs.sh
+stop-yarn.sh
+~~~
+
+
+
+### 配置历史服务器
+
+vim etc/hadoop/mapred-site.xml 
+
+~~~xml
+<property>
+    <name>mapreduce.jobhistory.address</name>
+    <value>hadoop100:10020</value>
+</property>
+<!--历史服务器web端地址-->
+<property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value>hadoop100:19888</value>
+</property>
+~~~
+
+分发配置
+
+xsync etc/
+
+启动历史服务器
+
+~~~bash
+mapred --daemon start historyserver
+~~~
+
+查看服务是否启动
+
+jps
+
+http://hadoop100:19888/jobhistory
+
+停止历史服务
+
+~~~bash
+mapred --daemon stop historyserver
+~~~
+
+
+
+
+
+## 配置日志的聚集
+
+~~~bash
+ vim etc/hadoop/yarn-site.xml
+~~~
+
+~~~xml
+<!--开启日志聚集功能-->
+<property>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
+</property>
+<!--设置日志聚集服务器地址-->
+<property>
+    <name>yarn.log.server.url</name>
+    <value>http://hadoop100:19888/jobhistory/logs</value>
+</property>
+<!--设置日志保留时间为7天-->
+<property>
+    <name>yarn.log-aggregation.retain-seconds</name>
+    <value>604800</value>
+</property>
+~~~
+
+
+
+### 编写常用脚本
+
+#### 添加配置
+
+`ERROR: but there is no YARN_RESOURCEMANAGER_USER defined. Aborting operation.`
+
+#### 启动服务脚本
+
+**将start-dfs.sh，stop-dfs.sh两个文件顶部添加以下参数**
+
+~~~sh
+HDFS_NAMENODE_USER=root
+HDFS_DATANODE_USER=root
+HDFS_SECONDARYNAMENODE_USER=root
+YARN_RESOURCEMANAGER_USER=root
+YARN_NODEMANAGER_USER=root
+~~~
+
+
+
+
+
+
+
+~~~bash
+ cd /home/Tom/bin/
+ vim myhadoop.sh 
+~~~
+
+~~~sh
+#!/bin/bash
+
+if [ $# -lt 1 ]
+then
+        echo "No Args Input..."
+        exit ;
+fi
+
+case $1 in
+"start")
+        echo " =================== 启动hadoop集群==================="
+        echo " ---------------启动hdfs ---------------"
+        ssh hadoop100 "/usr/local/krest/hadoop/sbin/start-dfs.sh"
+        echo " ---------------启动yarn ---------------"
+        ssh hadoop101 "/usr/local/krest/hadoop/sbin/start-yarn.sh"
+        echo " ---------------启动historyserver ---------------"
+        ssh hadoop100 "/usr/local/krest/hadoop/bin/mapred --daemon start historyserver"
+;;
+"stop")
+        echo " =================== 关闭hadoop集群==================="
+        echo " ---------------关闭historyserver ---------------"
+        ssh hadoop100 "/usr/local/krest/hadoop/bin/mapred --daemon stop historyserver"
+        echo " ---------------关闭yarn ---------------"
+        ssh hadoop101 "/usr/local/krest/hadoop/sbin/stop-yarn.sh"
+        echo " ---------------关闭hdfs ---------------"
+        ssh hadoop100 "/usr/local/krest/hadoop/sbin/stop-dfs.sh"
+;;
+*)
+        echo "Input Args Error..."
+;;
+esac
+
+~~~
+
+~~~bash
+chmod +x myhadoop.sh 
+~~~
+
+
+
+
+
+#### 查看状态脚本
+
+~~~sh
+vim jpsall.sh 
+~~~
+
+~~~shell
+#!/bin/bash
+
+for host in hadoop102 hadoop103 hadoop104
+do
+        echo =============== $host ===============
+        ssh $host jps
+done
+
+~~~
+
+~~~sh
+chmod +x jpsall.sh 
+~~~
+
+
+
+
+
+
+
+## Bug踩坑
+
+### **启动集群**
+
+如果集群是第一次启动 ，需要在 hadoop102节点格式化 NameNode（注意格式化 NameNode会产生新的集群 id导致 NameNode和 DataNode的集群 id不一致，集群找不到已往数据。 如果集群在运行过程中报错，需要重新格式化 NameNode的话， 一定要先停止 namenode和 datanode进程， 并且要删除所有机器的 data和 logs目录，然后再进行格式化。
+
+### 启动 dfs与yarn
+
+需要自己设置的集群节点启动才可以，并非当前每一个节点都行
+
+### SSH Jps 不生效
+
+`bash: jps: command not found`
+
+在用户`~/.bashrc`这个文件配置JAVA环境变量
+
+~~~sh
+vim ~/.bashrc
+~~~
+
+~~~shell
+export JAVA_HOME=/usr/local/krest/java8
+export PATH=$PATH:$JAVA_HOME/bin
+~~~
+
+再执行命令`source ~/.bashrc`激活文件# 
+
+~~~sh
+source ~/.bashrc
+~~~
+
+
+
+### SSH 执行start-yarn指令不成功
+
+~~~sh
+# 将start-dfs.sh，stop-dfs.sh两个文件顶部添加以下参数
+
+HDFS_NAMENODE_USER=root
+HDFS_DATANODE_USER=root
+HDFS_SECONDARYNAMENODE_USER=root
+YARN_RESOURCEMANAGER_USER=root
+YARN_NODEMANAGER_USER=root
+
+# start-yarn.sh，stop-yarn.sh顶部也需添加以下
+YARN_RESOURCEMANAGER_USER=root
+HADOOP_SECURE_DN_USER=yarn
+YARN_NODEMANAGER_USER=root
+~~~
+
+
 
 
 

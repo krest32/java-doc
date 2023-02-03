@@ -7,6 +7,14 @@
 1. 数据存储
 2. 数据采集
 
+### 理论基础
+
+Google是Hadoop的思想之源（Google在大数据方面的三篇论文）
+
++ GFS --->HDFS
++ Map-Reduce --->MR
++ BigTable --->HBase
+
 ### 历史
 
 + 2003年 GFS论文，提供可行的解决方案
@@ -36,41 +44,22 @@
 ### 发行版本分类
 
 1. Apache 免费版本，版本丰富，但是兼容性稍差
-2. Cloudear 收费版，在免费版本上进行了修改，商业化软件，兼容性更好
+2. 收费版（Cloudera、Hortonworks），在免费版本上进行了修改，商业化软件，兼容性更好
 
-### 优势
+### Hadoop优势
 
-1. 高可靠性： 维护了多个数据的可靠副本
-2. 高扩展性，动态增加与删除：可以扩展数以千计的节点
-3. 高效性：并行工作，加快任务的处理速度
+1. 高可靠性： Hadoop底层维护多个数据副本，所以即使Hadoop某个计算元
+
+   素或存储出现故障，也不会导致数据的丢失
+2. 高扩展性，在集群间分配任务数据，可方便的扩展数以千计的节点。
+3. 高效性：在MapReduce的思想下，Hadoop是并行工作的，以加快任务处
+
+   理速度。
 4. 高容错性：能够将失败的任务进行自动迁移
 
 
 
-## 组件介绍
-
-### **HDFS**
-
-Hadoop分布式文件存储系统，处理海量数据
-
-![image-20230119151713901](img/image-20230119151713901.png)
-
-### Yarn
-
-支持多个客户端访问，每个NodeManager 有多个可以运行的容器
-
-1. Resource Manager -- 管理着所有Node Manager
-2. Node Manager 管理者本机的资源
-3. Application Master 单个任务的老大
-4. Container 容器：任务运行的环境，也就是 Docker 了
-
-### MapReduce
-
-Map 阶段：对于大的任务进行拆分
-
-Reduce 阶段：计算结果的汇总
-
-## Hadoop 生态圈
+## 生态圈
 
 + Hadoop是指Hadoop框架本身；
 + hadoop生态系统，不仅包含hadoop，还包括保证hadoop框架正常高效运行其他框架，比如
@@ -99,7 +88,7 @@ Reduce 阶段：计算结果的汇总
 
 1. 离线计算
    1. MapReduce
-   2. Spark Core --> 内存计算
+   2. Spark Core --> 基于内存计算，提升计算效率
    3. Hive 数据查询
 
 2. 实时计算
@@ -122,7 +111,30 @@ zookeeper
 2. 伪分布式（一台机器部署集群）
 3. 完全分布式（生产环境）
 
-## 集群架构
+## 组件介绍
+
+### **HDFS**
+
+Hadoop分布式文件存储系统，处理海量数据
+
+![image-20230119151713901](img/image-20230119151713901.png)
+
+### Yarn
+
+支持多个客户端访问，每个NodeManager 有多个可以运行的容器
+
+1. Resource Manager -- 管理着所有Node Manager
+2. Node Manager 管理者本机的资源
+3. Application Master 单个任务的老大
+4. Container 容器：任务运行的环境，也就是 Docker 了
+
+### MapReduce
+
+Map 阶段：对于大的任务进行拆分
+
+Reduce 阶段：计算结果的汇总
+
+## Hadoop集群架构
 
 1. **NameNode**：它是hadoop中的主服务器，管理文件系统名称空间和对集群中存储的文件的访问，保存有metadate。
 2. **SecondaryNameNode**：它不是namenode的冗余守护进程，而是提供周期检查点和清理任务。帮助NN合并editslog，减少NN启动时间。
@@ -196,14 +208,14 @@ zookeeper
 
 ### 文件写入流程（重点）
 
-1. 客户端通过 Distributed FileSystem （分布式的文件系统）模块向NameNode请求上传文件，NameNode检查目标文件是否已存在，父目录是否存在
+1. 客户端通过 Distributed FileSystem （分布式的文件系统）模块向NameNode请求上传文件，NameNode检查目标文件是否已存在、父目录是否存在、受否可以创建文件
 2. NameNode返回是否可以上传。
 3. 客户端请求第一个 Block上传到哪几个DataNode服务器上。
 4. NameNode（通过**负载均衡、节点距离**等因素）返回3个DataNode节点，分别为dn1、dn2、dn3。
-5. 客户端通过FSDataOutputStream模块请求dn1上传数据，dn1收到请求会继续调用dn2，然后dn2调用dn3，将这个通信管道建立完成。dn1、dn2、dn3逐级应答客户端。**类似于一个链表的链接通道，为了保证性能，dataNode会在收到文件之后，保存在内存当中，一边写入磁盘，一边发送给下一个DataNode节点**
-6. 客户端开始往dn1上传第一个Block（先从磁盘读取数据放到一个本地内存缓存），以Packet为单位，dn1收到一个Packet就会传给dn2，dn2传给dn3；dn1每传一个packet会放入一个应答队列等待应答。
+5. 客户端通过FSDataOutputStream模块请求dn1上传数据，dn1收到请求会继续调用dn2，然后dn2调用dn3，**将这个通信管道建立完成**。dn1、dn2、dn3逐级应答客户端。类似于一个链表的链接通道，为了保证性能，dataNode会在收到文件之后，保存在内存当中，一边写入磁盘，一边发送给下一个DataNode节点
+6. 客户端开始往dn1上传第一个Block（先从磁盘读取数据放到一个本地内存缓存），以Packet（64）为单位，dn1收到一个Packet就会传给dn2，dn2传给dn3；dn1每传一个packet会放入一个应答队列等待应答。
 7. 内存中还会存在一个Ack缓存，保存在传输数据的副本，当应答成功之后，缓存数据才会被删除
-8. 当一个Block传输完成之后，客户端再次请求NameNode上传第二个Block的服务器。（重复执行3-7步）。
+8. 当一个Block传输完成之后，客户端再次请求NameNode上传第二个Block的服务器。（重复执行3-7步）
 
 ### 节点距离计算
 
@@ -218,7 +230,7 @@ zookeeper
 ### 副本节点选择
 
 1. 第一个副本在Clinet所在的节点上，如果客户端在集群外，随机选一个
-2. 第二个副本在另一个极佳的随机一个节点上
+2. 第二个副本在另一个机架的随机一个节点上
 3. 第三个副本在第二个副本所在机架的随机节点
 
 ### HDFS读数据（重点）
@@ -285,7 +297,7 @@ zookeeper
 
 ## DataNode
 
-### 概诉
+### 概述
 
 1. 一个数据块在 DataNode 上以文件形式存储在磁盘上，包括两个文件，一个是数据本身，一个是元数据包括数据块的长度，块数据的校验和，以及时间戳。
 2. DataNode 启动后向 NameNode 注册，通过后，周期性（6 小时）的向 NameNode 上报所有的块信息。
@@ -378,9 +390,9 @@ zookeeper
 
 **缺点**：
 
-1. 不擅长实时计算
-2. 不擅长流式计算
-3. 不擅长DAG有向无环图计算：Spark 擅长
+1. 不擅长实时计算，MapReduce 无法像 MySQL 一样，在毫秒或者秒级内返回结果。
+2. 不擅长流式计算，而 MapReduce 的输入数据集是静态的，不能动态变化。
+3. 不擅长DAG有向无环图计算：Spark 擅长。多个应用程序存在依赖关系，后一个应用程序的输入为前一个的输出。在这种情况下，MapReduce 并不是不能做，而是使用后，每个 MapReduce 作业的输出结果都会写入到磁盘，会造成大量的磁盘 IO，导致性能非常的低下
 
 ### 核心思想是什么？
 
@@ -397,6 +409,27 @@ zookeeper
 2. **MapTask**：负责Map阶段的整个数据处理流程。
 3. **ReduceTask**：负责Reduce阶段的整个数据处理流程。
 
+### MapReduce 编程规范
+
+**Mapper阶段**
+
+1. 用户自定义的Mapper要继承自己的父类
+2. Mapper的输入数据是KV对的形式（KV的类型可自定义）
+3. Mapper中的业务逻辑写在map()方法中
+4. Mapper的输出数据是KV对的形式（KV的类型可自定义）
+5. map()方法（MapTask进程）对每一个<K,V>调用一次
+
+**Reducer阶段**
+
+1. 用户自定义的Reducer要继承自己的父类
+2. Reducer的输入数据类型对应Mapper的输出数据类型，也是KV
+3. Reducer的业务逻辑写在reduce()方法
+4. ReduceTask进程对每一组相同k的<k,v>组调用一次reduce()方法
+
+**Driver阶段**
+
+相当于YARN集群的客户端，用于提交我们整个程序到YARN集群，提交的是封装了MapReduce程序相关运行参数的job对象
+
 ## 序列化和反序列化
 
 ### 基本概念
@@ -410,11 +443,22 @@ zookeeper
 
 
 
-## Mapper 框架原理
+## 框架原理
 
 ### 概述
 
 ![image-20220610102844940](img/image-20220610102844940.png)
+
+###  数据切片
+
+数据切片只是在逻辑上对输入进行分片，并不会在磁盘上将其切分成片进行存储。数据切片是 MapReduce 程序计算输入数据的单位，一个切片会对应启动一个 MapTask。
+
+1. 一个Job的Map阶段并行度由客户端在提交Job时的切片数决定
+2. 每一个Split切片分配一个MapTask并行实例处理
+3. 默认情况下，切片大小=BlockSize
+4. 切片时不考虑数据集整体，而是逐个针对每一个文件单独切片
+
+
 
 
 
@@ -602,7 +646,7 @@ OutPutFormat 有多种实现类
    1. splitSize=max{minSize,min{maxSize,blockSize}}
    2. map数量由处理的数据分成的block数量决定default_num = total_size / split_size;
 2. reduce数量
-   1. reduce的数量job.setNumReduceTasks(x);x 为reduce的数量。不设置的话默认为 1。
+   1. reduce的数量job.setNumReduceTasks(x);x 为reduce的数量。不设置的话默认为1。
 
 ### Maptask的个数由什么决定？
 
@@ -618,11 +662,9 @@ OutPutFormat 有多种实现类
 
       替代方案：首先创建一系列排好序的文件；其次，串联这些文件；最后，生成一个全局排序的文件。主要思路是使用一个分区来描述输出的全局排序。例如：可以为待分析文件创建3个分区，在第一分区中，记录的单词首字母a-g，第二分区记录单词首字母h-n, 第三分区记录单词首字母o-z。
 
-   3. 辅助排序：（GroupingComparator分组）
-          Mapreduce框架在记录到达reducer之前按键对记录排序，但键所对应的值并没有被排序。甚至在不同的执行轮次中，这些值的排序也不固定，因为它们来自不同的map任务且这些map任务在不同轮次中完成时间各不相同。一般来说，大多数MapReduce程序会避免让reduce函数依赖于值的排序。但是，有时也需要通过特定的方法对键进行排序和分组等以实现对值的排序。
-   4. 二次排序：
-          在自定义排序过程中，如果compareTo中的判断条件为两个即为二次排序。
-
+   3. 辅助排序：（GroupingComparator分组）Mapreduce框架在记录到达reducer之前按键对记录排序，但键所对应的值并没有被排序。甚至在不同的执行轮次中，这些值的排序也不固定，因为它们来自不同的map任务且这些map任务在不同轮次中完成时间各不相同。一般来说，大多数MapReduce程序会避免让reduce函数依赖于值的排序。但是，有时也需要通过特定的方法对键进行排序和分组等以实现对值的排序。
+   4. 二次排序：在自定义排序过程中，如果compareTo中的判断条件为两个即为二次排序。
+   
 2. 自定义排序WritableComparabl e
 
    bean对象实现WritableComparable接口重写compareTo方法，就可以实现排序
@@ -684,16 +726,6 @@ sql中 group by后面的字段组合(rank 和isonline的组合)作为map的输�
 
 ![在这里插入图片描述](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMwMDMxMjIx,size_16,color_FFFFFF,t_70-165227911059110.png)
 
-### 一个文件有上亿url，内存很小，找Top10
-
-+ 外排序采用分块的方法（分而治之），首先将数据分块，对块内数据按选择一种高效的内排序策略进行排序。然后采用归并排序的思想对于所有的块进行排序，得到所有数据的一个有序序列。
-+ 把磁盘上的1TB数据分割为40块（chunks），每份25GB。（注意，要留一些系统空间！）
-+ 顺序将每份25GB数据读入内存，使用quick sort算法排序。
-+ 把排序好的数据（也是25GB）存放回磁盘。
-+ 循环40次，现在，所有的40个块都已经各自排序了。（剩下的工作就是如何把它们合并排序！）
-+ 从40个块中分别读取25G/40=0.625G入内存（40 input buffers）。
-+ 执行40路合并，并将合并结果临时存储于2GB 基于内存的输出缓冲区中。当缓冲区写满2GB时，写入硬盘上最终文件，并清空输出缓冲区；当40个输入缓冲区中任何一个处理完毕时，写入该缓冲区所对应的块中的下一个0.625GB，直到全部处理完成。
-
 ### MapReduce跑得慢的原因？
 
 Mapreduce 程序效率的瓶颈在于两点：
@@ -708,20 +740,6 @@ Mapreduce 程序效率的瓶颈在于两点：
    5. 大量的不可分块的超大文件
    6. spill次数过多
    7. merge次数过多等
-
-### SQL转化为MapReduce的过程
-
-1. Antlr定义SQL的语法规则，完成SQL词法，语法解析，将SQL转化为抽象语法树AST Tree
-   1. HiveLexerX，HiveParser分别是Antlr对语法文件Hive.g编译后自动生成的词法解析和语法解析类
-2. 遍历AST Tree，抽象出查询的基本组成单元QueryBlock
-   1. QueryBlock是一条SQL最基本的组成单元，包括三个部分：输入源，计算过程，输出。简单来讲一个QueryBlock就是一个子查询
-3. 遍历QueryBlock，翻译为执行操作树OperatorTree
-   1. Hive最终生成的MapReduce任务，Map阶段和Reduce阶段均由OperatorTree组成。逻辑操作符，就是在Map阶段或者Reduce阶段完成单一特定的操作。
-4. 逻辑层优化器进行OperatorTree变换，减少mapreduce job，减少shuffle数据量
-   1. 谓词下推、合并线性的OperatorTree中partition/sort key相同的reduce （from (select key,value from src group bu key, value）s select s.key group by s.key;
-   2. Map端聚合
-5. 遍历OperatorTree，翻译为MapReduce任务
-6. 物理层优化器进行MapReduce任务的变换，生成最终的执行计划
 
 ### 什么是数据倾斜
 
@@ -775,7 +793,7 @@ Mapreduce 程序效率的瓶颈在于两点：
 
 ### Yarn 的基本架构
 
-1) ResourceManager（RM）：YARN分层结构的本质是ResourceManager。这个实体控制整个集群并管理应用程序向基础计算资源的分配。ResourceManager将各个资源部分（计算、内存、带宽等）精心安排给基础NodeManager（YARN的每节点代理）。ResourceManager还与ApplicationMaster一起分配资源，与NodeManager一起启动和监视它们的基础应用程序。在此上下文中，ApplicationMaster承担了以前的TaskTracker的一些角色，ResourceManager承担了JobTracker 的角色。总的来说，RM有以下作用：
+1) ResourceManager（RM）：YARN分层结构的本质是ResourceManager。这个实体控制整个集群并管理应用程序向基础计算资源的分配。ResourceManager将各个资源部分（计算、内存、带宽等）精心安排给基础NodeManager（YARN的每节点代理）。ResourceManager还与ApplicationMaster一起分配资源，与NodeManager一起启动和监视它们的基础应用程序。在此上下文中，ApplicationMaster承担了以前的TaskTracker的一些角色；ResourceManager承担了JobTracker 的角色。总的来说，RM有以下作用：
    1) 处理客户端请求
    2) 启动或监控ApplicationMaster
    3) 监控NodeManager
@@ -894,553 +912,6 @@ Hadoop调度器主要分为三类：
 + 公平调度器（Fair Scheduler）
   + 公平调度器设计目标是：在时间尺度上，所有作业获得公平的资源。某一时刻一个作业应获资源和实际获取资源的差距叫“缺额”
   + 调度器会优先为缺额大的作业分配资源
-
-
-
-
-
-# 环境搭建
-
-## 搭建虚拟机环境
-
-~~~bash
-# 查看是否能够上网
-ping www.baidu.com
-
-# 安装基本工具
- yum install -y epel-release
- 
- # 安装网络工具
- yum install -y net-tools
- # 安装编辑工具
- yum install -y vim
- 
- # 设置防火墙 关闭开机启动
-systemctl stop firewalld
-systemctl disable firewalld.service
-
-# 批量卸载，卸载虚拟机自带JDK
- rpm -qa | grep -i java | xargs -n1 rpm -e --nodeps
-# rpm -qa：查询所安装的所有rpm软件包
-# grep -i：忽略大小写
-# xargs -n1：表示每次只传递一个参数
-# rpm -e --nodeps：强制卸载软件
-
-# 单独卸载删除旧的 jdk
-yum list installed | grep java
-
-yum -y remove java-1.7.0-openjdk.x86_64
-yum -y remove java-1.7.0-openjdk-headless.x86_64
-yum -y remove java-1.8.0-openjdk.x86_64
-yum -y remove java-1.8.0-openjdk-headless.x86_64
-yum -y remove javamail.noarch
-yum -y remove javapackages-tools.noarch
-yum -y remove javassist.noarch
-yum -y remove python-javapackages.noarch
-yum -y remove tzdata-java.noarch
-
-# 下载JDK
-wget --no-check-certificate https://repo.huaweicloud.com/java/jdk/8u151-b12/jdk-8u151-linux-x64.tar.gz
-# 解压
-tar -zxvf jdk-8u151-linux-x64.tar.gz
-# .移动并重命名JDK包。
-mv jdk1.8.0_151/ /usr/java8
-# 配置Java环境变量。
-echo 'export JAVA_HOME=/usr/java8' >> /etc/profile
-echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile
-source /etc/profile
-
-# 查看是否安装成功
-java -version
-~~~
-
-
-
-## 安装 Hadoop
-
-~~~bash
-# 添加 hostname 配置
-vim /etc/hosts
-
-192.168.160.129 hadoop100
-192.168.160.130 hadoop101
-192.168.160.131 hadoop102
-192.168.160.132 hadoop103
-
-
-# 下载hadoop
-wget --no-check-certificate https://repo.huaweicloud.com/apache/hadoop/common/hadoop-3.1.3/hadoop-3.1.3.tar.gz
-
-# 解压
-tar -zxvf hadoop-3.1.3.tar.gz -C /opt/
-mv /opt/hadoop-3.1.3 /opt/hadoop
-
-# 添加配置环境
-echo 'export HADOOP_HOME=/opt/hadoop/' >> /etc/profile
-echo 'export PATH=$PATH:$HADOOP_HOME/bin' >> /etc/profile
-echo 'export PATH=$PATH:$HADOOP_HOME/sbin' >> /etc/profile
-source /etc/profile    
-
-# 查看是否安装成功
-hadoop version
-~~~
-
-
-
-## 配置 hadoop
-
-Hadoop官方网站： http://hadoop.apache.org/
-
-Hadoop运行模 式包括：本地模式 、伪分布式模式以及完全分布式模式
-
-+ 本地模式：单机运行，只是用来演示一下官方案例。 生产环境不用。
-+ 伪分布式模式： 也是单机运行，但是具备 Hadoop集群的所有功能。一台服务器模拟一个分布式的环境 。个别缺钱的公司用来测试，生产环境不用。
-+ 完全分布式模式： 多台服务器组成分布式环境。 生产环境使用。
-
-
-
-### SSH 登陆
-
-系统之间，需要相互配置这个ssh登陆信息
-
-~~~bash
-# 生成密钥
-ssh-keygen -t rsa
-
-# 分发密钥到其他机器
-ssh-copy-id hadoop100
-ssh-copy-id hadoop101
-ssh-copy-id hadoop102
-
-# 配置本机
-cat id_rsa.pub >> authorized_keys
-~~~
-
-
-
-
-
-### 编写集群分发脚本 xsync
-
-~~~bash
-vi ./bin/xsync 
-~~~
-
-
-
-~~~shell
-#!/bin/bash
-
-#1. 判断参数个数
-if [ $# -lt 1 ]
-then
-        echo Not Enough Arguement!
-        exit;
-fi
-
-#2. 遍历集群所有机器
-for host in hadoop102 hadoop103 hadoop104
-do
-        echo ==================== $host ====================
-        #3. 遍历所有目录，挨个发送
-
-        for file in $@
-        do
-                #4. 判断文件是否存在
-                if [ -e $file ]
-                        then
-                                #5. 获取父目录
-                                pdir=$(cd -P $(dirname $file); pwd)
-
-                                #6. 获取当前文件的名称
-                                fname=$(basename $file)
-                                ssh $host "mkdir -p $pdir"
-                                rsync -av $pdir/$fname $host:$pdir
-                        else
-                                echo $file does not exists!
-                fi
-        done
-done
-
-~~~
-
-
-
-~~~bash
-# 增加执行权限
-chmod +x xsync 
-
-# 让环境变量生效
-source /etc/profile
-~~~
-
-
-
-## 集群配置
-
-### 配置说明
-
-|      | hadoop100              | hadoop101                        | hadoop102                   |
-| ---- | ---------------------- | -------------------------------- | --------------------------- |
-| HDFS | **NameNode**、DataNode | DataNode                         | SecondaryNameNode、DataNode |
-| YARN | NodeManager            | **ResourceManager、**NodeManager | NodeManager                 |
-
-### 自定义配置文件
-
-+ core-site.xml：hadoop-3.1.3/etc/hadoop/core-site.xml 
-
-  ~~~xml
-  <configuration>
-  <!--指定NameNode的地址-->
-  <property>
-          <name>fs.defaultFS</name>
-          <value>hdfs://hadoop102:8020</value>
-  </property>
-  
-  <!--指定hadoop数据的存储目录-->
-  <property>
-          <name>hadoop.tmp.dir</name>
-          <value>/opt/module/hadoop-3.1.3/data</value>
-  </property>
-  
-  <!--配置HDFS网页登录使用的静态用户为Tom -->
-  <property>
-          <name>hadoop.http.staticuser.user</name>
-  		<value>root</value>
-  </property>
-  </configuration>
-  
-  ~~~
-
-+ hdfs-site.xml：hadoop-3.1.3//hadoop/hdfs-site.xml 
-
-  ~~~xml
-  <configuration>
-          <!--nn web端访问地址-->
-          <property>
-                  <name>dfs.namenode.http-address</name>
-                  <value>hadoop102:9870</value>
-          </property>
-          <!--2nn web端访问地址-->
-          <property>
-                  <name>dfs.namenode.secondary.http-address</name>
-                  <value>hadoop104:9868</value>
-          </property>
-          <property>
-                  <name>dfs.webhdfs.enabled</name>
-                  <value>true</value>
-      </property>
-  </configuration>
-  
-  ~~~
-
-+  yarn-site.xml：hadoop-3.1.3/etc/hadoop/yarn-site.xml 
-
-  ~~~xml
-  <configuration>
-          <!--指定MR走shuffle -->
-          <property>
-                  <name>yarn.nodemanager.aux-services</name>
-                  <value>mapreduce_shuffle</value>
-          </property>
-          <!--指定ResourceManager的地址-->
-          <property>
-                  <name>yarn.resourcemanager.hostname</name>
-                  <value>hadoop103</value>
-          </property>
-          <!--环境变量的继承-->
-          <property>
-                  <name>yarn.nodemanager.env-whitelist</name>
-                  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
-          </property>
-  </configuration>
-  
-  ~~~
-
-+  mapred-site.xml：hadoop-3.1.3/etc/hadoop/mapred-site.xml 
-
-  ~~~xml
-  <configuration>
-      <!--指定MapReduce程序运行在Yarn上-->
-      <property>
-          <name>mapreduce.framework.name</name>
-          <value>yarn</value>
-      </property>
-  </configuration>
-  
-  ~~~
-
-  
-
-### 配置工作节点
-
-~~~
- vim /opt/module/hadoop-3.1.3/etc/hadoop/workers 
-
-hadoop102
-hadoop103
-hadoop104
-
-
-# 增加用户
-vi /etc/profile
-
-export HDFS_NAMENODE_USER=root
-export HDFS_DATANODE_USER=root
-export HDFS_SECONDARYNAMENODE_USER=root
-export YARN_RESOURCEMANAGER_USER=root
-export YARN_NODEMANAGER_USER=root
-
-source /etc/profile
-~~~
-
-
-
-
-
-
-
-### 启动命令
-
-~~~
-hadoop namenode -format
-# 在 dfs 上启动该服务
-start-dfs.sh
-# 在 yarn 上启动资源服务
-start-yarn.sh
-
-# 刪除旧资源
-rm -rf /usr/local/krest/hadoop/logs/
-rm -rf /usr/local/krest/data/hadoop/
-~~~
-
-
-
-### 终止命令
-
-~~~bash
-stop-dfs.sh
-stop-yarn.sh
-~~~
-
-
-
-### 配置历史服务器
-
-vim etc/hadoop/mapred-site.xml 
-
-~~~xml
-<property>
-    <name>mapreduce.jobhistory.address</name>
-    <value>hadoop100:10020</value>
-</property>
-<!--历史服务器web端地址-->
-<property>
-    <name>mapreduce.jobhistory.webapp.address</name>
-    <value>hadoop100:19888</value>
-</property>
-~~~
-
-分发配置
-
-xsync etc/
-
-启动历史服务器
-
-~~~bash
-mapred --daemon start historyserver
-~~~
-
-查看服务是否启动
-
-jps
-
-http://hadoop100:19888/jobhistory
-
-停止历史服务
-
-~~~bash
-mapred --daemon stop historyserver
-~~~
-
-
-
-
-
-## 配置日志的聚集
-
-~~~bash
- vim etc/hadoop/yarn-site.xml
-~~~
-
-~~~xml
-<!--开启日志聚集功能-->
-<property>
-    <name>yarn.log-aggregation-enable</name>
-    <value>true</value>
-</property>
-<!--设置日志聚集服务器地址-->
-<property>
-    <name>yarn.log.server.url</name>
-    <value>http://hadoop100:19888/jobhistory/logs</value>
-</property>
-<!--设置日志保留时间为7天-->
-<property>
-    <name>yarn.log-aggregation.retain-seconds</name>
-    <value>604800</value>
-</property>
-~~~
-
-
-
-### 编写常用脚本
-
-#### 添加配置
-
-`ERROR: but there is no YARN_RESOURCEMANAGER_USER defined. Aborting operation.`
-
-#### 启动服务脚本
-
-**将start-dfs.sh，stop-dfs.sh两个文件顶部添加以下参数**
-
-~~~sh
-HDFS_NAMENODE_USER=root
-HDFS_DATANODE_USER=root
-HDFS_SECONDARYNAMENODE_USER=root
-YARN_RESOURCEMANAGER_USER=root
-YARN_NODEMANAGER_USER=root
-~~~
-
-
-
-
-
-
-
-~~~bash
- cd /home/Tom/bin/
- vim myhadoop.sh 
-~~~
-
-~~~sh
-#!/bin/bash
-
-if [ $# -lt 1 ]
-then
-        echo "No Args Input..."
-        exit ;
-fi
-
-case $1 in
-"start")
-        echo " =================== 启动hadoop集群==================="
-        echo " ---------------启动hdfs ---------------"
-        ssh hadoop100 "/usr/local/krest/hadoop/sbin/start-dfs.sh"
-        echo " ---------------启动yarn ---------------"
-        ssh hadoop101 "/usr/local/krest/hadoop/sbin/start-yarn.sh"
-        echo " ---------------启动historyserver ---------------"
-        ssh hadoop100 "/usr/local/krest/hadoop/bin/mapred --daemon start historyserver"
-;;
-"stop")
-        echo " =================== 关闭hadoop集群==================="
-        echo " ---------------关闭historyserver ---------------"
-        ssh hadoop100 "/usr/local/krest/hadoop/bin/mapred --daemon stop historyserver"
-        echo " ---------------关闭yarn ---------------"
-        ssh hadoop101 "/usr/local/krest/hadoop/sbin/stop-yarn.sh"
-        echo " ---------------关闭hdfs ---------------"
-        ssh hadoop100 "/usr/local/krest/hadoop/sbin/stop-dfs.sh"
-;;
-*)
-        echo "Input Args Error..."
-;;
-esac
-
-~~~
-
-~~~bash
-chmod +x myhadoop.sh 
-~~~
-
-
-
-
-
-#### 查看状态脚本
-
-~~~sh
-vim jpsall.sh 
-~~~
-
-~~~shell
-#!/bin/bash
-
-for host in hadoop102 hadoop103 hadoop104
-do
-        echo =============== $host ===============
-        ssh $host jps
-done
-
-~~~
-
-~~~sh
-chmod +x jpsall.sh 
-~~~
-
-
-
-
-
-
-
-## Bug踩坑
-
-### **启动集群**
-
-如果集群是第一次启动 ，需要在 hadoop102节点格式化 NameNode（注意格式化 NameNode会产生新的集群 id导致 NameNode和 DataNode的集群 id不一致，集群找不到已往数据。 如果集群在运行过程中报错，需要重新格式化 NameNode的话， 一定要先停止 namenode和 datanode进程， 并且要删除所有机器的 data和 logs目录，然后再进行格式化。
-
-### 启动 dfs与yarn
-
-需要自己设置的集群节点启动才可以，并非当前每一个节点都行
-
-### SSH Jps 不生效
-
-`bash: jps: command not found`
-
-在用户`~/.bashrc`这个文件配置JAVA环境变量
-
-~~~sh
-vim ~/.bashrc
-~~~
-
-~~~shell
-export JAVA_HOME=/usr/local/krest/java8
-export PATH=$PATH:$JAVA_HOME/bin
-~~~
-
-再执行命令`source ~/.bashrc`激活文件# 
-
-~~~sh
-source ~/.bashrc
-~~~
-
-
-
-### SSH 执行start-yarn指令不成功
-
-~~~sh
-# 将start-dfs.sh，stop-dfs.sh两个文件顶部添加以下参数
-
-HDFS_NAMENODE_USER=root
-HDFS_DATANODE_USER=root
-HDFS_SECONDARYNAMENODE_USER=root
-YARN_RESOURCEMANAGER_USER=root
-YARN_NODEMANAGER_USER=root
-
-# start-yarn.sh，stop-yarn.sh顶部也需添加以下
-YARN_RESOURCEMANAGER_USER=root
-HADOOP_SECURE_DN_USER=yarn
-YARN_NODEMANAGER_USER=root
-~~~
 
 
 
