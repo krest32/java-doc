@@ -30,6 +30,13 @@ systemctl disable firewalld.service
 
 
 
+# Yum锁定
+
+~~~bash
+rm -f /var/run/yum.pid
+yum clean all
+~~~
+
 
 
 # 删除软件
@@ -304,7 +311,7 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
 + 远程登陆
 
   ~~~bash
-  use mysql   #选择访问mysql库
+  use mysql;   #选择访问mysql库
   update user set host = '%' where user = 'root'; #使root能再任何host访问
   FLUSH PRIVILEGES;    #刷新
   ~~~
@@ -971,7 +978,7 @@ bin/kafka-topics.sh --create --zookeeper localhost:2181  --topic demo
 ### 查询topic列表
 
 ~~~bash
-bin/kafka-topics.sh --list --zookeeper localhost:2181
+bin/kafka-topics.sh --list --zookeeper hadoop100:2181
 bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic demo
 ~~~
 
