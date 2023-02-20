@@ -1,3 +1,69 @@
+
+
+# 修改主机名
+
+查看当前的主机名
+
+~~~bash
+[root@sxl133 Desktop]# hostname
+sxl133
+~~~
+
+在命令行中输入
+
+~~~bash
+ hostnamectl set-hostname XXX
+ XXX为你想更改的名字
+~~~
+
+最后关机重启即可
+
+# 增加主机和IP的映射
+
+~~~bash
+vim /etc/hosts
+192.168.1.101  centos7
+~~~
+
+这样局域网内就可以通过主机名互相访问了，当然局域网内的主机hosts文件都得添加映射关系
+
+
+
+# 修改固定Ip
+
+~~~bash
+vi /etc/sysconfig/network-scripts/ifcfg-ens33 
+~~~
+
+![在这里插入图片描述](img/e617728f99a342f2bca40bd8f64be166.png)
+
+配置，然后重新重启网路
+
+~~~bash
+IPADDR=192.168.160.129
+NETMASK=255.255.255.0
+GATEWAY=192.168.160.2
+DNS1=8.8.8.8
+BOOTPROTO=static
+
+nmcli connection reload
+nmcli connection up ens33
+~~~
+
+
+
+
+
+# 停止服务
+
+~~~bash
+ netstat -anp | grep 2181
+
+ kill -9 进程号
+~~~
+
+
+
 # 防火墙
 
 centOS6及以前版本使用命令：
@@ -45,6 +111,151 @@ yum clean all
 + 逐个删除自带软件：rpm -e --nodeps  软件名称
 + 查找存在的文件夹 如： find / -name mysql，然后逐个删除
 
+# xsync分发脚本
+
+1. 在用的家目录/home/atguigu下创建bin文件夹
+
+   ~~~bash
+   [atguigu@hadoop102 ~]$ mkdir bin
+   ~~~
+
+2. 在/home/atguigu/bin目录下创建xsync文件，以便全局调用
+
+   ~~~bash
+   [atguigu@hadoop102 ~]$ cd /home/atguigu/bin
+   [atguigu@hadoop102 ~]$ vim xsync
+   ~~~
+
+3. 在该文件中编写如下代码
+
+   ~~~shell
+   #!/bin/bash
+   #1. 判断参数个数
+   if [ $# -lt 1 ]
+   then
+     echo Not Enough Arguement!
+     exit;
+   fi
+   #2. 遍历集群所有机器
+   for host in hadoop102 hadoop103 hadoop104
+   do
+     echo ====================  $host  ====================
+     #3. 遍历所有目录，挨个发送
+     for file in $@
+     do
+       #4 判断文件是否存在
+       if [ -e $file ]
+       then
+         #5. 获取父目录
+         pdir=$(cd -P $(dirname $file); pwd)
+         #6. 获取当前文件的名称
+         fname=$(basename $file)
+         ssh $host "mkdir -p $pdir"
+         rsync -av $pdir/$fname $host:$pdir
+       else
+         echo $file does not exists!
+       fi
+     done
+   done
+   ~~~
+
+4. 修改脚本xsync具有执行权限
+
+   ~~~bash
+   chmod +x xsync
+   ~~~
+
+5. 测试脚本
+
+   ~~~bash
+   [atguigu@hadoop102 bin]$ xsync xsync
+   ~~~
+
+# SSH无密登录配置
+
+说明：这里面只配置了hadoop102、hadoop103到其他主机的无密登录；因为hadoop102未外配置的是NameNode，hadoop103配置的是ResourceManager，都要求对其他节点无密访问。
+
+1. hadoop102上生成公钥和私钥：
+
+   ~~~bash
+   [atguigu@hadoop102 .ssh]$ ssh-keygen -t rsa
+   # 然后敲（三个回车），就会生成两个文件id_rsa（私钥）、id_rsa.pub（公钥）
+   ~~~
+
+2. 将hadoop102公钥拷贝到要免密登录的目标机器上
+
+   ~~~bash
+   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop102
+   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop103
+   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop104
+   ~~~
+
+3. hadoop103上生成公钥和私钥：
+
+   ~~~bash
+   [atguigu@hadoop103 .ssh]$ ssh-keygen -t rsa
+   # 然后敲（三个回车），就会生成两个文件id_rsa（私钥）、id_rsa.pub（公钥）
+   ~~~
+
+4. 将hadoop103公钥拷贝到要免密登录的目标机器上
+
+   ~~~bash
+   [atguigu@hadoop103 .ssh]$ ssh-copy-id hadoop102
+   [atguigu@hadoop103 .ssh]$ ssh-copy-id hadoop103
+   [atguigu@hadoop103 .ssh]$ ssh-copy-id hadoop104
+   ~~~
+
+# 集群脚本示例
+
+## 集群服务启动
+
+~~~bash
+[atguigu@hadoop102 bin]$ vim lg.sh
+~~~
+
+~~~shell
+#!/bin/bash
+for i in hadoop102 hadoop103; do
+    echo "========== $i =========="
+    ssh $i "cd /opt/module/applog/; java -jar gmall2020.jar >/dev/null 2>&1 &"
+done 
+~~~
+
+注：
+
+1. /opt/module/applog/为jar包及配置文件所在路径
+2. /dev/null代表Linux的空设备文件，所有往这个文件里面写入的内容都会丢失，俗称“黑洞”。
+   1. 标准输入0：从键盘获得输入 /proc/self/fd/0 
+   2. 标准输出1：输出到屏幕（即控制台） /proc/self/fd/1
+   3. 错误输出2：输出到屏幕（即控制台） /proc/self/fd/2
+
+~~~bash
+[atguigu@hadoop102 bin]$ chmod 777 lg.sh
+~~~
+
+## 集群查看脚本
+
+~~~bash
+[atguigu@hadoop102 bin]$ chmod 777 lg.sh
+~~~
+
+~~~shell
+#! /bin/bash
+ 
+for i in hadoop102 hadoop103 hadoop104
+do
+    echo --------- $i ----------
+    ssh $i "$*"
+done
+~~~
+
+~~~bash
+[atguigu@hadoop102 bin]$ chmod 777 xcall
+[atguigu@hadoop102 bin]$ xcall.sh jps
+~~~
+
+
+
 
 
 # JDK
@@ -70,6 +281,67 @@ yum clean all
   ~~~
 
 + 使配置生效：source /etc/profile
+
+# Python3 
+
+## 安装
+
+~~~bash
+1.在机器上随便找一个目录,下载python插件
+ 
+    wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz(看是否能直接在机器上下载,不 
+    可以的话就只能在window下载上传了)
+ 
+2.解压压缩包
+    
+    tar -zxvf Python-3.7.0.tgz
+ 
+3.进入目录
+   
+   cd Python-3.7.0
+ 
+4.创建安装目录
+ 
+    mkdir /usr/local/python3
+ 
+5.安装到指定目录
+ 
+    ./configure --prefix=/usr/local/python3 --enable-optimizations
+    (--enable-optimizations 加了这个参数编译会比较久,这个是参数是性能优化相关)
+ 
+6. 编译(这一步比较久,大概要20分钟)
+ 
+   make && make install
+ 
+7.成功后创建软连接即可全局使用python3了
+ 
+  cd /usr/local/python3
+  ln -s /usr/local/python3/bin/python3 /usr/bin/python
+  ln -s /usr/local/python3/bin/pip3 /usr/bin/pip
+  
+ 如果 /usr/bin/python  /usr/bin/pip 存在，就使用 rm 指令删除
+ 
+8.可以查看pip和python的版本
+ 
+  python -V 
+  pip -V
+~~~
+
+## 相关异常
+
+安装完python3.7版本之后,yum命令会报错(因为yum是用python2写的)
+
+![img](img/format,png.png)
+
+~~~bash
+1.编辑这两个文件
+ 
+  vim /usr/libexec/urlgrabber-ext-down
+  vim /usr/bin/yum
+ 
+2.编辑第一行(让yum命令指向python2版本就行)
+  #!/usr/bin/python 改成 #!/usr/bin/python2.7
+~~~
 
 
 
@@ -315,6 +587,21 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
   update user set host = '%' where user = 'root'; #使root能再任何host访问
   FLUSH PRIVILEGES;    #刷新
   ~~~
+
+## 设置密码策略
+
+由于MySQL密码策略，此密码必须足够复杂
+
+~~~bash
+mysql> set global validate_password_length=4;
+mysql> set global validate_password_policy=0;
+
+mysql> set password=password("000000");
+mysql> use mysql;
+mysql> update user set host="%" where user="root";
+mysql> flush privileges;
+mysql> quit;
+~~~
 
 
 
@@ -695,6 +982,31 @@ sudo systemctl restart docker
 
 
 
+## 异常
+
+### WARNING: IPv4 forwarding is disabled. Networking will not work.
+
+导致容器内网络与服务器网络不通
+
+~~~bash
+vim /etc/sysctl.conf
+
+# 在该文件中新增一行：
+net.ipv4.ip_forward=1
+
+# 然后重启network服务，命令行执行：
+systemctl restart network && systemctl restart docker
+
+# 验证 返回net.ipv4.ip_forward = 1，就是成功
+sysctl net.ipv4.ip_forward
+~~~
+
+
+
+
+
+
+
 # Rabbit MQ
 
 ## 安装
@@ -915,6 +1227,8 @@ docker run -d \
 
 # Zookeeper
 
+
+
 # Kafka
 
 ## 安装
@@ -953,7 +1267,6 @@ kafka中自带了zookeeper组件
 
 ~~~bash
 bin/zookeeper-server-start.sh config/zookeeper.properties
-
 bin/zookeeper-server-start.sh -daemon  config/zookeeper.properties          #建议使用这种方式，不需要启动多个窗口
 ~~~
 
@@ -973,12 +1286,15 @@ bin/kafka-server-start.sh -daemon  config/server.properties                 #建
 bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic demo
 
 bin/kafka-topics.sh --create --zookeeper localhost:2181  --topic demo
+bin/kafka-topics.sh --create --bootstrap-server hadoop100:2181  --replication-factor 1 --partitions 1  --topic demo
 ~~~
 
 ### 查询topic列表
 
 ~~~bash
 bin/kafka-topics.sh --list --zookeeper hadoop100:2181
+或者 
+bin/kafka-topics.sh --list --bootstrap-server hadoop100:2181 
 bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic demo
 ~~~
 
@@ -1030,6 +1346,110 @@ bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 -
 
 （2）、topic: zabbixVm 
 ./kafka-console-consumer.sh --bootstrap-server 192.168.xxx.xxx:9092 --topic zabbixVm #查看最新的数据
+~~~
+
+
+
+# Hive 环境搭建
+
+## 安装
+
+~~~bash
+# 上传解压安装包
+cd /export/server/
+tar zxvf apache-hive-3.1.2-bin.tar.gz
+mv apache-hive-3.1.2-bin hive
+
+#解决hadoop、hive之间guava版本差异
+cd /export/server/hive
+rm -rf lib/guava-19.0.jar
+cp /export/server/hadoop-3.1.4/share/hadoop/common/lib/guava-27.0-jre.jar ./lib/
+
+#添加mysql jdbc驱动到hive安装包lib/文件下
+mysql-connector-java-5.1.32.jar
+
+#修改hive环境变量文件 添加Hadoop_HOME
+cd /export/server/hive/conf/
+mv hive-env.sh.template hive-env.sh
+vim hive-env.sh
+export HADOOP_HOME=/export/server/hadoop-3.1.4
+export HIVE_CONF_DIR=/export/server/hive/conf
+export HIVE_AUX_JARS_PATH=/export/server/hive/lib
+
+#新增hive-site.xml 配置mysql等相关信息
+vim hive-site.xml
+
+#初始化metadata
+cd /export/server/hive
+bin/schematool -initSchema -dbType mysql -verbos
+#初始化成功会在mysql中创建74张表
+~~~
+
+## 修改配置
+
+Hive-site.xml 
+
+~~~ xml
+
+<configuration>
+    <!-- 存储元数据mysql相关配置 -->
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value> jdbc:mysql://node1:3306/hive?createDatabaseIfNotExist=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>com.mysql.jdbc.Driver</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>root</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>hadoop</value>
+    </property>
+
+    <!-- H2S运行绑定host -->
+    <property>
+        <name>hive.server2.thrift.bind.host</name>
+        <value>node1</value>
+    </property>
+
+    <!-- 远程模式部署metastore 服务地址 -->
+    <property>
+        <name>hive.metastore.uris</name>
+        <value>thrift://node1:9083</value>
+    </property>
+
+    <!-- 关闭元数据存储授权  -->
+    <property>
+        <name>hive.metastore.event.db.notification.api.auth</name>
+        <value>false</value>
+    </property>
+
+    <!-- 关闭元数据存储版本的验证 -->
+    <property>
+        <name>hive.metastore.schema.verification</name>
+        <value>false</value>
+    </property>
+</configuration>
+~~~
+
+
+
+## 启动指令
+
+
+
+hive经过发展，推出了第二代客户端beeline，但是beeline客户端不是直接访问metastore服务的，而是**需要单独启动hiveserver2服务**。在hive运行的服务器上，首先启动metastore服务，然后启动hiveserver2服务。
+
+~~~bash
+nohup /export/server/hive/bin/hive --service metastore &
+nohup /export/server/hive/bin/hive --service hiveserver2 &
 ~~~
 
 
@@ -1733,5 +2153,61 @@ YARN_NODEMANAGER_USER=root
 
 
 
+# Superset-docker
+
+~~~bash
+docker pull amancevice/superset:0.37.2
+~~~
+
+创建存储superset数据配置所需文件夹
+
+```cobol
+mkdir -p /opt/module/docker/superset/conf 
+mkdir -p /opt/module/docker/superset/data
+```
+
+创建superset容器
+
+~~~bash
+docker run --name superset -u 0 -d -p 8088:8088 \
+	-v /opt/module/docker/superset/conf:/etc/superset \
+	-v /opt/module/docker/superset/data:/var/lib/superset amancevice/superset:0.37.2
+~~~
+
+
+初始化superset数据库
+
+~~~bash
+docker exec -it superset superset db upgrade
+~~~
+
+
+ 创建superset管理员用户
+
+~~~bash
+docker exec -it superset superset fab create-admin
+~~~
+
+![img](img/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAR0xHTg==,size_20,color_FFFFFF,t_70,g_se,x_16.png)
+
+初始化superset
+
+```csharp
+docker exec -it superset superset init 
+```
+
+开启服务
+
+```scss
+docker exec -it superset superset run --with-threads --reload --debugger
+```
+
+浏览器地址栏输入 IP:8088
+
+~~~bash
+docker start superset
+docker stop superset
+
+~~~
 
 
