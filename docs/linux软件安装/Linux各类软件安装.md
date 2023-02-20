@@ -284,7 +284,7 @@ done
 
 # Python3 
 
-## 安装
+## Linux安装
 
 ~~~bash
 1.在机器上随便找一个目录,下载python插件
@@ -605,6 +605,282 @@ mysql> quit;
 
 
 
+# MongDB
+
+## 安装
+
+~~~bash
+
+[bigdata@linux ~]$ wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel62-3.4.3.tgz
+#  将压缩包解压到指定目录
+[bigdata@linux backup]$ tar -xf mongodb-linux-x86_64-rhel62-3.4.3.tgz -C ~/
+# 将解压后的文件移动到最终的安装目录
+[bigdata@linux ~]$ mv mongodb-linux-x86_64-rhel62-3.4.3/ /usr/local/mongodb
+#  在安装目录下创建data文件夹用于存放数据和日志
+[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/
+#  在data文件夹下创建db文件夹，用于存放数据
+[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/db/
+# 在data文件夹下创建logs文件夹，用于存放日志
+[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/logs/
+# 在logs文件夹下创建log文件
+[bigdata@linux mongodb]$ touch /usr/local/mongodb/data/logs/ mongodb.log
+#  在data文件夹下创建mongodb.conf配置文件
+[bigdata@linux mongodb]$ touch /usr/local/mongodb/data/mongodb.conf
+# 在mongodb.conf文件中输入如下内容
+[bigdata@linux mongodb]$ vim ./data/mongodb.conf
+#端口号port = 27017
+#数据目录
+dbpath = /usr/local/mongodb/data/db
+#日志目录
+logpath = /usr/local/mongodb/data/logs/mongodb.log
+#设置后台运行
+fork = true
+#日志输出方式
+logappend = true
+#开启认证
+#auth = true
+~~~
+
+## 启动
+
+~~~bash
+ 启动MongoDB服务器
+[bigdata@linux mongodb]$ sudo /usr/local/mongodb/bin/mongod -config /usr/local/mongodb/data/mongodb.conf
+// 访问MongoDB服务器
+[bigdata@linux mongodb]$ /usr/local/mongodb/bin/mongo
+// 停止MongoDB服务器
+[bigdata@linux mongodb]$ sudo /usr/local/mongodb/bin/mongod -shutdown -config /usr/local/mongodb/data/mongodb.conf
+~~~
+
+
+
+## 基本操作
+
+~~~bash
+// 1.数据库的切换：use  数据库名
+use my_test
+// 2.创建集合：db.集合名.insert({_id:'1001'})  --- 在向集合中插入文档时就已经创建了集合
+db.admin.insert({
+   _id:'1005',
+     userName: '鲁肃',
+     password: '123456',
+     address: '镇江'
+})
+db.student.insert({
+   _id:'s101',
+     sname: '张三',
+     ssex: '男',
+     sage: 21
+})
+// 3.查询集合：db.集合名.find({})  --- 若find不带参数表示查询所有文档
+db.admin.find()
+// 4. 统计集合中文档的数量 ：db.集合名.find().count()
+db.admin.find().count()
+// 5.更新集合中的文档：db.集合名.update({条件},{$set:{key:value}})
+db.admin.update({_id:'1004'},{$set:{password:'aaaa'}})
+// 6. 删除属性(key)：db.集合名.update({条件},{$unset:{key:value}}
+db.admin.update({_id:'1003'},{$unset:{address:'南京'}})
+// 7. 增加属性：db.集合名.update({条件},{$set:{key:value}}
+db.admin.update({_id:'1003'},{$set:{hobby:['下棋','骑马','KTV']}})
+// 8. 删除文档：db.集合名.remove({条件})
+db.admin.remove({_id:'1005'})
+db.student.find()
+//9. 删除集合：db.集合名.drop()
+
+
+//创建一个数组：保存若干对象
+var arr = []
+for(let i=1;i<=2000;i++)
+{
+    arr.push({
+             _id:'100'+i,
+             title: 'A0'+i,
+             num: i
+        })
+}
+//将数组arr中的元素插入到集合numbers中
+db.numbers.insert(arr)
+db.numbers.find()
+// 10. 查询numbers集合中num值等于500的文档(记录)
+db.numbers.find({num:500})
+// 11. 查询numbers集合中num值大于500的文档
+db.numbers.find({num:{$gt:500}})
+// 12. 查询numbers集合中num值小于500的文档
+db.numbers.find({num:{$lt:500}})
+// 13. 查询numbers集合中num值小于40,小于50的文档
+db.numbers.find({num:{$gt:40,$lt:50}})
+//14. 用limit设置显示数据的上限
+db.numbers.find().limit(15)  //表示最多显示15条记录
+//15. 分页显示：skip(index)---进行定位
+db.numbers.find().skip(0).limit(10)  //从索引为0的记录开始连续显示10条记录
+db.numbers.find().skip(10).limit(10)
+db.numbers.find().skip(20).limit(10)
+~~~
+
+
+
+
+
+# ES
+
+## 修改配置文件
+
+~~~bash
+vi config/elasticsearch.yml 
+~~~
+
+~~~yml
+# 设置跨域
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+# 端口
+http.port: 9200
+# 设置外网访问
+network.host: 0.0.0.0
+network.bind_host: 172.27.27.82
+# 设置集群名称
+cluster.name: elasticsearch
+~~~
+
+
+
+## 启动指令
+
+~~~bash
+# 前台启动
+./bin/elasticsearch
+
+# 后台启动
+./bin/elasticsearch -d
+~~~
+
+
+
+## 常见启动错误
+
+**第一种：**
+
+~~~bash
+max virtual memory areas vm.max_map_count [65530] likely too low, increase to at least [262144]
+~~~
+
+~~~bash
+原因：最大虚拟内存太小
+解决方案：
+切换到root用户下，修改配置文件sysctl.conf
+vi /etc/sysctl.conf
+添加下面配置：
+vm.max_map_count=655360
+并执行命令：
+sysctl -p
+~~~
+
+**第二种**
+
+~~~bash
+ ERROR: bootstrap checks failed：max file descriptors [4096] for elasticsearch process likely too low, increase to at least [65536]
+~~~
+
+~~~bash
+原因：无法创建本地文件问题,用户最大可创建文件数太小
+解决方案：
+切换到root用户，编辑limits.conf配置文件， 添加类似如下内容：
+vi /etc/security/limits.conf
+添加如下内容：
+* soft nofile 65536
+* hard nofile 131072
+* soft nproc 2048
+* hard nproc 4096
+备注：* 代表Linux所有用户名称(比如hadoop)
+保存、退出、重新系统 登录才可生效
+~~~
+
+
+
+**第三种**
+
+~~~bash
+ERROR: bootstrap checks failed   system call filters failed to install; check the logs and fix your configuration or disable 
+system call filters at your own risk 
+~~~
+
+~~~bash
+原因：因为Centos6不支持SecComp，而ES5.2.1默认bootstrap.system_call_filter为true进行检测，所以导致检测失败，失败后直接导致ES不能启动。
+详见 ：https://github.com/elastic/elasticsearch/issues/22899
+解决方案：在elasticsearch.yml中配置bootstrap.system_call_filter为false，注意要在Memory下面
+bootstrap.memory_lock: false
+bootstrap.system_call_filter: false
+~~~
+
+**第四种**
+
+~~~bash
+Caused by: java.lang.IllegalStateException: Failed to create node environment
+~~~
+
+~~~bash
+ 
+1.Failed to create node environment
+2.Caused by: java.nio.file.AccessDeniedException:Caused by: java.nio.file.AccessDeniedException: /usr/share/elasticsearch/data/nodes/0
+ 
+需要说明如果是在实体运行就需要把对应的文件夹加上权限
+如果是通过docker容器 需要把对应的容器卷加上权限 否则es无法创建node
+chmod 777 需要将 /usr/share/elasticsearch/data/nodes 
+~~~
+
+**第五种**
+
+~~~bash
+can not run elasticsearch as root
+~~~
+
+~~~bash
+1、创建用户：elsearch
+[root@iZbp1bb2egi7w0ueys548pZ bin]# adduser elsearch
+2、创建用户密码，需要输入两次（可以不添加密码，直接执行余下步骤）
+[root@iZbp1bb2egi7w0ueys548pZ bin]# passwd elsearch
+3、将对应的文件夹权限赋给该用户
+[root@iZbp1bb2egi7w0ueys548pZ local]# chown -R elsearch elasticsearch-6.0.0
+4、切换至elasticsearch用户
+[root@iZbp1bb2egi7w0ueys548pZ etc]# su elsearch
+5、进入启动目录启动 /usr/local/elasticsearch-6.0.0/bin  使用后台启动方式：./elasticsearch -d
+[elasticsearch@vmt10003 bin]$ ./elasticsearch -d
+6、启动后测试
+输入curl ip:9200,如果返回一个json数据说明启动成功
+~~~
+
+# ES-head-master
+
+## 修改配置
+
+修改Gruntfile.js（根目录下）
+
+~~~js
+connect: {
+			server: {
+				options: {
+					hostname:'*',
+					port: 9100,
+					base: '.',
+					keepalive: true
+				}
+			}
+		}
+~~~
+
+修改_site目录下的app.js
+
+~~~bash
+this.base_uri = this.config.base_uri || this.prefs.get("app-base_uri") || "http://192.168.148.133:9200";
+#将原来的localhost改为服务器ip
+~~~
+
+### 启动
+
+~~~bash
+npm run start
+~~~
+
 # Redis
 
 ## 安装
@@ -716,7 +992,7 @@ mysql> quit;
 + 指令
 
   ~~~bash
-   ./src/redis-server redis.conf
+   ./usr/local/redis/src/redis-server /usr/local/redis/redis.conf
   ~~~
 
 + 查看 redis 是否后台运行成功
@@ -1226,6 +1502,35 @@ docker run -d \
 2. canal 1.1.4版本，迎来最重要的WebUI能力，引入canal-admin工程，支持面向WebUI的canal动态管理能力，支持配置、任务、日志等在线白屏运维能力，具体文档：[Canal Admin Guide](
 
 # Zookeeper
+
+## 安装（单节点）环境配置
+
+~~~bash
+// 通过wget下载zookeeper安装包
+[bigdata@linux ~]$ wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.10/zookeeper-3.4.10.tar.gz 
+// 将zookeeper解压到安装目录
+[bigdata@linux ~]$ tar –xf zookeeper-3.4.10.tar.gz –C ./cluster
+// 进入zookeeper安装目录
+[bigdata@linux cluster]$ cd zookeeper-3.4.10/
+// 创建data数据目录
+[bigdata@linux zookeeper-3.4.10]$ mkdir data/
+// 复制zookeeper配置文件
+[bigdata@linux zookeeper-3.4.10]$ cp ./conf/zoo_sample.cfg ./conf/zoo.cfg   
+// 修改zookeeper配置文件
+[bigdata@linux zookeeper-3.4.10]$ vim conf/zoo.cfg
+dataDir=/home/bigdata/cluster/zookeeper-3.4.10/data  #将数据目录地址修改为创建的目录
+// 启动Zookeeper服务
+[bigdata@linux zookeeper-3.4.10]$ bin/zkServer.sh start
+// 查看Zookeeper服务状态
+[bigdata@linux zookeeper-3.4.10]$ bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /usr/local/zookeeper/bin/zkServer.sh /usr/local/zookeeper/bin/conf/zoo.cfg
+Mode: standalone
+// 关闭Zookeeper服务
+[bigdata@linux zookeeper-3.4.10]$ bin/zkServer.sh stop
+~~~
+
+
 
 
 
