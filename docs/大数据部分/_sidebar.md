@@ -5,3 +5,4 @@
 * [Hive](./docs/大数据部分/3.Hive/Hive.md)
 * [Spark](./docs/大数据部分/4.Spark/Spark.md)
 * [Flink](./docs/大数据部分/5.Flink/Flink.md)
+* [推荐算法](./docs/大数据部分/6.推荐算法/推荐算法.md)
