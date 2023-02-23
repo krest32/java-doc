@@ -1,25 +1,43 @@
 
 # `Krest-Doc` 整体概述
 
-## 写在前面的话
-
-​		`Krest-Doc` 主要是我自己在学习后端技术中的一个记录和总结，其中有不少内容来自其他作者的`Blog`。如有侵权，还请联系我进行删除。
-
-
-
 ## 内容介绍
 
-​		本文档的内容主要以`Java`为主，其中内容涵盖了大多数`Java`开发中用到的技术，但是`IT`行业本身日新月异，总有很多东西未能记录完全，而且随着版本的更新，文中可能会存在一些旧的内容，如果有任何错误，还请联系我进行更正。
+> 本文档的内容主要以`Java`为主，其中内容涵盖了大多数`Java`开发中用到的技术，但是`IT`行业本身日新月异，总有很多东西未能记录完全，而且随着时间的更迭，文中可能会存在一些旧的内容，如果有任何错误，还请联系我进行更正。
+
+
+## 给我自己的一段话
+
+> 在这里，突然想写一下关于程序员35岁危机，其实我感觉，很多行业随着年龄的增加，都会面临职业危机，既然是危机，那么必定存在产生的根源，编程这行危机主要源自于两个部分；
+> + 第一部分，日新月异的技术更迭，程序员是一个需要不停学习的工种，一旦停止下来，很容易被市场淘汰，然而，学习真的是一个反人性的事情，能够坚持整个职场生涯，真的非常不易；
+> + 第二部分，随着时间积累，职场软技能的缺失，这部分的内容包括但不仅限于：人际交往、管理能力、战略目标等等，程序员原本的工作重心不在这块，但是如果哪一天，你的技术无法满足公司、行业的需求，而且你的职场软技能也非常缺失，那么真的会被淘汰掉。
 
 
 
-## 相关文章推荐
+## 备注
+
+> 这份文档系统主要是我在学习后端技术中的一个记录和总结，其中有不少内容来自其他作者的`Blog`，本文档不涉及任何盈利部分，如有侵权，还请联系我进行删除，联系方式放在了本页面最后的位置。
+
+
+
+## 优秀技术文章推荐
 ### 语言学习路线
 
 + [元动力课堂的课件(他们家还不错，文档挺好)](https://www.ydlclass.com/doc21xnv/)
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
 + [后端架构师技术图谱](https://juejin.cn/post/6844903602369232904)
-### 2023年1月推荐
+
+
+### 2023年02月
++ [怎样快速地迁移 MySQL 中的数据？](https://juejin.cn/post/7187313594093010981)
++ [从Hadoop1.0到Hadoop2.0架构的优化和发展探索详解](https://juejin.cn/post/7202557470341562423)
++ [详解闲鱼推荐系统](https://juejin.cn/post/7153878508035391502)
++ [怎么看待谷歌的开源 RPC 框架 gRPC？](https://www.zhihu.com/question/30027669/answer/2872058473)
++ [携程酒店实时数仓架构和案例](https://zhuanlan.zhihu.com/p/598733363)
++ [AI 画画背后的技术原理是什么样的](https://zhuanlan.zhihu.com/p/597715332)
++ [一文梳理Code Review方法论与实践总结](https://zhuanlan.zhihu.com/p/598751710)
+
+### 2023年1月
 + [只改了五行代码接口吞吐量提升了10多倍](https://juejin.cn/post/7185479136599769125)
 + [我说MySQL每张表最好不超过2000万数据，面试官让我回去等通知？](https://juejin.cn/post/7165689453124517896)
 + [怎样快速地迁移 MySQL 中的数据？](https://juejin.cn/post/7187313594093010981)
@@ -28,11 +46,11 @@
 + [MYSQL中的14个神仙功能，惊艳到我了！！！](https://juejin.cn/post/7179239346967412773)
 + [大白话DDD](https://juejin.cn/post/7184800180984610873)
 
-### 2022年12月推荐
+### 2022年12月
 + [GC 可达性分析 回收算法 卡表 G1](https://blog.csdn.net/m0_46690280/article/details/121941158?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522167021167016782412582345%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=167021167016782412582345&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-121941158-null-null.142^v67^control,201^v4^add_ask,213^v2^t3_control2&utm_term=JVM%20G1%20%E5%8D%A1%E8%A1%A8&spm=1018.2226.3001.4187)
 
 
-### 2022年11月推荐
+### 2022年11月
 + [刨根问底 Redis， 面试过程真好使](https://juejin.cn/post/7165359197125607455)
 + [为什么说MySQL单表行数不要超过2000w?](https://juejin.cn/post/7160487684358537246)
 + [恭喜 Apache ShenYu 毕业成为 Apache 顶级项目！](https://juejin.cn/post/7125611044520591368)
@@ -51,7 +69,7 @@
 + [美团外卖搜索基于Elasticsearch的优化实践](https://zhuanlan.zhihu.com/p/584648660)
 + [为了写好代码，你坚持了哪些好习惯？](https://www.zhihu.com/question/535244045/answer/2719894116)
 
-### 2022年10月推荐
+### 2022年10月
 
 + [【转】爬虫与反爬虫技术简介](https://www.jianshu.com/p/ba7576b94ccc)
 + [这几种常见的 JVM 调优场景，你知道吗？](https://www.jianshu.com/p/96e2469b4505)
@@ -78,7 +96,7 @@
 + [Redis客户端Jedis与Luttuce](https://blog.csdn.net/honger_hua/article/details/106529643?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166956598516782428677430%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166956598516782428677430&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-106529643-null-null.142^v66^control,201^v3^control_2,213^v2^t3_control2&utm_term=Jedis%E3%80%81lettuce&spm=1018.2226.3001.4187)
 
 
-### 2022年9月推荐
+### 2022年9月
 
 + [了解协程](https://www.zhihu.com/question/19552975/answer/2594604218)
 + [十二张图详解淘宝架构变迁](https://zhuanlan.zhihu.com/p/442552241)
