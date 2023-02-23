@@ -30,7 +30,7 @@
 2. 可扩展性：随着同时任务数量的增加，企业应用程序应该能够自动扩展其计算能力。Go代码可以自动扩展到多个核心。另一方面，Java并不总是具有足够的可扩展性。垃圾收集期间，所有线程都被阻塞，并且垃圾收集时间可能会扩大到几分钟，从而降低Java的可伸缩性。
 3. 安全成本：`Golang`带有内置的错误类型，任何偏离标准的编程会导致自动提示。它会导致错误和安全漏洞的机会减少，从而影响程序的性能。
 4. 目前在字节、滴滴等大平台已经有大量被使用的案例，所以 `Golang` 也会越来越热门，所以我们可以使用它作为第二语言进行使用
-5. Go 语言组件框架较少，更加适合基础服务或者简单服务的开发，构建大型应用方面，Java 语言更加适合，所以 `Go`更加应该是C 或者 C++ 的替代品，而且现在看来也是这个方向
+5. 其实随着社会的发展，领域会越来越有细分，Go的优秀特性已经被充分证明，不存在谁取代谁问题，因为Go目前的方向就在云原生基础架构方向，所不定未来计算机领域再次被细分，还会产生新的语言也说不定
 
 
 
@@ -314,9 +314,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 - 对于 ParallelGC，Java 17 比 Java 11 快 6.54%，比 Java 16 快 0.37%
 - Parallel GC 比 G1 快 16.39%
 
-简而言之，最新的 JDK 更快，高吞吐量垃圾回收器比低延迟垃圾回收器更快。
-
-因此，Java 17 带来的性能提升非常值得升级，更重要的是它可以免费商用，而且还是 LTS 版本。
+简而言之，最新的 JDK 更快，高吞吐量垃圾回收器更快。因此，Java 17 带来的性能提升非常值得升级，更重要的是它可以免费商用，而且还是 LTS 版本。
 
 
 
@@ -349,9 +347,10 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 **分类**
 
 - 基本数据类型
+  - 备注计算机单位换算：1个字=2个字节=16位（比特）
   - 数值型
     - 整数类型
-      - byte 1字节 = 8位
+      - byte 1字节 = 8位（比特）
       - short 2字节 = 16位
       - int 4字节 = 32位
       - long 8字节 = 64位
@@ -359,21 +358,14 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
       - float 4字节 = 32位
       - double 8字节 = 64位
   - 字符型
-    - char 2字节 = 16位
+    - char 2 字节 = 16位
   - 布尔型
     - boolean 1位
+  
 - 引用数据类型
   - 类(class)
   - 接口(interface)
   - 数组([])
-
-
-
-
-
-
-
-
 
 #### switch 是否能作用在 String 上，可以使用Long么？
 
@@ -2083,6 +2075,36 @@ DateFormatUtils.format的内部实现中，是通过FastDateFormat进行时间�
 1. SimpleDateFormat时间格式化主要的问题是非线程安全，多线程情况下会出现问题，通过跟踪源码说明了SimpleDateFormat非线程安全的原因，并提供了相应的解决方案。
 2. java8下推荐的采用DateTimeFormatter进行时间格式化的使用方式，并提供了date到LocalDateTime、LocalDate的转换方式。
 3. 采用common-lang3中的DateFormatUtils实现时间格式化是最推荐的，线程安全、API简单高效、占用内存低。并推荐了通过继承DateFormatUtils对象封装自己的时间工具类DateUtils方式。
+
+### 为什么SimpleDateFormat线程不安全？
+
+SimpleDateFormat继承关系
+
+![SimpleDateFormate类图](img/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS56ams5a6a55CG,size_13,color_FFFFFF,t_70,g_se,x_16.png)
+
+其中我们日常使用format方法在父类DateFormat中，如下：
+
+![在这里插入图片描述](img/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS56ams5a6a55CG,size_20,color_FFFFFF,t_70,g_se,x_16.png)
+
+format方法实现
+
+调用抽象方法，然后SimpleDateFormat实现如下：
+
+![img](img/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS56ams5a6a55CG,size_20,color_FFFFFF,t_70,g_se,x_16-16771435095485.png)
+
+其中上图calendar是共享变量，并且这个共享变量没有做线程安全控制。当多个线程同时使用相同的SimpleDateFormat对象【如用static修饰的SimpleDateFormat】调用format方法时，多个线程会同时调用calendar.setTime方法，可能一个线程刚设置好time值另外的一个线程马上把设置的time值给修改了导致返回的格式化时间可能是错误的。
+
+![在这里插入图片描述](img/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6LS56ams5a6a55CG,size_20,color_FFFFFF,t_70,g_se,x_16-16771435507698.png)
+
+
+
+### Date、Calendar、LocalDaateTime三者之间的区别？
+
++ Jdk1.0中包含了一个Java.util.Date类，但是大多数方法在JDK1.1，引入Calendar的时候已经被启用，而calendar也存在问题
++ 可变性：像日期和时间这两样的类应该是不可变的
++ 偏移性：Date的年份是从1900年开始的，而月份是从0开始的
++ 格式化：格式化只对Date有用，Calendar则步行
++ 此外，它们的线程不安全，不能处理闰秒等（每隔2天，多出1s）
 
 ## 日志
 
