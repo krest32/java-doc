@@ -1761,8 +1761,8 @@ Hive-site.xml
 hive经过发展，推出了第二代客户端beeline，但是beeline客户端不是直接访问metastore服务的，而是**需要单独启动hiveserver2服务**。在hive运行的服务器上，首先启动metastore服务，然后启动hiveserver2服务。
 
 ~~~bash
-nohup /export/server/hive/bin/hive --service metastore &
-nohup /export/server/hive/bin/hive --service hiveserver2 &
+nohup /usr/local/krest/hive/bin/hive --service metastore &
+nohup /usr/local/krest/hive/bin/hive --service hiveserver2 &
 ~~~
 
 
@@ -2314,9 +2314,9 @@ YARN_NODEMANAGER_USER=root
 
 
 
+# Hbase
 
-
-# HBASE
+![image-20230224151300314](img/image-20230224151300314.png)
 
 ## 基本安装部署
 
@@ -2378,6 +2378,11 @@ YARN_NODEMANAGER_USER=root
       <!-- ZK 的信息不能保存到临时文件夹-->
       <!-- </description>-->
       <!-- </property>-->
+      <property>
+       	<name>zookeeper.session.timeout</name>
+       	<value>240000</value>
+      <!--默认: 180000 ：zookeeper 会话超时时间，单位是毫秒 -->
+      </property>
       <property>
           <name>hbase.rootdir</name>
           <value>hdfs://hadoop102:8020/hbase</value>
@@ -2466,7 +2471,404 @@ YARN_NODEMANAGER_USER=root
 
 
 
-# Superset-docker
+## 查看页面
+
+http://hadoop100:16010
+
+## 简单使用
+
+### HBase Shell 操作
+
+实际开发中使用 shell 的机会不多，所有丰富的使用方法到 API 中介绍。
+
+~~~bash
+# 进入客户端
+[atguigu@hadoop102 hbase]$ bin/hbase shell
+# help 能够展示 HBase 中所有能使用的命令，主要使用的命令有 namespace 命令空间相关，
+hbase:001:0> help
+hbase:002:0> help 'create_namespace'
+# 创建命名空间 bigdata
+hbase:003:0> create_namespace 'bigdata'
+# 查看所有的命名空间
+hbase:004:0> list_namespace
+~~~
+
+####  DDL
+
+~~~bash
+# 创建表 在 bigdata 命名空间中创建表格 student，两个列族。info 列族数据维护的版本数为 5 个，如果不写默认版本数为 1。
+hbase:005:0> create 'bigdata:student', {NAME => 'info', VERSIONS => 5}, {NAME => 'msg'}
+# 如果创建表格只有一个列族，没有列族属性，可以简写。
+# 如果不写命名空间，使用默认的命名空间 default。
+hbase:009:0> create 'student1','info'
+
+# 查看表有两个命令：list 和 describe
+# list：查看所有的表名
+hbase:013:0> list
+# describe：查看一个表的详情
+hbase:014:0> describe 'student1'
+
+# 修改表
+hbase:015:0> alter 'student1', {NAME => 'f1', VERSIONS => 3}
+# 删除信息使用特殊的语法
+hbase:015:0> alter 'student1', NAME => 'f1', METHOD => 'delete'
+hbase:016:0> alter 'student1', 'delete' => 'f1'
+
+# 删除表 shell 中删除表格,需要先将表格状态设置为不可用。
+hbase:017:0> disable 'student1'
+hbase:018:0> drop 'student1'
+~~~
+
+
+
+#### DML
+
+**写入数据** 
+
+在 HBase 中如果想要写入数据，只能添加结构中最底层的 cell。可以手动写入时间戳指定 cell 的版本，推荐不写默认使用当前的系统时间。
+
+~~~bash
+hbase:019:0> put 'bigdata:student','1001','info:name','zhangsan'
+hbase:020:0> put 'bigdata:student','1001','info:name','lisi'
+hbase:021:0> put 'bigdata:student','1001','info:age','18'
+~~~
+
+**读取数据** 
+
+读取数据的方法有两个：get 和 scan。
+
+get 最大范围是一行数据，也可以进行列的过滤，读取数据的结果为多行 cell。
+
+~~~bash
+hbase:022:0> get 'bigdata:student','1001'
+hbase:023:0> get 'bigdata:student','1001' , {COLUMN => 'info:name'}
+~~~
+
+也可以修改读取 cell 的版本数，默认读取一个。最多能够读取当前列族设置的维护版本数。
+
+~~~bash
+hbase:024:0>get 'bigdata:student','1001' , {COLUMN => 'info:name', VERSIONS => 6}
+~~~
+
+scan 是扫描数据，能够读取多行数据，不建议扫描过多的数据，推荐使用 startRow 和stopRow 来控制读取的数据，默认范围左闭右开。
+
+~~~bash
+hbase:025:0> scan 'bigdata:student',{STARTROW => '1001',STOPROW => '1002'}
+~~~
+
+**删除数据** 
+
++ 删除数据的方法有两个：delete 和 deleteall。
++ delete 表示删除一个版本的数据，即为 1 个 cell，不填写版本默认删除最新的一个版本。
+
+~~~bash
+hbase:026:0> delete 'bigdata:student','1001','info:name'
+~~~
+
+deleteall 表示删除所有版本的数据，即为当前行当前列的多个 cell。（执行命令会标记数据为要删除，不会直接将数据彻底删除，删除数据只在特定时期清理磁盘时进行）
+
+~~~bash
+hbase:027:0> deleteall 'bigdata:student','1001','info:name'
+~~~
+
+#### **预分区**
+
+每一个 region 维护着 startRow 与 endRowKey，如果加入的数据符合某个 region 维护的rowKey 范围，则该数据交给这个 region 维护。那么依照这个原则，我们可以将数据所要投放的分区提前大致的规划好，以提高 HBase 性能。
+
+### 异常
+
+如果Hbase报异常，可能是Zookeeper内部的Hbase信息没有清空
+
+**手动设定预分区** 
+
+~~~bash
+create 'staff1','info', SPLITS => ['1000','2000','3000','4000']
+~~~
+
+**生成 16 进制序列预分区** 
+
+~~~bash
+create 'staff2','info',{NUMREGIONS => 15, SPLITALGO => 'HexStringSplit'}
+~~~
+
+**按照文件中设置的规则预分区** 
+
+创建 splits.txt 文件内容如下：
+
+~~~txt
+aaaa
+bbbb
+cccc
+dddd
+~~~
+
+然后执行：
+
+~~~bash
+create 'staff3', 'info',SPLITS_FILE => 'splits.txt'
+~~~
+
+### 关联Hive使用
+
+如果大量的数据已经存放在 HBase 上面，需要对已经存在的数据进行数据分析处理，那么 Phoenix 并不适合做特别复杂的 SQL 处理，此时可以使用 hive 映射 HBase 的表格，之后写 HQL 进行分析处理
+
+在 hive-site.xml 中添加 zookeeper 的属性，如下
+
+~~~xml
+<property>
+	<name>hive.zookeeper.quorum</name>
+	<value>hadoop102,hadoop103,hadoop104</value>
+</property>
+<property>
+	<name>hive.zookeeper.client.port</name>
+	<value>2181</value>
+</property>
+~~~
+
+# Phoenix
+
+## **Phoenix** **部署**
+
+（1）上传并解压 tar 包
+
+~~~bash
+[atguigu@hadoop102 software]$ tar -zxvf phoenix-hbase-2.4-5.1.2-bin.tar.gz -C /opt/module/
+[atguigu@hadoop102 module]$ mv phoenix-hbase-2.4-5.1.2-bin/ phoenix
+~~~
+
+（2）复制 server 包并拷贝到各个节点的 hbase/lib
+
+~~~bash
+[atguigu@hadoop102 module]$ cd /opt/module/phoenix/
+[atguigu@hadoop102 phoenix]$ cp phoenix-server-hbase-2.4-5.1.2.jar /opt/module/hbase/lib/
+[atguigu@hadoop102 phoenix]$ xsync /opt/module/hbase/lib/ phoenixserver-hbase-2.4-5.1.2.jar
+~~~
+
+配置环境变量
+
+~~~bash
+#phoenix
+export PHOENIX_HOME=/opt/module/phoenix
+export PHOENIX_CLASSPATH=$PHOENIX_HOME
+export PATH=$PATH:$PHOENIX_HOME/bin
+~~~
+
+（4）重启 HBase
+
+~~~bash
+[atguigu@hadoop102 ~]$ stop-hbase.sh
+[atguigu@hadoop102 ~]$ start-hbase.sh
+~~~
+
+（5）连接 Phoenix
+
+~~~bash
+[atguigu@hadoop101 phoenix]$ /opt/module/phoenix/bin/sqlline.py hadoop102,hadoop103,hadoop104:2181
+~~~
+
+### Phoenix Shell 操作
+
+~~~bash
+# 显示所有表
+!table 或 !tables
+
+# 创建表
+CREATE TABLE IF NOT EXISTS student(
+id VARCHAR primary key,
+name VARCHAR,
+age BIGINT,
+addr VARCHAR);
+
+# 在 phoenix 中，表名等会自动转换为大写，若要小写，使用双引号，如"us_population"。
+# 指定多个列的联合作为 RowKey
+CREATE TABLE IF NOT EXISTS student1 (
+    id VARCHAR NOT NULL,
+    name VARCHAR NOT NULL,
+    age BIGINT,
+    addr VARCHAR
+CONSTRAINT my_pk PRIMARY KEY (id, name));
+# 注：Phoenix 中建表，会在 HBase 中创建一张对应的表。为了减少数据对磁盘空间的占用，Phoenix 默认会对 HBase 中的列名做编码处理。
+
+
+# 插入数据
+upsert into student values('1001','zhangsan', 10, 'beijing');
+
+# 查询记录
+select * from student;
+select * from student where id='1001';
+
+# 删除记录
+delete from student where id='1001';
+# 删除表
+drop table student;
+# 退出命令行
+!quit
+~~~
+
+## 其他
+
+### 表映射
+
+默认情况下，HBase 中已存在的表，通过 Phoenix 是不可见的。如果要在 Phoenix 中操作 HBase 中已存在的表，可以在 Phoenix 中进行表的映射。映射方式有两种：视图映射和表映射
+
+（1）启动 HBase Shell
+
+~~~bash
+[atguigu@hadoop102 ~]$ /opt/module/hbase/bin/hbase shell
+~~~
+
+（2）创建 HBase 表 test
+
+~~~bash
+hbase(main):001:0> create 'test','info1','info2'
+~~~
+
+（3）视图映射
+
+Phoenix 创建的视图是只读的，所以只能用来做查询，无法通过视图对数据进行修改等
+
+操作。在 phoenix 中创建关联 test 表的视图
+
+~~~bash
+0: jdbc:phoenix:hadoop101,hadoop102,hadoop103> 
+create view "test"(id varchar primary key,"info1"."name" varchar, "info2"."address" varchar);
+~~~
+
+删除视图
+
+~~~bash
+0: jdbc:phoenix:hadoop101,hadoop102,hadoop103> drop view "test";
+~~~
+
+（4）表映射
+
+在 Pheonix 创建表去映射 HBase 中已经存在的表，是可以修改删除 HBase 中已经存在的数据的。而且，删除 Phoenix 中的表，那么 HBase 中被映射的表也会被删除。注：进行表映射时，不能使用列名编码，需将 column_encoded_bytes 设为 0。
+
+~~~bash
+0: jdbc:phoenix:hadoop101,hadoop102,hadoop103> 
+create table "test"(id varchar primary key,"info1"."name" varchar, "info2"."address" varchar) column_encoded_bytes=0;
+~~~
+
+###  数字类型说明 
+
+HBase 中的数字，底层存储为补码，而 Phoenix 中的数字，底层存储为在补码的基础上，将符号位反转。故当在 Phoenix 中建表去映射 HBase 中已存在的表，当 HBase 中有数字类型的字段时，会出现解析错误的现象。
+
+Hbase 演示：
+
+~~~bash
+create 'test_number','info'
+put 'test_number','1001','info:number',Bytes.toBytes(1000)
+scan 'test_number',{COLUMNS => 'info:number:toLong'}
+~~~
+
+phoenix 演示：
+
+~~~bash
+create view "test_number"(id varchar primary key,"info"."number" bigint);
+select * from "test_number";
+~~~
+
+解决上述问题的方案有以下两种：
+
+（1）Phoenix 种提供了 unsigned_int，unsigned_long 等无符号类型，其对数字的编码解码方式和 HBase 是相同的，如果无需考虑负数，那在 Phoenix 中建表时采用无符号类型是最合适的选择。
+
+phoenix 演示：
+
+~~~bash
+drop view "test_number";
+create view "test_number"(id varchar primary key,"info"."number" unsigned_long);
+select * from "test_number";
+~~~
+
+（2）如需考虑负数的情况，则可通过 Phoenix 自定义函数，将数字类型的最高位，即符号位反转即可，自定义函数可参考如下链接：
+
+https://phoenix.apache.org/udf.html。
+
+## Phoenix 索引
+
+### Phoenix **二级索引**
+
+#### 二级索引配置文件
+
+添加如下配置到 HBase 的 HRegionserver 节点的 hbase-site.xml。
+
+~~~xml
+<!-- phoenix regionserver 配置参数-->
+<property>
+	<name>hbase.regionserver.wal.codec</name>
+	<value>org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec</value>
+</property>
+~~~
+
+#### 全局索引
+
+Global Index 是默认的索引格式，创建全局索引时，会在 HBase 中建立一张新表。也就是说索引数据和数据表是存放在不同的表中的，因此全局索引适用于多读少写的业务场景。写数据的时候会消耗大量开销，因为索引表也要更新，而索引表是分布在不同的数据节点上的，跨节点的数据传输带来了较大的性能消耗。 在读数据的时候 Phoenix 会选择索引表来降低查询消耗的时间。
+
+**创建单个字段的全局索引。**
+
+~~~bash
+CREATE INDEX my_index ON my_table (my_col);
+#例如
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> 
+create index my_index on student1(age);
+
+#删除索引
+DROP INDEX my_index ON my_table
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> drop index my_index on student1;
+~~~
+
+查看二级索引是否有效，可以使用 explainPlan 执行计划，有二级索引之后会变成范围扫描
+
+~~~bash
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> explain select id,name from student1 where age = 10;
+~~~
+
+如果想查询的字段不是索引字段的话索引表不会被使用，也就是说不会带来查询速度的提升。
+
+~~~bash
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> explain select id,name,addr from student1 where age = 10;
+~~~
+
+若想解决上述问题，可采用如下方案：
+
+（1）使用包含索引 
+
+（2）使用本地索引
+
+#### 包含索引
+
+创建携带其他字段的全局索引（本质还是全局索引）。
+
+~~~bash
+CREATE INDEX my_index ON my_table (v1) INCLUDE (v2);
+# 先删除之前的索引：
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> drop index my_index on student1;
+#创建包含索引
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> 
+create index my_index on student1(age) include (addr);
+
+之后使用执行计划查看效果
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> explain select id,name,addr from student1 where age = 10;
+~~~
+
+#### 本地索引
+
+Local Index 适用于写操作频繁的场景。索引数据和数据表的数据是存放在同一张表中（且是同一个 Region），避免了在写操作的时候往不同服务器的索引表中写索引带来的额外开销。my_column 可以是多个。
+
+~~~bash
+CREATE LOCAL INDEX my_index ON my_table (my_column);
+# 本地索引会将所有的信息存在一个影子列族中，虽然读取的时候也是范围扫描，但是没有全局索引快，优点在于不用写多个表了。
+#删除之前的索引
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> drop index my_index on student1;
+#创建本地索引
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> CREATE LOCAL INDEX my_index ON student1 (age,addr);
+#使用执行计划
+0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> explain select id,name,addr from student1 where age = 10;
+~~~
+
+# Superset
+
+# docker启动
 
 ~~~bash
 docker pull amancevice/superset:0.37.2
