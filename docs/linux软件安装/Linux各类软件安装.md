@@ -1,5 +1,9 @@
 
 
+# github访问过慢
+
+[地址](https://blog.csdn.net/zjy1175044232/article/details/121655760?ops_request_misc=&request_id=&biz_id=102&utm_term=github%20%E6%89%93%E5%BC%80%E5%A4%AA%E6%85%A2&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-121655760.142^v73^insert_down4,201^v4^add_ask,239^v2^insert_chatgpt&spm=1018.2226.3001.4187)
+
 # 修改主机名
 
 查看当前的主机名
