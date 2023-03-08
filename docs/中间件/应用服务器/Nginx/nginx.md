@@ -522,43 +522,42 @@ nginx服务器是否已经安装ssl模块得支持；
     ~~~properties
      server {
             listen       443 ssl;
-            server_name somnus.test.com;
+            server_name witerk.top;
     
-            ssl_certificate      ../cert/somnus.test.com.pem;
-            ssl_certificate_key  ../cert/somnus.test.com.key;
+            ssl_certificate      ../cert/8276605_witerk.top.pem;
+            ssl_certificate_key  ../cert/8276605_witerk.top.key;
     
             ssl_session_cache    shared:SSL:1m;
             ssl_session_timeout  5m;
     	ssl_protocols TLSv1.2;
     ssl_prefer_server_ciphers on;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-    ......
     }
     
     ~~~
-
+    
   + 将 http 重定向 https
-
+  
     ~~~properties
     server {
         listen 80;
-        server_name somnus.test.com;
+        server_name witerk.top;
         #将请求转成https
         rewrite ^(.*)$ https://$host$1 permanent;
     }
     ~~~
-
+  
   + 重启 nginx
-
+  
     ~~~BASH
     /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
     ~~~
-
-  + 如果 80 端口被占用，可以通过kill命令来进行结束进程：
-
-    + 查看端口使用`netstat -lntp`
-
   
+  + 如果 80 端口被占用，可以通过kill命令来进行结束进程：
+  
+    + 查看端口使用`netstat -lntp`
+  
+
     ~~~BASH
     [root@iZi5u1azluu464tfbesf3aZ conf]# netstat -lntp
     Active Internet connections (only servers)
@@ -579,3 +578,5 @@ nginx服务器是否已经安装ssl模块得支持；
     ~~~
   
     
+
+##  nginx 权限

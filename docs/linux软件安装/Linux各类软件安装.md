@@ -1,8 +1,6 @@
 
 
-# github访问过慢
 
-[地址](https://blog.csdn.net/zjy1175044232/article/details/121655760?ops_request_misc=&request_id=&biz_id=102&utm_term=github%20%E6%89%93%E5%BC%80%E5%A4%AA%E6%85%A2&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-121655760.142^v73^insert_down4,201^v4^add_ask,239^v2^insert_chatgpt&spm=1018.2226.3001.4187)
 
 # 修改主机名
 
@@ -209,6 +207,60 @@ yum clean all
    [atguigu@hadoop103 .ssh]$ ssh-copy-id hadoop104
    ~~~
 
+# 设置开机启动
+
+以`Redis`为例
+
++ 新建一个系统服务文件：
+
+  ~~~bash
+  vi /etc/systemd/system/redis.service
+  ~~~
+
++ 内容如下
+
+  ~~~txt
+  [Unit]
+  Description=redis-server
+  After=network.target
+  
+  [Service]
+  Type=forking
+  ExecStart=/usr/local/module/redis/src/redis-server /usr/local/module/redis/redis.conf
+  PrivateTmp=true
+  
+  [Install]
+  WantedBy=multi-user.target
+  ~~~
+
++ 重载系统服务
+
+  ~~~bash
+  systemctl daemon-reload
+  ~~~
+
++ 设置开机启动
+
+  ~~~bash
+  systemctl enable redis
+  ~~~
+
++ 控制 Redis 服务
+
+
+
+# 7z 使用
+
+~~~bash
+安装 yum install p7zip -y
+
+解压7z：使用方法：7za x file.7z
+
+解压出来就是文件夹.
+~~~
+
+
+
 # 集群脚本示例
 
 ## 集群服务启动
@@ -351,7 +403,7 @@ done
 
 # Maven
 
-## 安装
+## Linux 安装
 
 下载
 
@@ -621,34 +673,42 @@ mysql> quit;
 # 将解压后的文件移动到最终的安装目录
 [bigdata@linux ~]$ mv mongodb-linux-x86_64-rhel62-3.4.3/ /usr/local/mongodb
 #  在安装目录下创建data文件夹用于存放数据和日志
-[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/
+[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/
 #  在data文件夹下创建db文件夹，用于存放数据
-[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/db/
+[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/db/
 # 在data文件夹下创建logs文件夹，用于存放日志
-[bigdata@linux mongodb]$ mkdir /usr/local/mongodb/data/logs/
+[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/logs/
 # 在logs文件夹下创建log文件
-[bigdata@linux mongodb]$ touch /usr/local/mongodb/data/logs/ mongodb.log
+[bigdata@linux mongodb]$ touch /usr/local/module/mongodb/data/logs/ mongodb.log
 #  在data文件夹下创建mongodb.conf配置文件
-[bigdata@linux mongodb]$ touch /usr/local/mongodb/data/mongodb.conf
+[bigdata@linux mongodb]$ touch /usr/local/module/mongodb/data/mongodb.conf
 # 在mongodb.conf文件中输入如下内容
 [bigdata@linux mongodb]$ vim ./data/mongodb.conf
 
 #数据库路径
-dbpath=/usr/local/mongdb-5/data/db
+dbpath=/usr/local/module/mongodb/data/db/
+
 #日志输出文件路径
-logpath=/usr/local/mongdb-5/data/log/mongodb.log
+logpath=/usr/local/module/mongodb/data/logs/mongodb.log
+
 #错误日志采用追加模式
 logappend=true
+
 #启用日志文件，默认启用
 journal=true
+
 #这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
 quiet=true
+
 #端口号 默认为27017
 port=27017
+
 #允许远程访问
 bind_ip=0.0.0.0
+
 #开启子进程
 fork=true
+
 #开启认证，必选先添加用户，先不开启（不用验证账号密码）
 #auth=true
 ~~~
@@ -657,11 +717,11 @@ fork=true
 
 ~~~bash
  启动MongoDB服务器
-[bigdata@linux mongodb]$ sudo /usr/local/mongodb/bin/mongod -config /usr/local/mongodb/data/mongodb.conf
+[bigdata@linux mongodb]$ sudo /usr/local/module/mongodb/bin/mongod -config /usr/local/module/mongodb/data/mongodb.conf
 // 访问MongoDB服务器
-[bigdata@linux mongodb]$ /usr/local/mongodb/bin/mongo
+[bigdata@linux mongodb]$ /usr/local/module/mongodb/bin/mongo
 // 停止MongoDB服务器
-[bigdata@linux mongodb]$ sudo /usr/local/mongodb/bin/mongod -shutdown -config /usr/local/mongodb/data/mongodb.conf
+[bigdata@linux mongodb]$ sudo /usr/local/module/mongodb/bin/mongod -shutdown -config /usr/local/module/mongodb/data/mongodb.conf
 ~~~
 
 
@@ -915,6 +975,10 @@ npm run start
   yum install -y  glibc-devel
   yum install -y  gcc
   yum install -y  make
+  yum -y install centos-release-scl
+  yum -y install devtoolset-9-gcc devtoolset-9-gcc-c++ devtoolset-9-binutils
+   
+  scl enable devtoolset-9 bash
   ~~~
 
 + 上传Redis安装包
@@ -1004,7 +1068,7 @@ npm run start
 + 指令
 
   ~~~bash
-   ./usr/local/redis/src/redis-server /usr/local/redis/redis.conf
+   ./usr/local/moudle/redis/src/redis-server /usr/local/moudle/redis/redis.conf
   ~~~
 
 + 查看 redis 是否后台运行成功
@@ -1125,26 +1189,6 @@ cd /usr/local/nginx/sbin
 
 # 查看nginx进程
 ps -ef|grep nginx
-~~~
-
-## 设置开机自启动nginx
-
-~~~bash
-#编辑
-vim /etc/rc.local
- 
-#最底部增加这一行
-/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
-
-# 添加可执行权限
-chmod +x /etc/rc.d/rc.local
-~~~
-
-## 配置nginx.conf
-
-~~~bash
-# 打开配置文件
-vi /usr/local/nginx/conf/nginx.conf
 ~~~
 
 
@@ -1310,7 +1354,7 @@ rabbitmq-server-3.8.8-1.el7.noarch.rpm
 
 ~~~bash
 # 解压
-rpm -Uvh erlang-23.2.7-2.el7.x86_64.rpm
+rpm -Uvh erlang-21.3.8.18-1.el7.x86_64.rpm
 
 # 安装
 yum install -y erlang
@@ -1334,7 +1378,7 @@ yum install -y rabbitmq-server
 启动
 
 ~~~bash
-systemctl start rabbitmq-server
+    systemctl start rabbitmq-server
 
 systemctl status rabbitmq-server
 
@@ -1394,6 +1438,16 @@ rabbitmqctl delete_user 用户名
 rabbitmqctl list_users
 
 ~~~
+
+## 自定义用户名密码
+
+~~~bash
+ krest 123456
+~~~
+
+
+
+
 
 
 
@@ -1530,7 +1584,10 @@ docker run -d \
 [bigdata@linux zookeeper-3.4.10]$ cp ./conf/zoo_sample.cfg ./conf/zoo.cfg   
 // 修改zookeeper配置文件
 [bigdata@linux zookeeper-3.4.10]$ vim conf/zoo.cfg
-dataDir=/home/bigdata/cluster/zookeeper-3.4.10/data  #将数据目录地址修改为创建的目录
+dataDir=/usr/local/module/zookeeper/data  #将数据目录地址修改为创建的目录
+dataLogDir=/usr/local/module/zookeeper/logs
+
+
 // 启动Zookeeper服务
 [bigdata@linux zookeeper-3.4.10]$ bin/zkServer.sh start
 // 查看Zookeeper服务状态
@@ -1543,6 +1600,8 @@ Mode: standalone
 ~~~
 
 
+
+![img](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM0Mzk1ODU3,size_16,color_FFFFFF,t_70.png)
 
 
 
@@ -1601,16 +1660,15 @@ bin/kafka-server-start.sh -daemon  config/server.properties                 #建
 
 ~~~bash
 bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic demo
-
-bin/kafka-topics.sh --create --zookeeper localhost:2181  --topic demo
-bin/kafka-topics.sh --create --bootstrap-server hadoop100:2181  --replication-factor 1 --partitions 1  --topic demo
 ~~~
 
 ### 查询topic列表
 
 ~~~bash
+-- 新版
 bin/kafka-topics.sh --list --zookeeper hadoop100:2181
 或者 
+-- 老版
 bin/kafka-topics.sh --list --bootstrap-server hadoop100:2181 
 bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic demo
 ~~~
