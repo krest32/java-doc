@@ -2,7 +2,14 @@
 
 ## Spring概述
 
-### 什么是spring?它的4种关键策略？
+### 谈谈你对于Spring的理解？
+
+1. Spring是一个应用在JavaEE开发的最热门的开源框架，目前也是Java开发工作必备的技术之一
+2. 底层原理是使用反射对 Java 对象进行托管，也就是我们熟称的IOC容器，然后让程序员能够集中精力在业务逻辑上面，优点是提供了一站式开发框架，缺点是框架大而全，入门的基础会比较难
+3. Spring是一个底层基建，再此之上衍生出了一系列Spring家族开发框架，如：SpringMVC（基于model-veiw-controller的开发模式）、SpringBoot（微服务开发脚手架）、Spring Cloud（微服务智力框架），其他还有Spring Security、Spring Cache等等
+4. 总结一下，Spring是我们目前Java程序员必备的开发技能之一，学号Spring，能够有效提高我们开发的效率
+
+### Spring的4种关键策略？
 
 ​		Spring是**一个轻量级Java开发框架**，目的是为了解决企业级应用开发的业务逻辑层和其他各层的耦合问题。它是一个分层的JavaSE/JavaEE full-stack（一站式）轻量级开源框架，为开发Java应用程序提供全面的基础架构支持。
 
@@ -433,7 +440,11 @@ Spring提供以下几种集合的配置元素：
 
 ### 循环依赖
 
-从字面上来理解就是A依赖B的同时B也依赖了A
+从字面上来理解就是A依赖B的同时B也依赖了A，通常情况下，循环依赖会有三种情况
+
+1. A依赖B，B依赖A
+2. A依赖B，B依赖C，C依赖A
+3. A依赖于A
 
 Spring解决循环依赖是有前置条件的
 
@@ -442,14 +453,13 @@ Spring解决循环依赖是有前置条件的
 
 梳理一下Spring解决循环依赖的流程
 
-一级缓存：Map<String, Object> singletonObjects 
++ 一级缓存：Map<String, Object> singletonObjects，初始化完成的**成熟Bean**
+  + singletonFactories，用于存储在spring内部所使用的beanName->对象工厂的引用，一旦最终对象被创建(通过objectFactory.getObject())，此引用信息将删除
++ 二级缓存：Map<String, Object> earlySingletonObjects
+  + earlySingletonObjects，用于存储在创建Bean早期对创建的原始bean的一个引用，注意这里是**原始bean**，即使用工厂方法或构造方法创建出来的对象，一旦对象最终创建好，此引用信息将删除
++ 三级缓存：Map<String, ObjectFactory<?>> singletonFactories，一二级缓存都没有目标Bean，那么就会由**代理工厂创建目标Bean**，从而完成依赖注入的过程
 
-二级缓存：Map<String, Object> earlySingletonObjects
 
-三级缓存：Map<String, ObjectFactory<?>> singletonFactories
-
-- singletonFactories，用于存储在spring内部所使用的beanName->对象工厂的引用，一旦最终对象被创建(通过objectFactory.getObject())，此引用信息将删除
-- earlySingletonObjects，用于存储在创建Bean早期对创建的原始bean的一个引用，注意这里是原始bean，即使用工厂方法或构造方法创建出来的对象，一旦对象最终创建好，此引用信息将删除
 
 ~~~
 1. 类 A 与 B 中属性相互引用，造成循环依赖
@@ -568,11 +578,11 @@ public class Employee {
 
 ## Spring AOP
 
-### 什么是 AOP
+### 谈谈你对与AOP的理解？
 
-​		OOP(Object-Oriented Programming)面向对象编程，允许开发者定义纵向的关系，但并适用于定义横向的关系，导致了大量代码的重复，而不利于各个模块的重用。
-
-​		AOP(Aspect-Oriented Programming)，一般称为面向切面编程，作为面向对象的一种补充，用于将那些与业务无关，但却对多个对象产生影响的公共行为和逻辑，抽取并封装为一个可重用的模块，这个模块被命名为“切面”（Aspect），减少系统中的重复代码，降低了模块间的耦合度，同时提高了系统的可维护性。可用于**权限认证、日志、事务处理**等。
+1. Aop产生的一个场景：当程序中有需要有一个新增加的公共行为或者逻辑时，我们可以将这部分的代码抽取出来，作为一个重用的模块，通过AOP的方式减少系统中的重复代码。同时可以避免对原来的代码进行修改
+2. Aop：是简称面向切面编程，是作为面向对象的一个补充，主要的实现方法是：容器启动的时候，通过代理模式，生成一个代理对象，这个代理对象包含了原生对象的方法属性，同时也包含了我们自定义的增强方法。Spring中Aop的使用主要是通过注解的方式，不涉及对原来代码的修改。
+3. Aop主要使用的场景是：权限认证、日志、事务处理这些通常与业务相关性不太大的场景
 
 ### Spring AOP and AspectJ AOP 有什么区别？AOP 有哪些实现方式？
 

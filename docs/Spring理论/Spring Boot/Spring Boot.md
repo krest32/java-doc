@@ -4,30 +4,23 @@
 
 ## 概述
 
-### 什么是 Spring Boot？
+### 谈谈你对于Spring Boot的理解？
 
-​		Spring Boot并不是一个新的东西，它是 Spring 开源组织下的子项目，是 Spring 组件一站式解决方案，主要是简化了使用 Spring 的难度，简省了繁重的配置，提供了各种启动器，开发者能快速上手，快速的构建应用程序。
-
-
-
-### Spring Boot 有哪些优点？
-
-Spring Boot 主要有如下优点：
-
-1. 容易上手，提升开发效率。
-2. 开箱即用，远离繁琐的配置。
-3. 提供了一系列大型项目通用的非业务性功能，例如：内嵌服务器、安全管理、运行数据监控、运行状况检查和外部化配置等。
-4. 没有代码生成，也不需要XML配置。
-5. 避免大量的 Maven 导入和各种版本冲突。
-
-
+1.  Spring Boot并不是一个新的东西，它是 Spring 开源组织下的子项目，是一个Java Web开发的脚手架工具。
+2. Spring Boot的存在主要是简化了使用 Spring 的难度，简省了繁重的配置，提供了各种启动器，开发者能快速上手，快速的构建应用程序。
 
 ### Spring的缺点分析
 
 1. 配置却是重量级的，起初的是xml配置方式，后来采用基于Java的配置，代替了xml配置，稍微有些改善
 2. 依赖管理也是一件耗时耗力的事情。在环境搭建时，需要分析要导入哪些库的坐标
 
-​	 
+### Spring Boot 有哪些优点？
+
+1. 容易上手，提升开发效率。
+2. 开箱即用，远离繁琐的配置。
+3. 提供了一系列大型项目通用的非业务性功能，例如：内嵌服务器、安全管理、运行数据监控、运行状况检查和外部化配置等。
+4. 没有代码生成，也不需要XML配置。
+5. 避免大量的 Maven 导入和各种版本冲突。
 
 ### 版本介绍
 
@@ -40,10 +33,6 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 - 最低要求 Java 17；
 - Java EE 迁移到了 Jakarta EE；
 
-
-
-
-
 ### Spring Boot 的核心注解是哪个？它主要由哪几个注解组成的？
 
 启动类上面的注解是@SpringBootApplication，它也是 Spring Boot 的核心注解，主要组合包含了以下 3 个注解：
@@ -53,8 +42,6 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 2. @EnableAutoConfiguration：打开自动配置的功能，也可以关闭某个自动配置的选项，如关闭数据源自动配置功能： @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })。
 
 3. @ComponentScan：Spring组件扫描。
-
-
 
 ### SpringBoot 四大核心
 
@@ -102,8 +89,6 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 1. bootstrap.properties
 2. application.properties 
 
-
-
 ### 什么是 YAML？优缺点是什么？
 
 ​		YAML 是一种人类可读的数据序列化语言。它通常用于配置文件。如果我们想要在配置文件中添加复杂的属性，YAML 文件就更加结构化，而且更少混淆。可以看出 YAML 具有分层配置数据。
@@ -118,13 +103,9 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 
 1.  @PropertySource 注解导入自定义的 YAML 配置。
 
-
-
 ### Spring Boot 是否可以使用 XML 配置 ?
 
 ​		Spring Boot 推荐使用 Java 配置而非 XML 配置，但是 Spring Boot 中也可以使用 XML 配置，通过 @ImportResource 注解可以引入一个 XML 配置。
-
-
 
 ### spring boot 核心配置文件是什么？bootstrap.properties 和 application.properties 有何区别 ?
 
