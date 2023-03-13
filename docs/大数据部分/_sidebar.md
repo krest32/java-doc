@@ -3,6 +3,7 @@
 * [Hadoop](./docs/大数据部分/2.Hadoop/Hadoop.md)
 * [HBase](./docs/大数据部分/3.HBase/HBase.md)
 * [Hive](./docs/大数据部分/3.Hive/Hive.md)
+* [数据仓库](./docs/大数据部分/电商数仓/电商数仓.md)
 * [Spark](./docs/大数据部分/4.Spark/Spark.md)
 * [Flink](./docs/大数据部分/5.Flink/Flink.md)
 * [推荐算法](./docs/大数据部分/6.推荐算法/推荐算法.md)

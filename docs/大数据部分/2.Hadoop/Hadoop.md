@@ -329,7 +329,7 @@ Reduce 阶段：计算结果的汇总
 ### SecondaryNameNode的目的是什么？
   他的目的使帮助NameNode合并编辑日志，减少NameNode 二次启动时间，备份数据
 
-### 文件大小设置，增大有什么影响？
+### 文件块的大小设置，增大或减小会有什么影响？
 1. HDFS中的文件在物理上是分块存储（block），块的大小可以通过配置参数( dfs.blocksize)来规定，默认大小在hadoop2.x版本中是128M，老版本中是64M。  
 2. 思考：为什么块的大小不能设置的太小，也不能设置的太大? 
    1. HDFS的块比磁盘的块大，其目的是为了最小化寻址开销。如果块设置得足够大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。
@@ -793,26 +793,26 @@ Mapreduce 程序效率的瓶颈在于两点：
 
 ### Yarn 的基本架构
 
-1) ResourceManager（RM）：YARN分层结构的本质是ResourceManager。这个实体控制整个集群并管理应用程序向基础计算资源的分配。ResourceManager将各个资源部分（计算、内存、带宽等）精心安排给基础NodeManager（YARN的每节点代理）。ResourceManager还与ApplicationMaster一起分配资源，与NodeManager一起启动和监视它们的基础应用程序。在此上下文中，ApplicationMaster承担了以前的TaskTracker的一些角色；ResourceManager承担了JobTracker 的角色。总的来说，RM有以下作用：
+1) **ResourceManager**（RM）：YARN分层结构的本质是ResourceManager。这个实体控制整个集群并管理应用程序向基础计算资源的分配。ResourceManager将各个资源部分（计算、内存、带宽等）精心安排给基础NodeManager（YARN的每节点代理）。ResourceManager还与ApplicationMaster一起分配资源，与NodeManager一起启动和监视它们的基础应用程序。在此上下文中，ApplicationMaster承担了以前的TaskTracker的一些角色；ResourceManager承担了JobTracker 的角色。总的来说，RM有以下作用：
    1) 处理客户端请求
    2) 启动或监控ApplicationMaster
    3) 监控NodeManager
    4) 资源的分配与调度
 
 
-2) ApplicationMaster（AM）：ApplicationMaster管理在YARN内运行的每个应用程序实例。ApplicationMaster负责协调来自ResourceManager的资源，并通过NodeManager监视容器的执行和资源使用（CPU、内存等的资源分配）。请注意，尽管目前的资源更加传统（CPU 核心、内存），但未来会带来基于手头任务的新资源类型（比如图形处理单元或专用处理设备）。从YARN角度讲，ApplicationMaster是用户代码，因此存在潜在的安全问题。YARN假设ApplicationMaster存在错误或者甚至是恶意的，因此将它们当作无特权的代码对待。总的来说,AM有以下作用
+2) **ApplicationMaster**（AM）：ApplicationMaster管理在YARN内运行的每个应用程序实例。ApplicationMaster负责协调来自ResourceManager的资源，并通过NodeManager监视容器的执行和资源使用（CPU、内存等的资源分配）。请注意，尽管目前的资源更加传统（CPU 核心、内存），但未来会带来基于手头任务的新资源类型（比如图形处理单元或专用处理设备）。从YARN角度讲，ApplicationMaster是用户代码，因此存在潜在的安全问题。YARN假设ApplicationMaster存在错误或者甚至是恶意的，因此将它们当作无特权的代码对待。总的来说,AM有以下作用
    1) 负责数据的切分	
    2) 为应用程序申请资源并分配给内部的任务
    3) 任务的监控与容错
 
 
-3) NodeManager（NM）：NodeManager管理YARN集群中的每个节点。NodeManager提供针对集群中每个节点的服务，从监督对一个容器的终生管理到监视资源和跟踪节点健康。MRv1通过插槽管理Map 和Reduce任务的执行，而NodeManager管理抽象容器，这些容器代表着可供一个特定应用程序使用的针对每个节点的资源。总的来说，NM有以下作用：
+3) **NodeManager**（NM）：NodeManager管理YARN集群中的每个节点。NodeManager提供针对集群中每个节点的服务，从监督对一个容器的终生管理到监视资源和跟踪节点健康。MRv1通过插槽管理Map 和Reduce任务的执行，而NodeManager管理抽象容器，这些容器代表着可供一个特定应用程序使用的针对每个节点的资源。总的来说，NM有以下作用：
    1) 管理单个节点上的资源
    2) 处理来自ResourceManager的命令
    3) 处理来自ApplicationMaster的命令
 
 
-4) Container：Container是YARN中的资源抽象，它封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，当AM向RM申请资源时，RM为AM返回的资源便是用Container表示的。YARN会为每个任务分配一个Container，且该任务只能使用该Container中描述的资源。总的来说，Container有以下作用:
+4) **Container：**是YARN中的资源抽象，它封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，当AM向RM申请资源时，RM为AM返回的资源便是用Container表示的。YARN会为每个任务分配一个Container，且该任务只能使用该Container中描述的资源。总的来说，Container有以下作用:
    1) 对任务运行环境进行抽象
    2) 封装CPU、内存等多维度的资源以及环境变量、启动命令等任务运行相关的信息
 
