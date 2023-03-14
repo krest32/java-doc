@@ -505,7 +505,7 @@ tar -xzf go1.18.10.linux-arm64.tar.gz
 配置环境
 
 ~~~bash
-vi /etc/profile
+vi /etc/profile.d/my_env.sh
 
 export GOROOT=/usr/local/software/go
 export GOPATH=/usr/local/software/data/go
@@ -542,14 +542,14 @@ mv node-v14.18.1-linux-x64 node14
 ## 配置环境
 
 ~~~bash
-vi /etc/profile
+vi /etc/profile.d/my_env.sh
 
 export NODE_HOME=/usr/local/software/node14
 export PATH=$PATH:$NODE_HOME/bin
 export NODE_PATH=$NODE_HOME/lib/node_mudules
 export PATH NODE_HOME NODE_PATH
 
-source /etc/profile
+source /etc/profile.d/my_env.sh
 ~~~
 
 
@@ -723,6 +723,75 @@ fork=true
 // 停止MongoDB服务器
 [bigdata@linux mongodb]$ sudo /usr/local/module/mongodb/bin/mongod -shutdown -config /usr/local/module/mongodb/data/mongodb.conf
 ~~~
+
+
+
+## 用户管理
+
+~~~bash
+# 创建超级管理员用户
+use admin
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'root', db:'admin'}]}) 
+# 创建用户管理员账户（能查询其他库集合，但不能查询集合内容
+use admin
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'userAdminAnyDatabase', db:'admin'}]}) 
+# 创建访问任意库读写的账户
+use admin
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'readWriteAnyDatabase', db:'admin'}]}) 
+# 创建用于备份时的用户，如若是恢复权限，则将backup换为restore即可
+use admin
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'backup',db:'admin'}]}) 
+# 创建只对test库有读写权限的用户
+use test
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'readWrite',db:'test'}]}) 
+# 更新用户角色，修改用户权限，不会覆盖原权限信息，只新增权限：
+use test
+db.updateUser("admin",{roles:[{role:"readWrite",db:"admin"}]})
+# 更新用户密码
+use test
+db.changeUserPassword("admin","admin123456")
+# 删除用户
+use test
+db.dropUser({'admin'}) 
+# 查看所有用户
+use test
+show users
+
+# 获取数据库认证
+use admin
+db.auth("admin", "admin123")
+db.auth("krest", "Bob.131452")
+~~~
+
+示例
+
+~~~bash
+创建管理员权限
+mongo 
+use admin
+db.createUser({ user: "root", pwd: "root", roles: [{ role: "root", db: "admin" }] })            #创建管理员用户
+db.auth("root", "root") 如果返回1，则表示成功。
+exit
+修改mongo配置
+sudo vi /etc/mongod.conf 修改为#security:为security: authorization: enabled 
+systemctl  restart mongo
+
+创建数据库用户，拥有有读写权限
+mongo -u root -p root
+use test
+db.createUser({user:'admin',pwd:'admin123', roles:[{role:'readWrite',db:'test'}]}) 
+exit
+
+验证数据库
+mongo
+use test
+db.auth("admin","admin123")
+db.test.insert({"m":"2"})
+db.test.find({})
+
+~~~
+
+
 
 
 
@@ -1003,9 +1072,9 @@ npm run start
   # 守护进程，修改为 yes 后即可后台运行
   daemonize yes
   # 密码，设置后访问 redis 必须输入密码
-  requirepass 123456
+  requirepass Bob.131452
   # 监听端口
-  port 6379
+  port 16379
   # 工作目录，默认是当前目录，也就是运行 redis-server 时的命令，日志、持久化等文件会保存在这个目录
   dir .
   # 数据库数量，设置为1，代表只使用1个库，默认有16个库，编号0~15
@@ -1094,7 +1163,7 @@ npm run start
   
   [Service]
   Type=forking
-  ExecStart=/usr/local/software/redis/src/redis-server /usr/local/software/redis/redis.conf
+  ExecStart=/usr/local/module/redis/src/redis-server /usr/local/module/redis/redis.conf
   PrivateTmp=true
   
   [Install]
@@ -1378,7 +1447,7 @@ yum install -y rabbitmq-server
 启动
 
 ~~~bash
-    systemctl start rabbitmq-server
+systemctl start rabbitmq-server
 
 systemctl status rabbitmq-server
 
@@ -2930,7 +2999,7 @@ CREATE LOCAL INDEX my_index ON my_table (my_column);
 
 # Superset
 
-# docker启动
+### docker启动
 
 ~~~bash
 docker pull amancevice/superset:0.37.2
