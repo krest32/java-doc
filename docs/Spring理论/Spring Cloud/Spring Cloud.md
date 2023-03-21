@@ -2,17 +2,23 @@
 
 ## 概念
 
-### 微服务开发框架
+### 微服务框架有哪些？各有什么特点？
 
-目前微服务的开发框架，最常用的有以下四个：
+目前微服务的开发框架，最常用的有以下几个：
 
-Spring Cloud：http://projects.spring.io/spring-cloud（现在非常流行的微服务架构）
++ Spring Cloud：http://projects.spring.io/spring-cloud（现在非常流行的微服务架构）
++ Dubbo：http：//dubbo.io
++ Dropwizard：http://www.dropwizard.io （关注单个微服务的开发）
++ Consul、etcd&etc.（微服务的模块）
++ K8s + istio （云原生+服务网格）
 
-Dubbo：http：//dubbo.io
+总结：目前比较流行的微服务框架就是Spring Cloud、Dubbo、K8s+Istio，但是各有优点和缺点，Spring Cloud 背靠Spring Boot，整个框架大而全，Dubbo 基于RPC远程调用，性能会比Spring Cloud更好一些，K8s+istio的形式，减少了业务代码和微服务治理代码的耦合性
 
-Dropwizard：http://www.dropwizard.io （关注单个微服务的开发）
+目前最主流的应该就是Spring Cloud，但是随着业务发展，K8s+istio的形式应该会成为大型复杂系统构建的一个主流，不过大多数中小型公司来说，Spring Cloud仍然是一个主流，主要原因有如下：
 
-Consul、etcd&etc.（微服务的模块）
++ 背靠Spring Boot，能够进行快速整合
++ 服务治理框架工具大而全
++ 学习简单，上手容易
 
 ### 什么是Spring Cloud
 
@@ -893,13 +899,11 @@ Please refer to [README](https://github.com/alibaba/Sentinel) for README in Engl
 
 # Stream
 
- 
-
-### （一）简介
+### 简介
 
 Spring Cloud Stream 是一个用来为微服务应用构建消息驱动能力的框架。它可以基于 Spring Boot 来创建独立的、可用于生产的 Spring 应用程序。Spring Cloud Stream 为一些供应商的消息中间件产品提供了个性化的自动化配置实现，并引入了发布-订阅、消费组、分区这三个核心概念。通过使用 Spring Cloud Stream，可以有效简化开发人员对消息中间件的使用复杂度，让系统开发人员可以有更多的精力关注于核心业务逻辑的处理。但是目前 Spring Cloud Stream 只支持 RabbitMQ 和 Kafka 的自动化配置。
 
-### （二）快速搭建
+### 快速搭建
 
 首先，我们通过一个简单的示例对 Spring Cloud Stream 有一个初步的认识。我们中间件使用 RabbitMQ，创建 spring-cloud-stream 模块
 
@@ -971,7 +975,7 @@ public interface StreamClient {    String INPUT = "myInput";   String OUTPUT = "
 
 ![img](img/20180703220110608)
 
-### （三）发布-订阅模式
+### 发布-订阅模式
 
 Spring Cloud Stream 中的消息通信方式遵循了发布-订阅模式，当一条消息被投递到消息中间件后，它会通过共享的 Topic 主题进行广播，消息消费者在订阅的主题中收到它并触发自身的业务逻辑处理。所以这里就会有个问题，下面把 spring-cloud-stream 的端口号修改下，这里修改为 9899，然后再启动一个实例，访问 http://localhost:9898/send 发送消息，通过控制台查看：
 
@@ -991,7 +995,7 @@ Spring Cloud Stream 中的消息通信方式遵循了发布-订阅模式，当�
 
 这显然是不合适的，我们只希望在集群的时候，只有其中一台获取到消息，并进行相应的业务逻辑处理，那要怎么办呢？Spring Cloud Stream 提供了消费组的概念。
 
-### （四）消费组
+### 消费组
 
 在现实的业务场景中，每一个微服务应用为了实现高可用和负载均衡，都会集群部署，按照上面我们启动了两个应用的实例，消息被重复消费了两次。为解决这个问题，Spring Cloud Stream 中提供了消费组，通过配置 spring.cloud.stream.bindings.myInput.group 属性为应用指定一个组名，下面修改下配置文件，修改如下：
 
@@ -1017,7 +1021,7 @@ server:  port: 9898spring:  application:    name: spring-cloud-stream  rabbitmq:
 
 可以看到，只有其中一个接收到了消息，这就达到了目的。
 
-### （五）消息分区
+### 消息分区
 
 通过消费组的设置，虽然能保证同一消息只被一个消费者进行接收和处理，但是对于特殊业务情况，除了要保证单一实例消费之外，还希望那些具备相同特征的消息都能被同一个实例消费，这个就可以使用 Spring Cloud Stream 提供的消息分区功能了。
 
@@ -1534,17 +1538,7 @@ server:  port: 9002spring:  datasource:    driver-class-name: com.mysql.jdbc.Dri
 
 
 
-# 面试问题集中地
-
-### 为什么需要学习Spring Cloud
-
-​		不论是商业应用还是用户应用，在业务初期都很简单，我们通常会把它实现为单体结构的应用。但是，随着业务逐渐发展，产品思想会变得越来越复杂，单体结构的应用也会越来越复杂。这就会给应用带来如下的几个问题：
-
-- 代码结构混乱：业务复杂，导致代码量很大，管理会越来越困难；
-- 开发效率变低：开发人员同时开发一套代码，很难避免代码冲突；
-- 排查解决问题成本高：线上业务发现 bug，修复 bug 的过程可能很简单。但是，由于只有一套代码，需要重新编译、打包、上线，成本很高。
-
-​        由于单体结构的应用随着系统复杂度的增高，会暴露出各种各样的问题。近些年来，微服务架构逐渐取代了单体架构，且这种趋势将会越来越流行。Spring Cloud是目前最常用的微服务开发框架，已经在企业级开发中大量的应用。
+# 其他问题
 
 ### 什么是Spring Cloud
 
@@ -1610,17 +1604,12 @@ API网关组件，对请求提供路由及过滤功能。
 
 ### 使用 Spring Boot 开发分布式微服务时，我们面临以下问题
 
-（1）与分布式系统相关的复杂性-这种开销包括网络问题，延迟开销，带宽问题，安全问题。
-
-（2）服务发现-服务发现工具管理群集中的流程和服务如何查找和互相交谈。它涉及一个服务目录，在该目录中注册服务，然后能够查找并连接到该目录中的服务。
-
-（3）冗余-分布式系统中的冗余问题。
-
-（4）负载平衡 --负载平衡改善跨多个计算资源的工作负荷，诸如计算机，计算机集群，网络链路，中央处理单元，或磁盘驱动器的分布。
-
-（5）性能-问题 由于各种运营开销导致的性能问题。
-
-（6）部署复杂性-Devops 技能的要求。
+1. 与分布式系统相关的复杂性-这种开销包括网络问题，延迟开销，带宽问题，安全问题。
+2. 服务发现-服务发现工具管理群集中的流程和服务如何查找和互相交谈。它涉及一个服务目录，在该目录中注册服务，然后能够查找并连接到该目录中的服务。
+3. 冗余-分布式系统中的冗余问题。
+4. 负载平衡 --负载平衡改善跨多个计算资源的工作负荷，诸如计算机，计算机集群，网络链路，中央处理单元，或磁盘驱动器的分布。
+5. 性能-问题 由于各种运营开销导致的性能问题。
+6. 部署复杂性-Devops 技能的要求。
 
 ### 服务注册和发现是什么意思？Spring Cloud 如何实现？
 
@@ -1628,11 +1617,9 @@ API网关组件，对请求提供路由及过滤功能。
 
 ### Spring Cloud 和dubbo区别?
 
-（1）服务调用方式 dubbo是RPC springcloud Rest Api
-
-（2）注册中心,dubbo 是zookeeper springcloud是eureka，也可以是zookeeper
-
-（3）服务网关,dubbo本身没有实现，只能通过其他第三方技术整合，springcloud有Zuul路由网关，作为路由服务器，进行消费者的请求分发,springcloud支持断路器，与git完美集成配置文件支持版本控制，事物总线实现配置文件的更新与服务自动装配等等一系列的微服务架构要素。
+1. 服务调用方式 dubbo是RPC springcloud Rest Api
+2. 注册中心,dubbo 是zookeeper springcloud是eureka，也可以是zookeeper
+3. 服务网关,dubbo本身没有实现，只能通过其他第三方技术整合，springcloud有Zuul路由网关，作为路由服务器，进行消费者的请求分发,springcloud支持断路器，与git完美集成配置文件支持版本控制，事物总线实现配置文件的更新与服务自动装配等等一系列的微服务架构要素。
 
 ### 负载平衡的意义什么？
 
@@ -1722,11 +1709,9 @@ Spring Cloud Bus 提供了跨多个实例刷新配置的功能。因此，在上
 
 使用：
 
-（1）添加pom依赖
-
-（2）配置文件添加相关配置
-
-（3）启动类添加注解@EnableConfigServer
+1. 添加pom依赖
+2. 配置文件添加相关配置
+3. 启动类添加注解@EnableConfigServer
 
 ### 什么是Spring Cloud Gateway?
 

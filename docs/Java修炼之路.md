@@ -956,7 +956,10 @@
 
 #### 概念
 
-1. 什么是 Spring Cloud ？
+1. 谈谈你对于Spring Cloud的理解？
+   1. 什么是微服务开发框架？
+   2. 各个框架各有什么特点？
+   3. 为什么选择Spring cloud?
 2. Spring Boot 对比 Spring Cloud？
 3. Spring cloud 对比 Dubbo 有什么区别？
 4. Spring Cloud 中有哪些比较重要的组件？
@@ -1103,7 +1106,7 @@
 1. 什么是Session 共享问题？
 2. 如何解决Session共享问题（4种），然后这些方案会有什么问题？
    1. session 复制
-   2. Nignx 负债均衡策略 ip_hash
+   2. Nignx 负债均衡策略 ip_hash，但是这个方法违背了负载均衡的思想
    3. cookie 记录session信息
    4. spring session
 
@@ -1156,7 +1159,7 @@
 #### 概念
 
 1. 什么是消息队列？
-2. 消息队列有哪些特点？
+2. 消息队列有哪些优缺点？
 3. 为什么要使用消息队列？
 4. 消息队列如何选型？
 
@@ -1236,21 +1239,26 @@
 
 ### Web 服务器
 
-#### `Netty `
+#### `Netty（重点） `
 
 1. 谈谈你对于Netty的理解？
-5. `Netty` 的功能模块有哪些？各自有什么作用？
-6. `Netty` 的工作原理？
-7. `Netty` 的线程模型？
-8. 什么 是`Netty`零拷贝？
-9. `Netty`有哪些模块组件？
-10. `Netty` 发送消息有几种方式？
-11. 如何选择序列化协议？
-12. `Netty` 与 `Tomcat` 之间的区别？
-13. `TCP` 粘包与拆包产生的原因
-14. 粘包与拆包的三种解决方法？
+   1. 什么是Netty？
+   2. Java原生Nio程序的问题？
+   3. Netty的特点？
+   4. Neety的高性能设计？
+   5. Netty的使用场景有哪些？
 
-
+2. `Netty` 的功能模块有哪些？各自有什么作用？
+3. `Netty` 的工作原理？
+4. `Netty` 的线程模型？
+5. 什么 是`Netty`零拷贝？
+6. `Netty`有哪些模块组件？
+   + EventLoop、EventLoopGroup、ChannelHandler、ChannelPipeline、ChannelFuture、BootStrap、ServerBootStrap
+7. `Netty` 发送消息有几种方式？
+8. 如何选择序列化协议？
+9. `Netty` 与 `Tomcat` 之间的区别？
+10. `TCP` 粘包与拆包产生的原因
+11. 粘包与拆包的三种解决方法？
 
 #### `Nginx`
 
@@ -1264,6 +1272,7 @@
    1. 反向代理
    2. 前端页面代理
    3. 负载均衡
+   4. Https服务器
 
 
 #### `Tomcat` 
@@ -1330,7 +1339,9 @@
 
 #### Jenkies
 
+1. 什么是JenKins？为什么要使用它？
 1. Pipeline 流水线语法，控制持续Dev流程
+1. 为什么要使用PipeLine语法？
 
 #### SonarQube
 
@@ -1338,9 +1349,24 @@
 
 #### Harbor
 
+私人镜像仓库，当Jenkins构建完成镜像文件后，可以上传该文件到Harbor中，执行部署的机器可以通过Docker下载改文件，然后使用Docker进行部署
 
+#### Docker 
 
-1. 私人镜像仓库
+1. 谈谈你对与Docker 的理解？
+
+   1. 什么是`Docker`？
+   2. Docker的优缺点？
+
+2. `Docker`构建镜像文件的过程是什么样的？
+
+   更加像是一个SSH脚本，先配置基础镜像、然后将代码复制到镜像中、配置相关环境变量、最后添加程序的启动指令
+
+3. 什么是镜像、容器？
+
+4. `Docker`容器的四种状态？
+
+5. 一个完整的`Docker`由哪些部分组成？
 
 ### 云原生
 
@@ -1352,15 +1378,6 @@
 4. 为什么要使用云原生架构 ？
 5. 什么是 VPC？
 6. 什么是容器编排技术 ？
-
-#### Docker 
-
-1. 什么是`Docker`？
-2. 为什么要使用`Docker`？
-3. `Docker`构建镜像文件的过程是什么样的？
-4. 什么是镜像、容器？
-5. `Docker`容器的四种状态？
-6. 一个完整的`Docker`由哪些部分组成？
 
 #### K8S
 
@@ -1616,14 +1633,6 @@ scavage 使用标记整理
 
 ### 打车软件系统设计
 
-
-
-
-
-
-
-1. 
-
 # 大数据部分
 
 ## 概述
@@ -1798,57 +1807,7 @@ scavage 使用标记整理
 
 ## 实时数仓
 
-#  前端部分
 
-### 基础部分
-
-#### `Html`
-
-#### `CSS`
-
-#### `JS/TS`
-
-### UI开发框架
-
-1. `Element UI` -> `Vue2`
-2. `Element Plus` -> `Vue3`
-
-### 前端开发框架
-
-#### 概念
-
-1. 三种开发框架的对比
-1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
-
-#### 1.` Vue`
-
-1. `Vue2` 、`Vue3`
-2. `Vuex`
-3. `Axios`
-4. `Vue router`
-5. `Vite`
-6. `Nuxt`
-
-#### 2. `React`
-
-#### 3. `Angular` 
-
-### 微前端
-
-#### `Single-SPA`
-
-#### `QianKun`
-
-### 个人建站工具
-
-1. [VuePress](https://www.vuepress.cn/)
-2. [Docsify](https://docsify.js.org/#/zh-cn/)
-3. Hexo
-4. GitBook
-
-
-
-## 
 
 # 技术管理
 
@@ -1955,3 +1914,55 @@ scavage 使用标记整理
 ## 其他文档
 
 1. ER 图：实体——属性——关系 图
+
+#  前端部分
+
+### 基础部分
+
+#### `Html`
+
+#### `CSS`
+
+#### `JS/TS`
+
+### UI开发框架
+
+1. `Element UI` -> `Vue2`
+2. `Element Plus` -> `Vue3`
+
+### 前端开发框架
+
+#### 概念
+
+1. 三种开发框架的对比
+1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
+
+#### 1.` Vue`
+
+1. `Vue2` 、`Vue3`
+2. `Vuex`
+3. `Axios`
+4. `Vue router`
+5. `Vite`
+6. `Nuxt`
+
+#### 2. `React`
+
+#### 3. `Angular` 
+
+### 微前端
+
+#### `Single-SPA`
+
+#### `QianKun`
+
+### 个人建站工具
+
+1. [VuePress](https://www.vuepress.cn/)
+2. [Docsify](https://docsify.js.org/#/zh-cn/)
+3. Hexo
+4. GitBook
+
+
+
+1. 

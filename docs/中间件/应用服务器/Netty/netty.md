@@ -2,11 +2,9 @@
 
 ## Netty简介
 
-![img](img/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOC8xMS8xLzE2NmNjYmJjZmJiZTlmNjY.png)
+### 什么是Netty？
 
 Netty是 一个异步事件驱动的网络应用程序框架，用于快速开发可维护的高性能协议服务器和客户端。
-
-
 
 ### JDK原生NIO程序的问题
 
@@ -18,17 +16,15 @@ JDK原生也有一套网络应用程序API，但是存在一系列问题，主�
 
 - 可靠性能力补齐，开发工作量和难度都非常大（系统的稳定性）。例如客户端面临断连重连、网络闪断、半包读写、失败缓存、网络拥塞和异常码流的处理等等，NIO编程的特点是功能开发相对容易，但是可靠性能力补齐工作量和难度都非常大
 
-- JDK NIO的BUG，例如臭名昭著的 epoll bug，它会导致Selector空轮询，最终导致CPU 100%。
+- JDK NIO的BUG，例如臭名昭著的 epoll bug，它会导致Selector空轮询，最终导致CPU 100%
 
   了解：官方声称在`JDK1.6`版本的 update18 修复了该问题，但是直到 JDK1.7 版本该问题仍旧存在，只不过该bug发生概率降低了，它并没有被根本解决
-
-
 
 ### Netty的特点
 
 Netty的对JDK自带的NIO的API进行封装，解决上述问题，主要优点有：
 
-- 设计优雅 适用于各种传输类型的统一API - 阻塞和非阻塞Socket 基于灵活且可扩展的事件模型，可以清晰地分离关注点 高度可定制的线程模型 - 单线程，一个或多个线程池 真正的无连接数据报套接字支持（自3.1起）
+- 设计优雅：适用于各种传输类型的统一API - 阻塞和非阻塞Socket 基于灵活且可扩展的事件模型，可以清晰地分离关注点 高度可定制的线程模型 - 单线程，一个或多个线程池 真正的无连接数据报套接字支持（自3.1起）
 - 高性能 、高吞吐、低延迟、低消耗
 - 最小化不必要的内存复制
 - 安全 完整的SSL / TLS和StartTLS支持
@@ -37,6 +33,15 @@ Netty的对JDK自带的NIO的API进行封装，解决上述问题，主要优点
 - 封装好：Netty 封装了 NIO 操作的很多细节，提供了易于使用调用接口。
 - 社区活跃，不断更新 社区活跃，版本迭代周期短，发现的BUG可以被及时修复，同时，更多的新功能会被加入
 - 使用方便 详细记录的Javadoc，用户指南和示例 没有其他依赖项，JDK 5（Netty 3.x）或6（Netty 4.x）就足够了
+
+### Netty 高性能表现在哪些方面？
+
++ IO 线程模型：通过多线程事件驱动模式，在应用层实现异步非阻塞（异步事件驱动）架构，用最少的资源做更多的事。
++ 内存零拷贝：尽量减少不必要的内存拷贝，实现了更高效率的传输。
++ 内存池设计：申请的内存可以重用，主要指直接内存。内部实现是用一颗二叉查找树管理内存分配情况。 （具体请参考尼恩稍后的手写内存池）
++ 对象池设计：Java对象可以重用，主要指Minior GC非常频繁的对象，如ByteBuffer。并且，对象池使用无锁架构，性能非常高。 （具体请参考尼恩稍后的手写对象池）
++ mpsc无锁编程：串形化处理读写, 避免使用锁带来的性能开销。
++ 高性能序列化协议：支持 protobuf 等高性能序列化协议。
 
 
 
@@ -49,16 +54,6 @@ Netty的对JDK自带的NIO的API进行封装，解决上述问题，主要优点
 - 游戏行业，`Netty`作为高性能的基础通信组件，它本身提供了`TCP/UDP`和`HTTP`协议栈。 非常方便定制和开发私有协议栈，账号登录服务器
 - 大数据领域 
   - 经典的`Hadoop`的高性能通信和序列化组件`Avro`的`RPC`框架，默认采用`Netty`进行跨界点通信，
-
-
-### Netty 高性能表现在哪些方面？
-
-+ IO 线程模型：通过多线程Reactor反应器模式，在应用层实现异步非阻塞（异步事件驱动）架构，用最少的资源做更多的事。
-+ 内存零拷贝：尽量减少不必要的内存拷贝，实现了更高效率的传输。
-+ 内存池设计：申请的内存可以重用，主要指直接内存。内部实现是用一颗二叉查找树管理内存分配情况。 （具体请参考尼恩稍后的手写内存池）
-+ 对象池设计：Java对象可以重用，主要指Minior GC非常频繁的对象，如ByteBuffer。并且，对象池使用无锁架构，性能非常高。 （具体请参考尼恩稍后的手写对象池）
-+ mpsc无锁编程：串形化处理读写, 避免使用锁带来的性能开销。
-+ 高性能序列化协议：支持 protobuf 等高性能序列化协议。
 
 
 
@@ -490,7 +485,7 @@ Netty 入门门槛相对较高，其实是因为这方面的资料较少，并�
 3. 高性能的原因主要有：
    1. IO 线程模型：通过多线程Reactor反应器模式，在应用层实现异步非阻塞（异步事件驱动）架构，用最少的资源做更多的事。
    2. 内存零拷贝：尽量减少不必要的内存拷贝，实现了更高效率的传输。
-   3. 内存池设计：申请的内存可以重用，主要指直接内存。内部实现是用一颗二叉查找树管理内存分配情况。 
+   3. 内存池设计：申请的内存可以重用，主要指直接内存。具体实现是通过一颗二叉查找树管理内存分配情况。 
    4. 对象池设计：Java对象可以重用，主要指Minior GC非常频繁的对象，如ByteBuffer。并且，对象池使用无锁架构，性能非常高。 
    5. 无锁编程：串形化处理读写, 避免使用锁带来的性能开销。
    6. 高性能序列化协议：支持 protobuf 等高性能序列化协议。
@@ -517,7 +512,7 @@ TCP粘包/分包的原因：
 
 ​		应用程序写入的字节大小大于套接字发送缓冲区的大小，会发生拆包现象，而应用程序写入数据小于套接字缓冲区大小，网卡将应用多次写入的数据发送到网络上，这将会发生粘包现象；
 
-​		进行MSS大小的TCP分段，当TCP报文长度-TCP头部长度>MSS的时候将发生拆包 		以太网帧的payload（净荷）大于MTU（1500字节）进行ip分片。
+​		进行MSS大小的TCP分段，当TCP报文长度-TCP头部长度>MSS的时候将发生拆包太网帧的payload（净荷）大于MTU（1500字节）进行ip分片。
 
 解决方法
 
@@ -547,12 +542,19 @@ Netty 的零拷贝主要包含三个方面：
 ## Netty 中有哪种重要组件？
 
 - Channel：Netty 网络操作抽象类，它除了包括基本的 I/O 操作，如 bind、connect、read、write 等。
-- EventLoop：主要是配合 Channel 处理 I/O 操作，用来处理连接的生命周期中所发生的事情。
+- EventLoop 与 EventLoopGroup
+  + EventLoop 定义了Netty的核心抽象，用来处理连接的生命周期中所发生的事件，在内部，将会为每个Channel分配一个EventLoop。
+  + EventLoopGroup 是一个 EventLoop 池，包含很多的 EventLoop。
+  + Netty 为每个 Channel 分配了一个 EventLoop，用于处理用户连接请求、对用户请求的处理等所有事件。EventLoop 本身只是一个线程驱动，在其生命周期内只会绑定一个线程，让该线程处理一个 Channel 的所有 IO 事件。
+  + 一个 Channel 一旦与一个 EventLoop 相绑定，那么在 Channel 的整个生命周期内是不能改变的。一个 EventLoop 可以与多个 Channel 绑定。即 Channel 与 EventLoop 的关系是 n:1，而 EventLoop 与线程的关系是 1:1。
+- ServerBootstrap 与 Bootstrap
+   Bootstarp 和 ServerBootstrap 被称为引导类，指对应用程序进行配置，并使他运行起来的过程。Netty处理引导的方式是使你的应用程序和网络层相隔离。
+  - Bootstrap 是客户端的引导类，Bootstrap 在调用 bind()（连接UDP）和 connect()（连接TCP）方法时，会新创建一个 Channel，仅创建一个单独的、没有父 Channel 的 Channel 来实现所有的网络交换。
+  - ServerBootstrap 是服务端的引导类，ServerBootstarp 在调用 bind() 方法时会创建一个 ServerChannel 来接受来自客户端的连接，并且该 ServerChannel 管理了多个子 Channel 用于同客户端之间的通信。
+
 - ChannelFuture：Netty 框架中所有的 I/O 操作都为异步的，因此我们需要 ChannelFuture 的 addListener()注册一个 ChannelFutureListener 监听事件，当操作执行成功或者失败时，监听就会自动触发返回结果。
 - ChannelHandler：充当了所有处理入站和出站数据的逻辑容器。ChannelHandler 主要用来处理各种事件，这里的事件很广泛，比如可以是连接、数据接收、异常、数据转换等。
 - ChannelPipeline：为 ChannelHandler 链提供了容器，当 channel 创建时，就会被自动分配到它专属的 ChannelPipeline，这个关联是永久性的。
-
-
 
 ## Netty 发送消息有几种方式？
 
@@ -561,17 +563,9 @@ Netty 有两种发送消息的方式：
 - 直接写入 Channel 中，消息从 ChannelPipeline 当中尾部开始移动；
 - 写入和 ChannelHandler 绑定的 ChannelHandlerContext 中，消息从 ChannelPipeline 中的下一个 ChannelHandler 中移动。
 
-
-
-
-
 ## 默认情况 Netty 起多少线程？何时启动？
 
 Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
-
-
-
-
 
 ## 如何选择序列化协议？
 
@@ -582,11 +576,15 @@ Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
 3. 对于调试环境比较恶劣的场景，采用JSON或XML能够极大的提高调试效率，降低系统开发成本。 
 4. 当对性能和简洁性有极高要求的场景，Protobuf，Thrift，Avro之间具有一定的竞争关系。 对于T级别的数据的持久化应用场景，Protobuf和Avro是首要选择。如果持久化后的数据存储在hadoop子项目里，Avro会是更好的选择。
 
+## Netty 的无锁化设计体现在哪？
 
+1. 当accept事件触发时，事件会被注册到WorkerEventLoopGroup 中的一个NioEventLoop 上；
+2. 由于每个请求的Channel都只与一个NioEventLoop绑定，所以说 Channel 生命周期的所有事件处理都是线程独立的，不同的 NioEventLoop 线程之间不会发生任何交集；
+3. NioEventLoop 完成数据读取后，会调用绑定的 ChannelPipeline 进行事件传播，数据在传播过程中由具体的ChannelHandler处理，整个过程是串行化执行，没有线程安全问题。
 
 ## Netty 支持哪些心跳类型设置？
 
-服务器监听信道，如果**5s**内没有客户端发过来的包，就认为客户端挂掉了，释放该信道。
+服务器监听信道，如果 **5s** 内没有客户端发过来的包，就认为客户端挂掉了，释放该信道。
 
 客户端和服务器建立连接后，在空闲时间（没有读写请求）每隔**4s**向服务器发送一个数据包，证明自己还“活着”。
 
@@ -603,9 +601,9 @@ Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
 
 ## Netty 设计模式
 
-+ Builder 构造器模式：
-+ ServerBootstrap责任链设计模式：
-+ pipeline的事件传播工厂模式：
++ Builder：构造器模式：
++ ServerBootstrap：责任链设计模式：
++ pipeline：事件传播工厂模式：
 + 创建 channel
 + 适配器模式：HandlerAdapter
 
@@ -613,7 +611,7 @@ Netty 默认是 CPU 处理器数的两倍，bind 完之后启动。
 
 ## NIOEventLoopGroup源码？
 
-1. NioEventLoopGroup 内部维护一个类型为 EventExecutor children [], 默认大小是处理器核数 * 2, 这样就构成了一个线程池。
+1. **NioEventLoopGroup** 内部维护一个类型为 EventExecutor children [], 默认大小是处理器核数 * 2, 这样就构成了一个线程池。
 2. 线程启动时调用SingleThreadEventExecutor的构造方法，执行NioEventLoop类的run方法，首先会调用hasTasks()方法判断当前taskQueue是否有元素。如果taskQueue中有元素，执行 selectNow() 方法，最终执行selector.selectNow()，该方法会立即返回。如果taskQueue没有元素，执行 select(oldWakenUp) 方法
 3. select ( oldWakenUp) 方法解决了 Nio 中的 bug，selectCnt 用来记录selector.select方法的执行次数和标识是否执行过selector.selectNow()，若触发了epoll的空轮询bug，则会反复执行selector.select(timeoutMillis)，变量selectCnt 会逐渐变大，当selectCnt 达到阈值（默认512），则执行rebuildSelector方法，进行selector重建，解决cpu占用100%的bug。
 4. rebuildSelector方法先通过openSelector方法创建一个新的selector。然后将old selector的selectionKey执行cancel。最后将old selector的channel重新注册到新的selector中。rebuild后，需要重新执行方法selectNow，检查是否有已ready的selectionKey。
