@@ -33,14 +33,11 @@
 + [怎么看待谷歌的开源 RPC 框架 gRPC？](https://www.zhihu.com/question/30027669/answer/2872058473)
 + [携程酒店实时数仓架构和案例](https://zhuanlan.zhihu.com/p/598733363)
 + [AI 画画背后的技术原理是什么样的](https://zhuanlan.zhihu.com/p/597715332)
-+ [一文梳理Code Review方法论与实践总结](https://zhuanlan.zhihu.com/p/598751710)
 
 ### 2023年1月
 + [只改了五行代码接口吞吐量提升了10多倍](https://juejin.cn/post/7185479136599769125)
 + [我说MySQL每张表最好不超过2000万数据，面试官让我回去等通知？](https://juejin.cn/post/7165689453124517896)
 + [怎样快速地迁移 MySQL 中的数据？](https://juejin.cn/post/7187313594093010981)
-+ [多线程代码，性能怎么优化！](https://juejin.cn/post/7188029263201697851)
-+ [一文梳理Code Review方法论与实践总结](https://zhuanlan.zhihu.com/p/598751710)
 + [MYSQL中的14个神仙功能，惊艳到我了！！！](https://juejin.cn/post/7179239346967412773)
 + [大白话DDD](https://juejin.cn/post/7184800180984610873)
 
@@ -101,7 +98,6 @@
 + [不要重复造轮子](https://zhuanlan.zhihu.com/p/530162228?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1544980757659181056&utm_source=wechat_session)
 + [月活 12.8 亿的微信如何防止崩溃？| 后台过载保护策略](https://zhuanlan.zhihu.com/p/520699351)
 + [怎么提高自己的系统设计和架构理论水平？](https://www.zhihu.com/question/395652253/answer/2458366961)
-+ [java应用提速(速度与激情)](https://mp.weixin.qq.com/s/CTFcwer2htssKszjhnOXtQ)
 + [高性能 Java 计算服务的性能调优实战](https://zhuanlan.zhihu.com/p/564562925?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1556193749054758912&utm_source=wechat_session)
 
 
