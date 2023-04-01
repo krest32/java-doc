@@ -684,3 +684,491 @@ asc
 ~~~
 
 ![image-20221219234212406](img/image-20221219234212406.png)
+
+
+
+## 优化
+
+### 自定义排序字段
+
+之前
+
+![image-20230401101028991](img/image-20230401101028991.png)
+
+~~~sql
+SELECT
+    *
+from
+    order_diy
+ORDER BY
+    FIELD(
+        title,
+        '九阴真经',
+        '降龙十八掌',
+        '九阴白骨爪',
+        '双手互博',
+        '桃花岛主',
+        '全真内功心法',
+        '蛤蟆功',
+        '销魂掌',
+        '灵白山少主'
+    );
+~~~
+
+![image-20230401101042765](img/image-20230401101042765.png)
+
+### Case 表达式
+
+~~~sql
+SELECT
+    *,
+    case
+        when money > 60 then '高级'
+        when money > 30 then '中级'
+        else '低级'
+    END level
+from
+    order_diy;
+~~~
+
+![image-20230401101140248](img/image-20230401101140248.png)
+
+### exist
+
+它的作用是**根据主查询的数据，每一行都放到子查询中做条件验证，根据验证结果（TRUE 或者 FALSE），TRUE的话该行数据就会保留**，下面用 emp 表和 dept 表进行举例，表结构以及数据展示
+
+之前
+
+![image-20230401101312814](img/image-20230401101312814.png)
+
+假如我们现在想找到 emp 表中 dept_name 与 dept表中 dept_name 对应不上的员工数据，也就是 emp 表第二行记录，sql 如下：
+
+~~~sql
+SELECT
+    *
+from
+    emp e
+where
+    exists (
+        SELECT
+            *
+        from
+            dept p
+        where
+            e.dept_id = p.dept_id
+            and e.dept_name != p.dept_name
+    )
+~~~
+
+![image-20230401101446978](img/image-20230401101446978.png)
+
+### GROUP_CONCAT
+
+~~~sql
+SELECT
+    name,
+    GROUP_CONCAT(
+        title
+        ORDER BY
+            id desc SEPARATOR '-'
+    )
+from
+    order_diy
+GROUP BY
+    name
+ORDER BY
+    NULL;
+~~~
+
+
+
+![image-20230401101559321](img/image-20230401101559321.png)
+
+### 自连接查询
+
+自连接查询是 sql 语法里常用的一种写法，掌握了自连接的用法我们可以在 sql 层面轻松解决很多问题。这里用 tree 表举例，结构以及表数据展示：
+
+![image-20230401101628751](img/image-20230401101628751.png)
+
+tree 表中通过 pid 字段与 id 字段进行父子关联，假如现在有一个需求，我们想按照父子层级将 tree 表数据转换成 `一级职位 二级职位 三级职位` 三个列名进行展示，sql 如下：
+
+~~~sql
+SELECT
+    t1.job_name '一级职位',
+    t2.job_name '二级职位',
+    t3.job_name '三级职位'
+from
+    tree t1
+    join tree t2 on t1.id = t2.pid
+    left join tree t3 on t2.id = t3.pid
+where
+    t1.pid = 0;
+~~~
+
+![image-20230401101736113](img/image-20230401101736113-16803154577531.png)
+
+### 动态更新
+
+这里继续使用上文提到的 emp 表和 dept 表，数据如下：
+
+![image-20230401101836664](img/image-20230401101836664.png)
+
+可以看到上述 emp 表中 jack 的部门名称与 dept 表实际不符合，现在我们想将 jack 的部门名称更新成 dept 表的正确数据，sql 如下：
+
+```sql
+update
+    emp,
+    dept
+set
+    emp.dept_name = dept.dept_name
+where
+    emp.dept_id = dept.dept_id;
+```
+
+![image-20230401101913945](img/image-20230401101913945.png)
+
+### ORDER BY 空值 NULL 排序
+
+ORDER BY 字句中可以跟我们要排序的字段名称，但是当字段中存在 null 值时，会对我们的排序结果造成影响。我们可以通过 **ORDER BY IF(ISNULL(title), 1, 0)** 语法将 null 值转换成0或1，来达到将 null 值放到前面还是后面进行排序的效果。这里继续用 order_diy 表举例，sql 如下：
+
+~~~sql
+SELECT
+    *
+FROM
+    order_diy
+ORDER BY
+    IF(ISNULL(title), 0, 1),
+    money;
+~~~
+
+![image-20230401102033864](img/image-20230401102033864.png)
+
+### with rollup 
+
+MySql 中可以使用 with rollup 在分组统计数据的基础上再进行统计汇总，即用来得到 group by 的汇总信息。这里继续用order_diy 表举例，sql 如下：
+
+~~~sql
+SELECT
+    name,
+    SUM(money) as money
+FROM
+    order_diy
+GROUP BY
+    name WITH ROLLUP;
+~~~
+
+![image-20230401102140246](img/image-20230401102140246.png)
+
+可以看到通过 **GROUP BY name WITH ROLLUP** 语句，查询结果最后一列显示了分组统计的汇总结果。但是 name 字段汇总后显示为 null，我们可以通过 `COALESCE(value,...)` 比较函数，返回第一个非空参数。
+
+~~~sql
+SELECT
+    coalesce(name, '总金额') name,
+    SUM(money) as money
+FROM
+    order_diy
+GROUP BY
+    name WITH ROLLUP;
+~~~
+
+![image-20230401102350195](img/image-20230401102350195.png)
+
+### with as
+
+with as 语法需要 MySql 8.0以上版本，它的作用主要是提取子查询，方便后续共用，更多情况下会用在数据分析的场景上。
+
+如果一整句查询中**多个子查询都需要使用同一个子查询**的结果，那么就可以用with as，将共用的子查询提取出来，加个别名。后面查询语句可以直接用，对于大量复杂的SQL语句起到了很好的优化作用。这里继续用 order_diy 表举例，这里使用with as给出sql 如下：
+
+~~~sql
+with t1 as (
+    SELECT
+        *
+    from
+        order_diy
+    where
+        money > 30
+),
+t2 as (
+    SELECT
+        *
+    from
+        order_diy
+    where
+        money > 60
+)
+SELECT
+    *
+from
+    t1
+where
+    t1.id not in (
+        SELECT
+            id
+        from
+            t2
+    )
+    and t1.name = '周伯通';
+~~~
+
+![image-20230401102450536](img/image-20230401102450536.png)
+
+这个 sql 查询了 order_diy 表中 money 大于30且小于等于60之间并且 name 是周伯通的记录。
+
+### 存在就更新，不存在就插入
+
+MySql 中通过**on duplicate key update**语法来实现存在就更新，不存在就插入的逻辑。插入或者更新时，它会根据表中主键索引或者唯一索引进行判断，如果主键索引或者唯一索引有冲突，就会执行**on duplicate key update**后面的赋值语句。 这里通过 news 表举例，表结构和说数据展示，其中 news_code 字段有唯一索引：
+
+![image-20230401102601565](img/image-20230401102601565.png)
+
+添加sql：
+
+~~~sql
+-- 第一次执行添加语句
+INSERT INTO `news` (`news_title`, `news_auth`, `news_code`) 
+VALUES ('新闻3', '小花', 'wx-0003') 
+on duplicate key update news_title = '新闻3';
+
+-- 第二次执行修改语句
+INSERT INTO `news` (`news_title`, `news_auth`, `news_code`) 
+VALUES ('新闻4', '小花', 'wx-0003') 
+on duplicate key update news_title = '新闻4';
+~~~
+
+![image-20230401102644291](img/image-20230401102644291.png)
+
+on duplicate key update高并发场景下游死锁的风险
+
+### char_length
+
+有时候我们需要获取字符的`长度`，然后根据字符的长度进行`排序`。MYSQL给我们提供了一些有用的函数，比如：`char_length`。通过该函数就能获取字符长度。获取字符长度并且排序的sql如下：
+
+~~~sql
+select
+    *
+from
+    brand
+where
+    name like '%苏三%'
+order by
+    char_length(name) asc
+limit
+    5;
+~~~
+
+![image-20230401103345283](img/image-20230401103345283.png)
+
+name字段使用关键字`模糊查询`之后，再使用`char_length`函数获取name字段的字符长度，然后按长度`升序`。
+
+### locate
+
+有时候我们在查找某个关键字，比如：`苏三`，需要明确知道它在某个字符串中的位置时，该怎么办呢？
+
+答：使用`locate`函数。
+
+使用locate函数改造之后sql如下：
+
+~~~sql
+select
+    *
+from
+    brand
+where
+    name like '%苏三%'
+order by
+    char_length(name) asc,
+    locate('苏三', name) asc
+limit
+    5, 5;
+~~~
+
+![image-20230401103518581](img/image-20230401103518581.png)
+
+先按长度排序，小的排在前面。如果长度相同，则按关键字从左到右进行排序，越靠左的越排在前面。
+
+### replace
+
+我们经常会有替换字符串中部分内容的需求，比如：将字符串中的字符A替换成B。
+
+这种情况就能使用`replace`函数。
+
+例如：
+
+~~~sql
+update
+    brand
+set
+    name = REPLACE(name, 'A', 'B')
+where
+    id = 1;
+~~~
+
+这样就能轻松实现字符替换功能。
+
+也能用该函数去掉`前后空格`：
+
+~~~sql
+update brand set name=REPLACE(name,' ','') where name like ' %';
+update brand set name=REPLACE(name,' ','') where name like '% ';
+~~~
+
+使用该函数还能替换`json格式`的数据内容，真的非常有用。
+
+### now
+
+时间是个好东西，用它可以快速缩小数据范围，我们经常有获取当前时间的需求。
+
+在MYSQL中获取`当前时间`，可以使用`now()`函数，例如：
+
+~~~sql
+select now() from brand limit 1;
+~~~
+
+![image-20230401103753324](img/image-20230401103753324.png)
+
+如果你还想返回`毫秒`，可以使用`now(3)`，例如：
+
+~~~sql
+select now(3) from brand limit 1;
+~~~
+
+![image-20230401103817747](img/image-20230401103817747.png)
+
+### insert into ... select
+
+在工作中很多时候需要`插入数据`。传统的插入数据的sql是这样的：
+
+```sql
+INSERT INTO
+    `brand`(`id`, `code`, `name`, `edit_date`)
+VALUES
+    (5, '108', '苏三', '2022-09-02 19:42:21');
+```
+
+它主要是用于插入少量并且已经确定的数据。但如果有大批量的数据需要插入，特别是是需要插入的数据来源于，另外一张表或者多张表的结果集中。
+
+这种情况下，使用传统的插入数据的方式，就有点束手无策了。
+
+这时候就能使用MYSQL提供的：`insert into ... select`语法。
+
+例如：
+
+```sql
+INSERT INTO
+    `brand`(`id`, `code`, `name`, `edit_date`)
+select
+    null,
+    code,
+    name,
+    now(3)
+from
+    `order`
+where
+    code in ('004', '005');
+```
+
+这样就能将order表中的部分数据，非常轻松插入到brand表中。
+
+### insert into ... ignore
+
+不知道你有没有遇到过这样的场景：在插入1000个品牌之前，需要先根据name，判断一下是否存在。如果存在，则不插入数据。如果不存在，才需要插入数据。
+
+当然很多人通过在sql语句后面拼接`not exists`语句，也能达到防止出现重复数据的目的，比如：
+
+~~~sql
+INSERT INTO
+    `brand`(`id`, `code`, `name`, `edit_date`)
+select
+    null,
+    '108',
+    '苏三',
+    now(3)
+from
+    dual
+where
+    not exists (
+        select
+            *
+        from
+            `brand`
+        where
+            name = '苏三'
+    );
+~~~
+
+这条sql确实能够满足要求，但是总觉得有些麻烦。那么，有没有更简单的做法呢？
+
+~~~sql
+INSERT
+    ignore INTO `brand`(`id`, `code`, `name`, `edit_date`)
+VALUES
+    (123, '108', '苏三', now(3));
+~~~
+
+这样改造之后，如果brand表中没有name为苏三的数据，则可以直接插入成功。
+
+但如果brand表中已经存在name为苏三的数据了，则该sql语句也能正常执行，并不会报错。
+
+因为它会忽略异常，返回的执行结果影响行数为0，它不会重复插入数据。
+
+### create table ... select
+
+有时候，我们需要快速备份表。
+
+通常情况下，可以分两步走：
+
+1. 创建一张临时表
+2. 将数据插入临时表
+
+~~~sql
+create table order_2022121819 like `order`;
+insert into order_2022121819 select * from `order`;
+~~~
+
+但有没有命令，一个命令就能实现上面这两步的功能呢？
+
+~~~sql
+create table order_2022121820
+select
+    *
+from
+    `order`;
+~~~
+
+### show processlist
+
+有些时候我们线上sql或者数据库出现了问题。比如出现了数据库连接过多问题，或者发现有一条sql语句的执行时间特别长。
+
+这时候该怎么办呢？
+
+答：我们可以使用`show processlist`命令查看`当前线程执行情况`。
+
+![image-20230401104514419](img/image-20230401104514419.png)
+
+从执行结果中，我们可以查看当前的连接状态，帮助识别出有问题的查询语句。
+
+- id 线程id
+- User 执行sql的账号
+- Host 执行sql的数据库的ip和端号
+- db 数据库名称
+- Command 执行命令，包括：Daemon、Query、Sleep等。
+- Time 执行sql所消耗的时间
+- State 执行状态
+- info 执行信息，里面可能包含sql信息。
+
+如果发现了异常的sql语句，可以直接kill掉，确保数据库不会出现严重的问题。
+
+### mysqldump
+
+有时候我们需要导出MYSQL表中的数据。
+
+这种情况就可以使用`mysqldump`工具，该工具会将数据查出来，转换成insert语句，写入到某个文件中，相当于`数据备份`。
+
+我们获取到该文件，然后执行相应的insert语句，就能创建相关的表，并且写入数据了，这就相当于`数据还原`。
+
+mysqldump命令的语法为： `mysqldump -h主机名 -P端口 -u用户名 -p密码 参数1,参数2.... > 文件名称.sql`
+
+备份远程数据库中的数据库：
+
+```java
+mysqldump -h 192.22.25.226 -u root -p123456 dbname > backup.sql
+```
