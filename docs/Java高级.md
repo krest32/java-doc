@@ -217,7 +217,9 @@
     + 什么是netty？
     + Netty 对比原生 Jdk Nio?
     + Netty 高性能的原因有哪些？
-    + Netty 的组件有哪些？bootsrap、selector、channel、channelPipeline、channelHandler、channelFuture、NioEventLoop、NioEventLoopGroup
+    + Netty 的组件有哪些？
+
+      bootsrap、selector、channel、channelPipeline、channelHandler、channelFuture、NioEventLoop、NioEventLoopGroup
     + Netty 的使用场景有哪些？
 
 24. 谈谈你对于消息队列的理解？

@@ -42,7 +42,6 @@
 
 
 ### 2022年11月
-+ [实现真正的高性能高并发的上亿级别秒杀系统！](https://juejin.cn/post/7160001411181346824)
 + [ElasticSearch这些坑记得避开](https://juejin.cn/post/7161953511683391525)
 + [Java中的线程中断](https://juejin.cn/post/7163295063844323335)
 + [源码级深度理解 Java SPI](https://juejin.cn/post/7163177020615032863)
@@ -65,8 +64,6 @@
 + [携程酒店慢查询治理之路](https://zhuanlan.zhihu.com/p/576875838?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568932550311129088&utm_source=wechat_session)
 
 ### 2022年9月
-
-+ [了解协程](https://www.zhihu.com/question/19552975/answer/2594604218)
 + [十二张图详解淘宝架构变迁](https://zhuanlan.zhihu.com/p/442552241)
 + [月活 12.8 亿的微信如何防止崩溃？| 后台过载保护策略](https://zhuanlan.zhihu.com/p/520699351)
 + [怎么提高自己的系统设计和架构理论水平？](https://www.zhihu.com/question/395652253/answer/2458366961)
