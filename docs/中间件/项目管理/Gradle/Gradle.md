@@ -2,6 +2,7 @@
 
 ## 参考资料
 
++ [Gradle idea 安装配置](https://blog.csdn.net/qq_40859560/article/details/129624046?ops_request_misc=&request_id=&biz_id=102&utm_term=gradle%20idea&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-129624046.142^v80^insert_down1,201^v4^add_ask,239^v2^insert_chatgpt&spm=1018.2226.3001.4187)
 + [gradle使用教程，一篇就够](https://www.jianshu.com/p/7ccdca8199b8)
 
 ## 介绍
