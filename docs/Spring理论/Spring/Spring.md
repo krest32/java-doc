@@ -489,6 +489,11 @@ Spring解决循环依赖是有前置条件的
 
 
 
+### BeanFactory 和 FactoryBean区别？
+
++ BeanFactory：生成单例Bean的工厂，提供Bean的创建管理
++ FactoryBean：可以返回创建Bean的工厂，如果实现了FactoryBean接口，那么就可以扩展一些创建Bean的规则
+
 
 
 ## Spring注解
