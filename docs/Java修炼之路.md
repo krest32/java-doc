@@ -71,9 +71,14 @@
 3. `JVM`、`JDK`、`JRE `都有什么区别？
 4. 为什么说Java语言编译与解释共存？
 5. `Java`程序执行的顺序是什么样的？
-6. `JDK 8` 的主要特性有哪些呀？（JVM 元空间、Stream流、lambda、CompletableFuture、新的时间包：LocalDateTime等）
+6. `JDK 8` 的主要特性有哪些呀？
+   + JVM 元空间、
+   + Stream流、
+   + lambda、
+   + CompletableFuture、
+   + 新的时间包：LocalDateTime等
 7. 为什么要固守使用 `JDK 8`？对比 `JDK 11`？对比 `JDK 17` ?
-8. 可以说一下对于JDk 19 的了解么？
+8. 可以说一下对于 JDk 19 的了解么？
 9. `Java` 的八种基本数据类型有哪些？
 10. 最有效的计算2乘以8？
 11. `switch` 能否用在`String`上？那么`Long`呢？为什么不支持`Long`？
@@ -81,11 +86,12 @@
 13. 什么是不可变类？常见的不可变类有哪些？
 14. 什么是数组？数组有哪些特点？
 15. `String` 为什么会比 `StringBuilder` 慢？
-16. 对于 `final` 关键字的理解？
-17. 对于 `static` 关键字的理解？
-18. `this` 和`super`之间的区别是什么？
-19. `==` 和 `equal` 之间的区别？
-20. 对象比较时，为什么要重写 `Equal()`  方法后，一定要重写 `hashcode()` 方法？
+16. `String`为什么要设计程不可变类？
+17. 对于 `final` 关键字的理解？
+18. 对于 `static` 关键字的理解？
+19. `this` 和`super`之间的区别是什么？
+20. `==` 和 `equal` 之间的区别？
+21. 对象比较时，为什么要重写 `Equal()`  方法后，一定要重写 `hashcode()` 方法？
 
 #### 枚举
 
