@@ -1567,6 +1567,8 @@ public class test1 {
 - `java.util`：这个是系统辅助类，特别是集合类；
 - `java.sql`：这个是数据库操作的类。
 
+![image-20230406220015812](img/image-20230406220015812.png)
+
 #### import java和`javax`有什么区别
 
 ​		刚开始的时候` JavaAPI `所必需的包是 java 开头的包，`javax `当时只是扩展 `API `包来说使用。然而随着时间的推移，javax 逐渐的扩展成为 Java API 的组成部分。但是，将扩展从 javax 包移动到 java 包将是太麻烦了，最终会破坏一堆现有的代码。因此，最终决定 javax 包将成为标准API的一部分。
