@@ -41,6 +41,7 @@ src/main/webapp(web工程)
 
 在一些老项目上,可能目录结构并不是标准结构,然而一般开发人员又不好进行结构调整.此时可以通过配置sourceSet来指定目录结构
 
+
 ```groovy
 sourceSets {
     main {
