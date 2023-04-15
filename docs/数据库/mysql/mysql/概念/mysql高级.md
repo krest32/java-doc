@@ -1,5 +1,19 @@
 ## 数据库设计优化
 
+### 什么是Mysql优化？
+
+ 完整的mysql优化需要很深的功底，大公司甚至有专门的DBA（**数据库管理员**Database Administrator）写上述
+
+- mysql内核
+- sql优化工程师
+- mysql服务器的优化
+- 各种参数常量设定
+- 查询语句优化
+- 主从复制
+- 软硬件升级
+- 容灾备份
+- sql编程
+
 ### 为什么要优化
 
 - 系统的吞吐量瓶颈往往出现在数据库的访问速度上
@@ -57,13 +71,546 @@
 
 
 
-### MySQL数据库cpu飙升到500%的话他怎么处理？
+### MySQL数据库cpu飙升到100%怎么处理？
 
 ​		当 cpu 飙升到 500%时，先用操作系统命令 top 命令观察是不是 mysqld 占用导致的，如果不是，找出占用高的进程，并进行相关处理。如果是 mysqld 造成的， show processlist，看看里面跑的 session 情况，是不是有消耗资源的 sql 在运行。找出消耗高的 sql，看看执行计划是否准确， index 是否缺失，或者实在是数据量太大造成。
 
 ​		一般来说，肯定要 kill 掉这些线程(同时观察 cpu 使用率是否下降)，等进行相应的调整(比如说加索引、改 sql、改内存参数)之后，再重新跑这些 SQL。
 
 ​		也有可能是每个 sql 消耗资源并不多，但是突然之间，有大量的 session 连进来导致 cpu 飙升，这种情况就需要跟应用一起来分析为何连接数会激增，再做出相应的调整，比如说限制连接数等
+
+
+
+## 查询速度优化
+
+### 优化顺序
+
+![image-20230415225122740](img/image-20230415225122740.png)
+
+小结：
+
+![image-20230415225247854](img/image-20230415225247854.png)
+
+### 查看系统性能参数
+
+在MySQL中，可以使用 SHOW STATUS 语句查询一些MySQL数据库服务器的 性能参数、 执行频率 。
+
+SHOW STATUS语句语法如下：
+
+~~~sql
+SHOW [GLOBAL|SESSION] STATUS LIKE '参数';
+~~~
+
+一些常用的性能参数如下： 
+
++ Connections：连接MySQL服务器的次数。 
++ Uptime：MySQL服务器的上线时间。
++ Slow_queries：慢查询的次数。 
++ Innodb_rows_read：Select查询返回的行数 
++ Innodb_rows_inserted：执行INSERT操作插入的行数
++ Innodb_rows_updated：执行UPDATE操作更新的行数
++ Innodb_rows_deleted：执行DELETE操作删除的行数
++ Com_select：查询操作的次数。 
++ Com_insert：插入操作的次数。对于批量插入的 INSERT 操作，只累加一次。 
++ Com_update：更新操作的次数。
++ Com_delete：删除操作的次数。
+
+## SQL优化
+
+### SQL性能下降的原因
+
+执行时间长，等待时间长
+
+- 查询语句写的烂
+- 索引失效
+  - 单值索引
+  - 复合索引
+- 关联查询太多join（设计缺陷或不得已的需求）
+- 服务器调优及各个参数设置（缓冲、线程数等）
+
+
+
+### Explain解析
+
++ 是什么（查看执行计划）
+
+  ​	使用EXPLAIN关键字可以模拟优化器执行SQL查询语句，从而知道MySQL是如何处理你的SQL语句的。分析你的查询语句或是表结构的性能瓶颈。
+
++ 能干嘛
+
+  + 表的读取顺序
+  + 数据读取操作的操作类型
+  + 哪些索引可以使用
+  + 哪些索引被实际使用
+  + 表之间的应用
+  + 每张表有多少行被优化器查询
+
++ 对于低性能的SQL语句的定位，最重要也是最有效的方法就是使用执行计划，MySQL提供了explain命令来查看语句的执行计划。 我们知道，不管是哪种数据库，或者是哪种数据库引擎，在对一条SQL语句进行执行的过程中都会做很多相关的优化，**对于查询语句，最重要的优化方式就是使用索引**。 而**执行计划，就是显示数据库引擎对于SQL语句的执行的详细情况，其中包含了是否使用索引，使用什么索引，使用的索引的相关信息等**。
+
+![在这里插入图片描述](img/20201113232021.png)
+
+执行计划包含的信息 **id** 有一组数字组成。表示一个查询中各个子查询的执行顺序;
+
+- id相同执行顺序由上至下。
+- id不同，id值越大优先级越高，越先被执行。
+- id为null时表示一个结果集，不需要使用它查询，常出现在包含union等查询语句中。
+
+**select_type** 每个子查询的查询类型，一些常见的查询类型。
+
+| id   | select_type  | description                               |
+| ---- | ------------ | ----------------------------------------- |
+| 1    | SIMPLE       | 不包含任何子查询或union等查询             |
+| 2    | PRIMARY      | 包含子查询最外层查询就显示为 PRIMARY      |
+| 3    | SUBQUERY     | 在select或 where字句中包含的查询          |
+| 4    | DERIVED      | from字句中包含的查询                      |
+| 5    | UNION        | 出现在union后的查询语句中                 |
+| 6    | UNION RESULT | 从UNION中获取结果集，例如上文的第三个例子 |
+
+**table** 查询的数据表，当从衍生表中查数据时会显示 x 表示对应的执行计划id **partitions** 表分区、表创建的时候可以指定通过那个列进行表分区。 举个例子：
+
+```sql
+create table tmp (    
+    id int unsigned not null AUTO_INCREMENT,    
+    name varchar(255),    
+    PRIMARY KEY (id)
+) engine = innodbpartition by key (id) partitions 5;
+```
+
+**type**(**非常重要**，可以看到有没有走索引) 访问类型
+
+- ALL 扫描全表数据
+- index 遍历索引
+- range 索引范围查找
+- index_subquery 在子查询中使用 ref
+- unique_subquery 在子查询中使用 eq_ref
+- ref_or_null 对Null进行索引的优化的 ref
+- fulltext 使用全文索引
+- ref 使用非唯一索引查找数据
+- eq_ref 在join查询中使用PRIMARY KEYorUNIQUE NOT NULL索引关联。
+
+**possible_keys** 可能使用的索引，注意不一定会使用。查询涉及到的字段上若存在索引，则该索引将被列出来。当该列为 NULL时就要考虑当前的SQL是否需要优化了。
+
+**key** 显示MySQL在查询中实际使用的索引，若没有使用索引，显示为NULL。
+
+**TIPS**:查询中若使用了覆盖索引(覆盖索引：索引的数据覆盖了需要查询的所有数据)，则该索引仅出现在key列表中
+
+**key_length** 索引长度
+
+**ref** 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
+
+**rows** 返回估算的结果集数目，并不是一个准确的值。
+
+**extra** 的信息非常丰富，常见的有：
+
+1. Using index 使用覆盖索引
+2. Using where 使用了用where子句来过滤结果集
+3. Using filesort 使用文件排序，使用非索引列进行排序时出现，非常消耗性能，尽量优化。
+4. Using temporary 使用了临时表 sql优化的目标可以参考阿里开发手册
+5. Using join buffer：使用了连接缓存。
+6. distinct：优化distinct操作，在找到第一匹配的元组后即停止找相同值的动作。
+
+```
+【推荐】SQL性能优化的目标：至少要达到 range 级别，要求是ref级别，如果可以是consts最好。 说明： 1） consts 单表中最多只有一个匹配行（主键或者唯一索引），在优化阶段即可读取到数据。 2） ref 指的是使用普通的索引（normal index）。 3） range 对索引进行范围检索。 反例：explain表的结果，type=index，索引物理文件全扫描，速度非常慢，这个index级别比较range还低，与全表扫描是小巫见大巫。
+```
+
+
+
+### Explain Case
+
+![img](img/20190812192639363.png)
+
+
+
+![img](img/2019081219283684.png)
+
+
+
+
+
+### 一般的优化流程
+
++ 分析
+  + 观察，至少跑1天，看看生产的慢SQL情况。
+  + 开启慢查询日志，设置阈值，比如超过5秒钟的就是慢SQL，并将它抓取出来。
+  + explain + 慢SQL分析
+  + show profile
+  + 运维经理 or DBA，进行SQL数据库服务器参数调优。
+
++ 总结
+  + 慢查询的开启并捕获
+  + explain + 慢SQL分析
+  + show profile查询SQL在Mysql服务器里面的执行细节和生命周期情况
+  + SQL数据库服务器的参数调优
+
+
+
+### 大表数据查询，怎么优化
+
+1. 优化shema、sql语句+索引；
+2. 第二加缓存，memcached, redis；
+3. 主从复制，读写分离；
+4. 垂直拆分，根据你模块的耦合度，将一个大的系统分为多个小的系统，也就是分布式系统；
+5. 水平切分，针对数据量大的表，这一步最麻烦，最能考验技术水平，要选择一个合理的sharding key, 为了有好的查询效率，表结构也要改动，做一定的冗余，应用也要改，sql中尽量带sharding key，将数据定位到限定的表上去查，而不是扫描全部的表；
+
+
+
+### 超大分页怎么处理？
+
+超大的分页一般从两个方向上来解决.
+
+- 数据库层面,这也是我们主要集中关注的(虽然收效没那么大),类似于`select * from table where age > 20 limit 1000000,10;这种查询其实也是有可以优化的余地的. 这条语句需要load1000000 数据然后基本上全部丢弃,只取10条当然比较慢. 当时我们可以修改为`select * from table where id in (select id from table where age > 20 limit 1000000,10)`.这样虽然也load了一百万的数据,但是由于索引覆盖,要查询的所有字段都在索引中,所以速度会很快. 同时如果ID连续的好,我们还可以`select * from table where id > 1000000 limit 10`,效率也是不错的,优化的可能性有许多种,但是核心思想都一样,就是减少load的数据.
+- 从需求的角度减少这种请求…主要是不做类似的需求(直接跳转到几百万页之后的具体某一页.只允许逐页查看或者按照给定的路线走,这样可预测,可缓存)以及防止ID泄漏且连续被人恶意攻击.
+
+解决超大分页,其实主要是靠缓存,可预测性的提前查到内容,缓存至 redis 等 k-V 数据库中,直接返回即可.
+
+在阿里巴巴《Java开发手册》中,对超大分页的解决办法是类似于上面提到的第一种.
+
+```sql
+【推荐】利用延迟关联或者子查询优化超多分页场景。 
+说明：MySQL并不是跳过offset行，而是取offset+N行，然后返回放弃前offset行，
+返回N行，那当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，
+要么对超过特定阈值的页数进行SQL改写。 正例：先快速定位需要获取的id段，
+然后再关联： 
+SELECT a.* FROM 表1 a, 
+(select id from 表1 
+ where 条件 
+ LIMIT 100000,20 )
+ b where a.id=b.id
+```
+
+
+
+### mysql 分页
+
+​		LIMIT 子句可以被用于强制 SELECT 语句返回指定的记录数。LIMIT 接受一个或两个数字参数。参数必须是一个整数常量。如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。初始记录行的偏移量是 0(而不是 1)
+
+```
+mysql> SELECT * FROM table LIMIT 5,10; // 检索记录行 6-15 
+```
+
+为了检索从某一个偏移量到记录集的结束所有的记录行，可以指定第二个参数为 -1：
+
+```
+mysql> SELECT * FROM table LIMIT 95,-1; // 检索记录行 96-last. 
+```
+
+如果只给定一个参数，它表示返回最大的记录行数目：
+
+```
+mysql> SELECT * FROM table LIMIT 5; //检索前 5 个记录行 
+```
+
+换句话说，LIMIT n 等价于 LIMIT 0,n。
+
+
+
+
+
+
+
+## 其他优化
+
+### 应用优化
+
+#### 减少对MySQL的访问
+
+比如 ，需要获取书籍的id 和name字段 ， 则查询如下：
+
+~~~SQL
+select id , name from tb_book;
+~~~
+
+
+之后，在业务逻辑中有需要获取到书籍状态信息， 则查询如下：
+
+~~~SQL
+select id , status from tb_book;
+~~~
+
+
+这样，就需要向数据库提交两次请求，数据库就要做两次查询操作。其实完全可以用一条SQL语句得到想要的结果。
+
+~~~SQL
+select id, name , status from tb_book;
+~~~
+
+#### 增加cache层
+
+​		在应用中，我们可以在应用中增加 缓存层来达到减轻数据库负担的目的。缓存层有很多种，也有很多实现方式，只要能达到降低数据库的负担又能满足应用需求就可以。
+ 		因此可以部分数据从数据库中抽取出来放到应用端以文本方式存储， 或者使用框架(Mybatis, Hibernate)提供的一级缓存/二级缓存，或者使用redis数据库来缓存数据 。
+
+#### 负载均衡
+
+​       负载均衡是应用中使用非常普遍的一种优化方法，它的机制就是利用某种均衡算法，将固定的负载量分布到不同的服务器上， 以此来降低单台服务器的负载，达到优化的效果。
+
++ 主从复制
+
++ 分布式数据库架构
+
+
+
+### 查询缓存优化
+
+#### 基本情况
+
+查看当前的MySQL数据库**是否支持查询缓存：**
+
+~~~SQL
+show variables like 'have_query_cache';
+~~~
+
+![img](img/20190710144948407.png)
+
+查看当前MySQL**是否开启了查询缓存 ：**
+
+~~~SQl
+show variables like 'query_cache_type';
+~~~
+
+![img](img/20190710145131165.png)
+
+查看**查询缓存的占用大小 ：**
+
+~~~SQl
+show variables like 'query_cache_size';
+~~~
+
+![img](img/20190710145330151.png)
+
+ 查看**查询缓存的状态变量：**
+
+~~~sql
+show status like 'Qcache%';
+~~~
+
+![img](img/20190710145649298.png)
+
+
+
+各个变量的含义如下：
+
+![image-20210701001204039](img/image-20210701001204039.png)
+
+
+
+#### 操作
+
+##### 开启查询缓存
+
+MySQL的查询缓存默认是关闭的，需要手动配置参数 query_cache_type ， 来开启查询缓存。query_cache_type该参数的可取值有三个 
+![image-20210701001440278](img/image-20210701001440278.png)
+
+在 **/usr/my.cnf** 配置中，增加以下配置 ：
+
+~~~bash
+#开启MySQL的查询缓存query_cache_type=1
+~~~
+
+**配置完毕之后，重启服务既可生效 ；**
+
+然后就可以在命令行执行SQL语句进行验证 ，执行一条比较耗时的SQL语句，然后再多执行几次，查看后面几次的执行时间；获取通过查看查询缓存的缓存命中数，来判定是否走查询缓存。
+
+![img](img/20190710151146213.png)
+
+
+
+##### 查询缓存SELECT选项
+
+可以在SELECT语句中指定两个与查询缓存相关的选项 ：
+
++ SQL_CACHE : 如果查询结果是可缓存的，并且 query_cache_type 系统变量的值为ON或 DEMAND ，则缓存查询结果 。
++ SQL_NO_CACHE : 服务器不使用查询缓存。它既不检查查询缓存，也不检查结果是否已缓存，也不缓存查询结果。
+
+例子：**SQL_CACHE的使用**
+
+![img](img/20190710152053844.png)
+
+
+
+**SQL_NO_CACHE** 的使用：
+
+![img](img/20190710152338702.png)
+
+
+
+#### 查询缓存失效的情况
+
+1） SQL 语句不一致的情况， 要想命中查询缓存，查询的SQL语句必须一致。
+
+我们之前已经执行过：select count(*) from tb_item;  这条语句的结果已经进入了缓存的，下面我们执行 Select count(*) from tb_item; 这条语句和之前的只有S是大写，其他的完全一样，接下来看是否走缓存：
+
+![img](img/20190710152848615.png)
+
+
+
+2） 当查询语句中有一些不确定的时，则不会缓存。如 ： now() , current_date() , curdate() , curtime() , rand() ,uuid() , user() , database() 。
+
+![img](img/20190710153125255.png)
+
+
+
+3） 不使用任何表查询语句。
+
+~~~
+select 'A';
+~~~
+
+
+4） 查询 mysql， information_schema或 performance_schema 数据库中的表时，不会走查询缓存。
+
+~~~
+select * from information_schema.engines;
+~~~
+
+
+5） 在存储函数，存储过程，触发器或事件的主体内执行的查询，是不会走查询缓存的。
+
+6） 如果表更改，则使用该表的所有高速缓存查询都将变为无效并从高速缓存中删除。这包括使用MERGE 映射到已更改表的表的查询。一个表可以被许多类型的语句，如被改变 INSERT， UPDATE， DELETE， TRUNCATETABLE， ALTER TABLE， DROP TABLE，或 DROP DATABASE 。
+
+
+
+
+
+### 内存管理及优化
+
+#### 内存优化原则
+
+1. 将尽量多的内存分配给MySQL做缓存，但要给操作系统和其他程序预留足够内存。
+2. MyISAM 存储引擎的数据文件读取依赖于操作系统自身的IO缓存，因此，如果有MyISAM表，就要预留更多的内存给操作系统做IO缓存。
+3. 排序区、连接区等缓存是分配给每个数据库会话（session）专用的，其默认值的设置要根据最大连接数合理分配，如果设置太大，不但浪费资源，而且在并发连接较高时会导致物理内存耗尽。
+
+#### InnoDB 内存优化
+
+InnoDB 用一块内存区做IO缓存池，该缓存池不仅用来缓存InnoDB 的索引块，而且也用来缓存InnoDB 的数据块。
+
+1. `innodb_buffer_pool_size`：该变量决定了` innodb` 存储引擎表数据和索引数据的最大缓存区大小。在保证操作系统及其他程序有足够内存可用的情况下，`innodb_buffer_pool_size` 的值越大，缓存命中率越高，访问InnoDB表需要的磁盘I/O 就越少，性能也就越高。
+
+   也是在MySQL的参数文件（`/usr/my.cnf`）中进行设置：
+
+~~~properties
+# 默认128M
+innodb_buffer_pool_size=512M
+~~~
+
+2. `innodb_log_buffer_size`：决定了`innodb`重做日志缓存的大小，对于可能产生大量更新记录的大事务，增加`innodb_log_buffer_size`的大小，可以避免`innodb`在事务提交前就执行不必要的日志写入磁盘操作。
+
+~~~properties
+innodb_log_buffer_size=10M
+~~~
+
+
+
+### 并发参数调整
+
+从实现上来说，MySQL Server 是多线程结构，包括后台线程和客户服务线程。多线程可以有效利用服务器资源，提高数据库的并发性能。在Mysql中，控制并发连接和线程的主要参数包括 
+
++　max_connections、
++　back_log、
++　thread_cache_size、
++　table_open_cahce。
+
+
+
+#### max_connections
+
+ 采用max_connections 控制允许连接到MySQL数据库的最大数量，默认值是 151。如果状态变量connection_errors_max_connections 不为零，并且一直增长，则说明不断有连接请求因数据库连接数已达到允许最大值而失败，这是可以考虑增大max_connections 的值。
+       Mysql 最大可支持的连接数，取决于很多因素，包括给定操作系统平台的线程库的质量、内存大小、每个连接的负荷、CPU的处理速度，期望的响应时间等。**在Linux 平台下，性能好的服务器，支持 500-1000 个连接不是难事，需要根据服务器性能进行评估设定**。
+
+查看和设置参数方式：
+
+~~~properties
+--查看参数的值(默认151)
+show variables like 'max_connections';
+--修改参数的值，修改/usr/my.cnf文件，添加如下的内容：
+max_connections=168
+~~~
+
+
+
+#### back_log
+
+​		back_log 参数控制MySQL监听TCP端口时设置的积压请求栈大小。如果MySql的连接数达到max_connections时，新来的请求将会被存在堆栈中，以等待某一连接释放资源，该堆栈的数量即back_log，如果等待连接的数量超过back_log，将不被授予连接资源，将会报错。5.6.6 版本之前默认值为 50 ， 之后的版本默认为 50 +（max_connections / 5）， 但最大不超过900。
+
+​		如果需要数据库在较短的时间内处理大量连接请求， 可以考虑适当增大back_log 的值。
+
+
+
+#### table_open_cache
+
+该参数用来控制所有SQL语句执行线程可打开表缓存的数量， 而在执行SQL语句时，每一个SQL执行线程至少要打开 1 个表缓存。该参数的值应该根据设置的最大连接数 max_connections 以及每个连接执行关联查询中涉及的表的最大数量来N设定 ：
+
+max_connections x N ；默认值是2000，如下所示：
+
+~~~
+mysql> show variables like 'table_open_cache';
++------------------+-------+| Variable_name    | Value |
++------------------+-------+| table_open_cache | 2000  |
++------------------+-------+
+~~~
+
+
+
+#### thread_cache_size
+
+ 为了加快连接数据库的速度，MySQL 会缓存一定数量的客户服务线程以备重用，通过参数 thread_cache_size 可控制 MySQL 缓存客户服务线程的数量。**默认是9：**
+
+~~~
+mysql> show variables like 'thread_cache_size';
++-------------------+-------+| Variable_name     | Value |
++-------------------+-------+| thread_cache_size | 9     |
++-------------------+-------+
+~~~
+
+
+
+####  innodb_lock_wait_timeout
+
+**该参数是用来设置InnoDB 事务等待行锁的时间，默认值是50ms** ， 可以根据需要进行动态设置。对于需要快速反馈的业务系统来说，可以将行锁的等待时间调小，以避免事务长时间挂起； 对于后台运行的批量处理程序来说，可以将行锁的等待时间调大， 以避免发生大的回滚操作。
+
+~~~
+mysql> show variables like 'innodb_lock_wait_timeout';
++--------------------------+-------+| Variable_name            | Value |
++--------------------------+-------+| innodb_lock_wait_timeout | 50    |
++--------------------------+-------+
+~~~
+
+### 参考配置：
+
+~~~ini
+[mysqld]
+port = 3306 
+serverid = 1 
+socket = /tmp/mysql.sock  
+skip-locking #避免MySQL的外部锁定，减少出错几率增强稳定性。  
+skip-name-resolve #禁止MySQL对外部连接进行DNS解析，使用这一选项可以消除MySQL进行DNS解析的时间。但需要注意，如果开启该选项，则所有远程主机连接授权都要使用IP地址方式，否则MySQL将无法正常处理连接请求！  
+back_log = 384
+key_buffer_size = 256M 
+max_allowed_packet = 4M 
+thread_stack = 256K
+table_cache = 128K 
+sort_buffer_size = 6M 
+read_buffer_size = 4M
+read_rnd_buffer_size=16M 
+join_buffer_size = 8M 
+myisam_sort_buffer_size =64M 
+table_cache = 512 
+thread_cache_size = 64 
+query_cache_size = 64M
+tmp_table_size = 256M 
+max_connections = 768 
+max_connect_errors = 10000000
+wait_timeout = 10 
+thread_concurrency = 8 #该参数取值为服务器逻辑CPU数量*2，在本例中，服务器有2颗物理CPU，而每颗物理CPU又支持H.T超线程，所以实际取值为4*2=8  
+skip-networking #开启该选项可以彻底关闭MySQL的TCP/IP连接方式，如果WEB服务器是以远程连接的方式访问MySQL数据库服务器则不要开启该选项！否则将无法正常连接！  
+table_cache=1024
+innodb_additional_mem_pool_size=4M #默认为2M  
+innodb_flush_log_at_trx_commit=1
+innodb_log_buffer_size=2M #默认为1M  
+innodb_thread_concurrency=8 #你的服务器CPU有几个就设置为几。建议用默认一般为8  
+tmp_table_size=64M #默认为16M，调到64-256最挂
+thread_cache_size=120 
+query_cache_size=32M
+~~~
 
 
 

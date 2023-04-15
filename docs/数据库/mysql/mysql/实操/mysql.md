@@ -130,16 +130,19 @@ show grants for app@'10.0.0.%';
 revoke delete on app.*  from app@'10.0.0.%'；
 ```
 
+#### 刷新
+
+~~~bash
+flush privileges;
+~~~
+
+
+
 ## 字符集
 
 ### 概念
 
-**Sql常用类型**
-
-+ DDL: 数据定义语言
-+ DCL：数据控制语句
-+ DML：数据操作语言
-+ DQL：数据查询语句
+在MySQL 8.0版本之前，默认字符集为 latin1 ，utf8字符集指向的是 utf8mb3 。网站开发人员在数据库设计的时候往往会将编码修改为utf8字符集。如果遗忘修改默认的编码，就会出现乱码的问题。从MySQL8.0开始，数据库的默认编码将改为 utf8mb4 ，从而避免上述乱码的问题。
 
 **数据库逻辑结构**
 
@@ -178,9 +181,99 @@ show collation;
 ~~~bash
 general 代表通用校验规则
 ci 		代表大小写不敏感
+ai		代表不区分重音
+cs		代表区分大小写
+as		代表区分重音
 bin 	代表可以存储更多的格式（日文、韩文）
 default 代表是否是默认的校验规则
 ~~~
+
+**常用操作**
+
+~~~sql
+#查看GBK字符集的比较规则
+SHOW COLLATION LIKE 'gbk%';
+
+#查看UTF-8字符集的比较规则
+SHOW COLLATION LIKE 'utf8%';
+
+#查看服务器的字符集和比较规则
+SHOW VARIABLES LIKE '%_server';
+#查看数据库的字符集和比较规则
+SHOW VARIABLES LIKE '%_database';
+#查看具体数据库的字符集
+SHOW CREATE DATABASE dbtest1;
+#修改具体数据库的字符集
+ALTER DATABASE dbtest1 DEFAULT CHARACTER SET 'utf8' COLLATE 'utf8_general_ci';
+
+
+#查看表的字符集
+show create table employees;
+#查看表的比较规则
+show table status from atguigudb like 'employees';
+#修改表的字符集和比较规则
+ALTER TABLE emp1 DEFAULT CHARACTER SET 'utf8' COLLATE 'utf8_general_ci';
+~~~
+
+### 请求到响应过程中字符集
+
+~~~ sql
+show variables like 'character%';
+~~~
+
+![image-20230415212137339](img/image-20230415212137339.png)
+
++ character_set_client：服务器解码请求时使用的字符集
++ character_set_connection：服务器处理请求时会把请求字符串从
+  character_set_client 转为 character_set_connection
++ character_set_results：服务器向客户端返回数据时使用的字符集
+
+~~~sql
+-- 修改
+set character_set_database = utf8mb4;
+~~~
+
+![image-20230415212453927](img/image-20230415212453927.png)
+
+
+
+## SQL 大小写规范
+
+**概述**
+
+在 SQL 中，关键字和函数名是不用区分字母大小写的，不过在 SQL 中，你还是要确定大小写的规范，因为在 Linux 和 Windows 环境下，你可能会遇到不同的大小写问题。 windows系统默认大小写不敏感 ，但是 linux系统是大小写敏感的 。
+
+~~~sql
+SHOW VARIABLES LIKE '%lower_case_table_names%'
+~~~
+
+![image-20230415212737531](img/image-20230415212737531.png)
+
+ower_case_table_names参数值的设置：
+
++ 默认为0，大小写敏感 。
++ 设置1，大小写不敏感。创建的表，数据库都是以小写形式存放在磁盘上，对于sql语句都是转换为小写对表和数据库进行查找。
++ 设置2，创建的表和数据库依据语句上格式存放，凡是查找都是转换为小写进行。
+
+**修改**
+
+当想设置为大小写不敏感时，要在 my.cnf 这个配置文件 [mysqld] 中加入lower_case_table_names=1 ，然后重启服务器。
+
++ 但是要在重启数据库实例之前就需要将原来的数据库和表转换为小写，否则将找不到数据库名。
++ 此参数适用于MySQL5.7。在MySQL 8下禁止在重新启动 MySQL 服务时将
+  lower_case_table_names 设置成不同于初始化 MySQL 服务时设置的
+  lower_case_table_names 值。如果非要将MySQL8设置为大小写不敏感，具体步骤为：
+
+~~~bash
+1、停止MySQL服务
+2、删除数据目录，即删除 /var/lib/mysql 目录
+3、在MySQL配置文件（ /etc/my.cnf ）中添加 lower_case_table_names=1
+4、启动MySQL服务
+~~~
+
+
+
+
 
 ## DDL应用
 
@@ -2116,3 +2209,107 @@ select * from tb_item where item_price<900000;
 如果慢查询日志内容很多， 直接查看文件，比较麻烦， 这个时候可以借助于mysql自带的 mysqldumpslow 工具， 来对慢查询日志进行分类汇总。
 
 ![img](img/20190711170241893.png)
+
+## 常用工具
+
+### mysql
+
+该mysql不是指mysql服务，而是指**mysql的客户端工具。**
+
+语法 ：
+
+```sql
+mysql [options] [database]
+```
+
+#### 连接选项options
+
+~~~~
+参数 ：
+-u, --user=name 指定用户名
+-p, --password[=name] 指定密码
+-h, --host=name 指定服务器IP或域名
+-P, --port=# 指定连接端口
+示例 ：
+mysql -h 127.0.0.1 -P 3306 -u root -p
+mysql -h127.0.0.1 -P3306 -uroot -p2143
+~~~~
+
+#### 执行选项
+
+~~~SQl
+-e, --execute=name 执行SQL语句并退出
+~~~
+
+此选项可以在**Mysql客户端执行SQL语句，而不用连接到MySQL数据库再执行，对于一些批处理脚本，这种方式尤其方便。**
+
+~~~Sql
+mysql -uroot -pBob.123456 demo_03 -e "select * from tb_book";
+~~~
+
+
+
+### mysqladmin
+
+**mysqladmin 是一个执行管理操作的客户端程序。可以用它来检查服务器的配置和当前状态、创建并删除数据库等。**
+可以通过 ： mysqladmin --help 指令查看帮助文档
+
+![img](img/20190711142157690.png)
+
+![img](img/20190711142701478.png)
+
+
+
+### mysqlbinlog
+
+**由于服务器生成的二进制日志文件以二进制格式保存，所以如果想要查看这些文件的文本格式，就会使用到mysqlbinlog 日志管理工具。**
+
+~~~SQl
+mysqlbinlog [options] log-files1 log-files2 ...
+选项：
+-d, --database=name : 指定数据库名称，只列出指定的数据库相关操作。
+-o, --offset=# : 忽略掉日志中的前n行命令。
+-r,--result-file=name : 将输出的文本格式日志输出到指定文件。
+-s, --short-form : 显示简单格式， 省略掉一些信息。
+--start-datatime=date1 --stop-datetime=date2 : 指定日期间隔内的所有日志。
+--start-position=pos1 --stop-position=pos2 : 指定位置间隔内的所有日志。
+~~~
+
+
+
+### mysqldump
+
+**mysqldump 客户端工具用来备份数据库或在不同数据库之间进行数据迁移。备份内容包含创建表，及插入表的SQL语句。**
+
+~~~
+mysqldump [options] db_name [tables]
+mysqldump [options] --database/-B db1 [db2 db3...]
+mysqldump [options] --all-databases/-A
+~~~
+
+#### 连接选项[options]
+
+~~~
+参数 ：
+-u, --user=name 指定用户名
+-p, --password[=name] 指定密码
+-h, --host=name 指定服务器IP或域名
+-P, --port=# 指定连接端口
+~~~
+
+#### 输出内容选项
+
+~~~
+参数：
+--add-drop-database 在每个数据库创建语句前加上 Drop database 语句
+--add-drop-table 在每个表创建语句前加上 Drop table 语句 , 默认开启 ;
+				不开启 (--skip-add-drop-table)
+-n, --no-create-db 不包含数据库的创建语句
+-t, --no-create-info 不包含数据表的创建语句
+-d --no-data 不包含数据
+-T, --tab=name 自动生成两个文件：一个.sql文件，创建表结构的语句；
+				一个.txt文件，数据文件，相当于select into outfile
+~~~
+
+
+

@@ -2,7 +2,7 @@
 
 ## 基础知识
 
-### 谈谈你对Mysql理解？
+### 为什么使用数据量
 
 1. 当数据量超过10万行的时候，一般的Xlsx性能就不足够了，这个时候，就需要使用到数据库，而当下最流行的就是Mysql
 2. Mysql 可以经进行数据的持久化，同时支持了Sql进行数据查询，内置的多种存储引擎，默认使用的InnoDB， 支持事务，同时在查找性能上也比较优秀
@@ -10,7 +10,7 @@
 
 综上，所以我们使用了Mysql，同样作为数据库学习的重点
 
-### 发展简史
+### Mysql的发展简史
 
 - 1995年，Michael Monty Widenius、David Axmark 和 Allan Larsson，在瑞典创立了MySQL AB公司。1996年，发布MySQL 1.0版本，“My”取自联合创始人Micheal Monty Widenius女儿的名字。同年10月，MySQL 3.11.1发布，没有2.x版本。
 - 2000年，MySQL对原存储引擎进行了整理，命名为MyISAM
@@ -26,26 +26,23 @@
 - 2016年9月，发布MySQL 8.0.0 ；可使用JSON数据的SQL机制；支持GIS；可靠性更高。
 - 2018年4月，发布MySQL 8.0.11 GA ，支持NoSQL文档存储、原子的奔溃安全DDL语句、扩展JSON语法，新增JSON表函数，改进排序、分区更新功能。
 
-### 版本性能对比
+### 数字版本对比
 
 + [MySQL 5.7与MySQL 8.0性能比拼，结果怎么样？](https://javazhiyin.blog.csdn.net/article/details/113830129?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-113830129-blog-109376093.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-113830129-blog-109376093.pc_relevant_default&utm_relevant_index=5)
 + [MySQL数据库 5.7 vs 8.0性能测评](https://blog.csdn.net/u012811805/article/details/115038167?spm=1001.2101.3001.6650.10&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-10-115038167-blog-113903927.pc_relevant_layerdownloadsortv1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-10-115038167-blog-113903927.pc_relevant_layerdownloadsortv1&utm_relevant_index=11)
 
+截止目前，官方最新版本为 8.0.27 。
 
+此前，8.0.0 在 2016.9.12日就发布了。
 
-### 什么是高级Mysql优化？
+此外，官方还提供了 MySQL Workbench （GUITOOL）一款专为MySQL设计的 ER/数据库建模工具 。它是著名的数据库设计工具DBDesigner4的继任者。MySQLWorkbench又分为两个版本，分别是 社区版（MySQL Workbench OSS）、 商用版 （MySQL WorkbenchSE）。
 
- 完整的mysql优化需要很深的功底，大公司甚至有专门的DBA（**数据库管理员**Database Administrator）写上述
+### 发行版本对比
 
-- mysql内核
-- sql优化工程师
-- mysql服务器的优化
-- 各种参数常量设定
-- 查询语句优化
-- 主从复制
-- 软硬件升级
-- 容灾备份
-- sql编程
++ MySQL Community Server 社区版本，开源免费，自由下载，但不提供官方技术支持，适用于大多数普通用户。
++ MySQL Enterprise Edition 企业版本，需付费，不能在线下载，可以试用30天。提供了更多的功能和更完备的技术支持，更适合于对数据库的功能和可靠性要求较高的企业客户。
++ MySQL Cluster 集群版，开源免费。用于架设集群服务器，可将几个MySQL Server封装成一个Server。需要在社区版或企业版的基础上使用。
++ MySQL Cluster CGE 高级集群版，需付费。
 
 
 
@@ -99,9 +96,7 @@
            1. 开始执行的时候，要先判断一下你对这个表T有没有执行查询的权限，如果没有，就会返回没有权限的错误
            2. 如果有权限，就打开表继续执行
 
-
-
-### MySQL的`binlog`有有几种录入格式？分别有什么区别？
+### `binlog`的类型
 
 有三种格式，statement，row和mixed。
 
@@ -110,6 +105,62 @@
 - mixed，一种折中的方案，普通操作使用statement记录，当无法使用statement的时候使用row。
 
 此外，新版的MySQL中对row级别也做了一些优化，当表结构发生变化的时候，会记录语句而不是逐行记录。
+
+
+
+## 数据库缓冲池
+
++ InnoDB 存储引擎是以页为单位来管理存储空间的，我们进行的增删改查操作其实本质上都是在访问页面（包括读页面、写页面、创建新页面等操作）。而磁盘 I/O 需要消耗的时间很多，而在内存中进行操作，效率则会高很多，为了能让数据表或者索引中的数据随时被我们所用，DBMS 会申请 占用内存来作为数据缓冲池 ，在真正访问页面之前，需要把在磁盘上的页缓存到内存中的 Buffer Pool 之后才可以访问。
++ 这样做的好处是可以让磁盘活动最小化，从而 减少与磁盘直接进行 I/O 的时间 。要知道，这种策略对提升 SQL 语句的查询性能来说至关重要。如果索引的数据在缓冲池里，那么访问的成本就会降低很多。
+
+### 缓冲池（Buffer Pool）
+
+首先我们需要了解在 InnoDB 存储引擎中，缓冲池都包括了哪些。
+
+在 InnoDB 存储引擎中有一部分数据会放到内存中，缓冲池则占了这部分内存的大部分，它用来存储各种数据的缓存，如下图所示
+
+![image-20230415223538695](img/image-20230415223538695.png)
+
+
+
+从图中，你能看到 InnoDB 缓冲池包括了数据页、索引页、插入缓冲、锁信息、自适应 Hash 和数据字典信息等。
+
+**缓存原则：**
+
+“ 位置 * 频次 ”这个原则，可以帮我们对 I/O 访问效率进行优化。
+
++ 首先，位置决定效率，提供缓冲池就是为了在内存中可以直接访问数据。
++ 其次，频次决定优先级顺序。因为缓冲池的大小是有限的，比如磁盘有 200G，但是内存只有 16G，缓冲池大小只有 1G，就无法将所有数据都加载到缓冲池里，这时就涉及到优先级顺序，会优先对使用频次高的热数据进行加载 。
+
+### 查询缓存
+
+查询缓存是提前把 查询结果缓存 起来，这样下次不需要执行就可以直接拿到结果。需要说明的是，在MySQL 中的查询缓存，不是缓存查询计划，而是查询对应的结果。因为命中条件苛刻，而且只要数据表发生变化，查询缓存就会失效，因此命中率低。
+
+### 缓冲池如何读取数据
+
+缓冲池管理器会尽量将经常使用的数据保存起来，在数据库进行页面读操作的时候，首先会判断该页面是否在缓冲池中，如果存在就直接读取，如果不存在，就会通过内存或磁盘将页面存放到缓冲池中再进行读取。
+
+缓存在数据库中的结构和作用如下图所示：
+
+![image-20230415223908656](img/image-20230415223908656.png)
+
+### 查看设置缓冲池的大小
+
+~~~sql
+show variables like 'innodb_buffer_pool_size';
+~~~
+
+![image-20230415224024614](img/image-20230415224024614.png)
+
+你能看到此时 InnoDB 的缓冲池大小只有 134217728/1024/1024=128MB。我们可以修改缓冲池大小，比如改为256MB，方法如下：
+
+~~~sql
+set global innodb_buffer_pool_size = 268435456;
+~~~
+
+
+
+
 
 
 
@@ -265,16 +316,57 @@ SHOW ENGINE INNODB STATUS;
 - **MyIASM引擎**：不提供事务的支持，也不支持行级锁和外键，但是存储空间小，可节省空间，主要用作全文索引
 - **MEMORY引擎**：所有的数据都在内存中，数据的处理速度快，但是安全性不高。
 
+### Memory 引擎
 
+**概述**：
 
-### MyISAM与InnoDB区别？
+Memory采用的逻辑介质是 内存 ， 响应速度很快 ，但是当mysqld守护进程崩溃的时候 数据会丢失 。另外，要求存储的数据是数据长度不变的格式，比如，Blob和Text类型的数据不可用(长度不固定的)。
 
-- InnoDB索引是聚簇索引，MyISAM索引是非聚簇索引。
-- InnoDB的主键索引的叶子节点存储着行数据，因此主键索引非常高效。
-- MyISAM索引的叶子节点存储的是行数据地址，需要再寻址一次才能得到数据。
-- InnoDB非主键索引的叶子节点存储的是主键和其他带索引的列数据，因此查询时做到覆盖索引会非常高效。
+**主要特征**：
 
-它是Mysql中默认的引擎，它不支持行级锁和外键，它最大的特点就是它使用了表级锁（操作时需要锁定整个表），非聚簇索引（非聚簇索引的叶节点仍然是索引节点，并保留一个链接指向对应数据块与聚簇索引不同，聚簇索引是直接指向数据节点，所以会快一点）**但是由于它保存了行数**，在查询上会比InnoDB的效率要高一点。在不需要对数据库的支持，而且读操作多于写操作时，可以选择使用MyIASM引擎。
++ Memory同时 支持哈希（HASH）索引 和 B+树索引 。
++ Memory表至少比MyISAM表要 快一个数量级 。
++ MEMORY 表的大小是受到限制 的。表的大小主要取决于两个参数，分别是max_rows 和max_heap_table_size 。其中，max_rows可以在创建表时指定；max_heap_table_size的大小默认为16MB，可以按需要进行扩大。
++ 数据文件与索引文件分开存储。
++ 缺点：
+  + 其数据易丢失，生命周期短。
+  + 基于这个缺陷，选择MEMORY存储引擎时需要特别小心。
+
+**使用Memory存储引擎的场景：**
+
+1.  目标数据比较小 ，而且非常 频繁的进行访问 ，在内存中存放数据，如果太大的数据会造成 内存溢出 。可以通过参数 max_heap_table_size 控制Memory表的大小，限制Memory表的最大的大小。
+2.  如果 数据是临时的 ，而且 必须立即可用 得到，那么就可以放在内存中。
+3. 存储在Memory表中的数据如果突然间 丢失的话也没有太大的关系 。
+
+### MyISAM 引擎
+
+**主要的非事务处理存储引擎**
+
++ MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)等，但MyISAM 不支持事务、行级锁、外键 ，有一个毫无疑问的缺陷就是 崩溃后无法安全恢复 。
++ 5.5之前默认的存储引擎
++ 优势是访问的 速度快 ，对事务完整性没有要求或者以SELECT、INSERT为主的应用
++ 针对数据统计有额外的常数存储。故而 count(*) 的查询效率很高
++ 数据文件结构：
+  + 表名.frm 存储表结构
+  + 表名.MYD 存储数据 (MYData)
+  + 表名.MYI 存储索引 (MYIndex)
++ 应用场景：只读应用或者以读为主的业务
+
+###  InnoDB 引擎
+
+**具备外键支持功能的事务存储引擎**
+
++ MySQL从3.23.34a开始就包含InnoDB存储引擎。 大于等于5.5之后，默认采用InnoDB引擎 。
++ InnoDB是MySQL的 默认事务型引擎 ，它被设计用来处理大量的短期(short-lived)事务。可以确保事务的完整提交(Commit)和回滚(Rollback)。
++ 除了增加和查询外，还需要更新、删除操作，那么，应优先选择InnoDB存储引擎。
++ 除非有非常特别的原因需要使用其他的存储引擎，否则应该优先考虑InnoDB引擎。
++ 数据文件结构：
+  + 表名.frm 存储表结构（MySQL8.0时，合并在表名.ibd中）
+  + 表名.ibd 存储数据和索引
++ InnoDB是 为处理巨大数据量的最大性能设计 。
+  + 在以前的版本中，字典数据以元数据文件、非事务表等来存储。现在这些元数据文件被删除了。比如： .frm ，  .par ， .trn ，  .isl ， .db.opt 等都在MySQL8.0中不存在了。
++ 对比MyISAM的存储引擎， InnoDB写的处理效率差一些 ，并且会占用更多的磁盘空间以保存数据和索引。
++ MyISAM只缓存索引，不缓存真实数据；InnoDB不仅缓存索引还要缓存真实数据， 对内存要求较高 ，而且内存大小对性能有决定性的影响。
 
 
 
@@ -306,9 +398,8 @@ SHOW ENGINE INNODB STATUS;
 
 如果没有特别的需求，使用默认的`Innodb`即可。
 
-`MyISAM`：以读写插入为主的应用程序，比如博客系统、新闻门户网站。
-
-`Innodb`：更新（删除）操作频率也高，或者要保证数据的完整性；并发量高，支持事务和外键。比如OA自动化办公系统。
++ `MyISAM`：以读写插入为主的应用程序，比如博客系统、新闻门户网站。
++ `Innodb`：更新（删除）操作频率也高，或者要保证数据的完整性；并发量高，支持事务和外键。比如OA自动化办公系统。
 
 
 
@@ -531,7 +622,7 @@ SHOW ENGINE INNODB STATUS;
 
 **MVCC** 并发版本控制，同时使用版本号来避免使用锁，从而提高数据库的读写性能
 
-### 什么是当前读和快照读？
+### 当前读和快照读
 
 在学习MVCC多版本并发控制之前，我们必须先了解一下，什么是MySQL InnoDB下的`当前读`和`快照读`?
 
@@ -565,26 +656,76 @@ SHOW ENGINE INNODB STATUS;
 
 这种组合的方式就可以最大程度的提高数据库并发性能，并解决读写冲突，和写写冲突导致的问题
 
-
-
 ### MVCC的实现原理	
 
-​		**概念：**MvCC 主要用来并发多版本控制的，是行级锁的一个变种，为了避免在高并发的情况下，并发加锁和解锁带来的性能损耗，目前支持两种隔离级别：读已提交，可重复读。
-
-​		**单条数据实现方式：**在Mysql中每张表的后面都有三个隐藏字段，主要用来记录事务ID、回滚指针、和一个隐藏的主键ID，当发生记录修改的时候，旧的数据会被写入到一个undoLog，然后数据中会记录一个事务Id和回滚指针，然后新的数据会被写入到数据表中，如果诗句不需要更改，那么mysql就会把数据回滚。
-
-​		**多条数据的实现方式：**如果在写入数据的时候，有其他的数据插入，那么还会重新生成一条新的undoLog，这个时候undoLog表中会存在两条旧的数据，(**当每个事务开启时，都会被分配一个ID, 这个ID是递增的，所以最新的事务，ID值越大**）这个时候，数据库会根据对比事务Id的结果决定将那条数据回滚
-
-
-
-
++ **概念：**MvCC 主要用来并发多版本控制的，是行级锁的一个变种，为了避免在高并发的情况下，并发加锁和解锁带来的性能损耗，目前支持两种隔离级别：读已提交，可重复读。
++ **单条数据实现方式：**
+  + 在 Mysql 中每张表的后面都有三个隐藏字段，
+    + 主要用来记录事务ID: trx_id
+    + 回滚指针：roll_pointer
+    + 和一个隐藏的主键ID，
+  + 当发生记录修改的时候，旧的数据会被写入到一个undoLog，然后数据中会记录一个事务Id和回滚指针，然后新的数据会被写入到数据表中，如果数据不需要更改，那么mysql就会把数据回滚。
++ **多条数据的实现方式：**
+  + 如果在写入数据的时候，有其他的数据插入，那么还会重新生成一条新的undoLog，
+  + 这个时候undoLog表中会存在两条旧的数据，(**当每个事务开启时，都会被分配一个ID, 这个ID是递增的，所以最新的事务，ID值越大**）
+  + 数据库会根据对比事务Id的结果决定将那条数据回滚
 
 ## 数据库事务
 
-### 几个日志文件？
+### 事务日志
 
-+ undoLog
-  + 记录了需要回宫的日志信息
+事务有4种特性：原子性、一致性、隔离性和持久性。那么事务的四种特性到底是基于什么机制实现呢？
+
++ 事务的隔离性由 锁机制 实现。
+  + 而事务的原子性、一致性和持久性由事务的 redo 日志和undo 日志来保证。
+    REDO LOG 称为 重做日志 ，提供再写入操作，恢复提交事务修改的页操作，用来保证事务的持久性。
+  + UNDO LOG 称为 回滚日志 ，回滚行记录到某个特定版本，用来保证事务的原子性、一致性。
+
+有的DBA或许会认为 UNDO 是 REDO 的逆过程，其实不然。
+
+### redo日志
+
+#### 为什么需要REDO日志
+
+一方面，缓冲池可以帮助我们消除CPU和磁盘之间的鸿沟，checkpoint机制可以保证数据的最终落盘，然而由于checkpoint 并不是每次变更的时候就触发 的，而是master线程隔一段时间去处理的。所以最坏的情况就是事务提交后，刚写完缓冲池，数据库宕机了，那么这段数据就是丢失的，无法恢复。
+
+另一方面，事务包含 持久性 的特性，就是说对于一个已经提交的事务，在事务提交后即使系统发生了崩溃，这个事务对数据库中所做的更改也不能丢失。
+
+那么如何保证这个持久性呢？ 一个简单的做法 ：在事务提交完成之前把该事务所修改的所有页面都刷新到磁盘，但是这个简单粗暴的做法有些问题
+
+另一个解决的思路 ：我们只是想让已经提交了的事务对数据库中数据所做的修改永久生效，即使后来系统崩溃，在重启后也能把这种修改恢复出来。所以我们其实没有必要在每次事务提交时就把该事务在内存中修改过的全部页面刷新到磁盘，只需要把 修改 了哪些东西 记录一下 就好。比如，某个事务将系统表空间中 第10号 页面中偏移量为 100 处的那个字节的值 1 改成 2 。我们只需要记录一下：将第0号表空间的10号页面的偏移量为100处的值更新为2。
+
+![image-20230415231310797](img/image-20230415231310797.png)
+
+#### REDO日志的好处、特点
+
+1. 好处
+  1. redo日志降低了刷盘频率
+  2. redo日志占用的空间非常小
+2. 特点
+  1. redo日志是顺序写入磁盘的
+  2. 事务执行过程中，redo log不断记录
+
+#### redo的组成
+
+Redo log可以简单分为以下两个部分：
+
++ 重做日志的缓冲 (redo log buffer) ，保存在内存中，是易失的。
+  + 参数设置：innodb_log_buffer_size：
+  + redo log buffer 大小，默认 16M ，最大值是4096M，最小值为1M。
+
+~~~sql
+mysql> show variables like '%innodb_log_buffer_size%';
++------------------------+----------+
+| Variable_name     | Value  |
++------------------------+----------+
+| innodb_log_buffer_size | 16777216 |
++------------------------+----------+
+~~~
+
++ 重做日志文件 (redo log file) ，保存在硬盘中，是持久的。
+
+
 
 ### 什么是数据库事务？
 
@@ -681,6 +822,116 @@ commit;
 
 
 
+### 指令实操
+
+
+
+~~~sql
+-- 查看事务的隔离级别
+SHOW VARIABLES LIKE 'tx_isolation';
++---------------+-----------------+
+| Variable_name | Value      |
++---------------+-----------------+
+| tx_isolation | REPEATABLE-READ |
++---------------+-----------------+
+1 row in set (0.00 sec)
+
+-- 设置事务的隔离级别
+SET [GLOBAL|SESSION] TRANSACTION ISOLATION LEVEL 隔离级别;
+
+#其中，隔离级别格式：
+> READ UNCOMMITTED
+> READ COMMITTED
+> REPEATABLE READ
+> SERIALIZABLE
+
+
+~~~
+
+
+
+
+
+## 数据库设计建议
+
+### 关于库
+
+1. 【强制】库的名称必须控制在32个字符以内，只能使用英文字母、数字和下划线，建议以英文字母开头。
+2. 【强制】库名中英文 一律小写 ，不同单词采用 下划线 分割。须见名知意。
+3. 【强制】库的名称格式：业务系统名称_子系统名。
+4. 【强制】库名禁止使用关键字（如type,order等）。
+5. 【强制】创建数据库时必须 显式指定字符集 ，并且字符集只能是utf8或utf8mb4。创建数据库SQL举例：CREATE DATABASE crm_fund  DEFAULT CHARACTER SET 'utf8' ;
+6. 【建议】对于程序连接数据库账号，遵循权限最小原则使用数据库账号只能在一个DB下使用，不准跨库。程序使用的账号 原则上不准有drop权限 。
+7. 【建议】临时库以 tmp_ 为前缀，并以日期为后缀；备份库以  bak_ 为前缀，并以日期为后缀。
+
+### 关于表、列
+
+1. 【强制】表和列的名称必须控制在32个字符以内，表名只能使用英文字母、数字和下划线，建议以 英文字母开头 。
+2. 【强制】 表名、列名一律小写 ，不同单词采用下划线分割。须见名知意。
+3. 【强制】表名要求有模块名强相关，同一模块的表名尽量使用 统一前缀 。比如：crm_fund_item
+4. 【强制】创建表时必须 显式指定字符集 为utf8或utf8mb4。
+5. 【强制】表名、列名禁止使用关键字（如type,order等）。
+6. 【强制】创建表时必须 显式指定表存储引擎 类型。如无特殊需求，一律为InnoDB。
+7. 【强制】建表必须有comment。
+8. 【强制】字段命名应尽可能使用表达实际含义的英文单词或 缩写 。如：公司 ID，不要使用corporation_id, 而用corp_id 即可。
+9. 【强制】布尔值类型的字段命名为 is_描述 。如member表上表示是否为enabled的会员的字段命名为 is_enabled。
+10. 【强制】禁止在数据库中存储图片、文件等大的二进制数据通常文件很大，短时间内造成数据量快速增长，数据库进行数据库读取时，通常会进行大量的随机IO操作，文件很大时，IO操作很耗时。通常存储于文件服务器，数据库只存储文件地址信息。
+11. 【建议】建表时关于主键： 表必须有主键 (1)强制要求主键为id，类型为int或bigint，且为auto_increment 建议使用unsigned无符号型。 (2)标识表里每一行主体的字段不要设为主键，建议设为其他字段如user_id，order_id等，并建立unique key索引。因为如果设为主键且主键值为随机插入，则会导致innodb内部页分裂和大量随机I/O，性能下降。
+12. 【建议】核心表（如用户表）必须有行数据的 创建时间字段 （create_time）和 最后更新时间字段（update_time），便于查问题。
+13. 【建议】表中所有字段尽量都是 NOT NULL 属性，业务可以根据需要定义 DEFAULT值 。 因为使用NULL值会存在每一行都会占用额外存储空间、数据迁移容易出错、聚合函数计算结果偏差等问题。
+14. 【建议】所有存储相同数据的 列名和列类型必须一致 （一般作为关联列，如果查询时关联列类型不一致会自动进行数据类型隐式转换，会造成列上的索引失效，导致查询效率降低）。
+15. 【建议】中间表（或临时表）用于保留中间结果集，名称以 tmp_ 开头。备份表用于备份或抓取源表快照，名称以 bak_ 开头。中间表和备份表定期清理。
+16. 【示范】一个较为规范的建表语句：
+
+~~~sql
+CREATE TABLE user_info (
+    `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `user_id` bigint(11) NOT NULL COMMENT '用户id',
+    `username` varchar(45) NOT NULL COMMENT '真实姓名',
+    `email` varchar(30) NOT NULL COMMENT '用户邮箱',
+    `nickname` varchar(45) NOT NULL COMMENT '昵称',
+    `birthday` date NOT NULL COMMENT '生日',
+    `sex` tinyint(4) DEFAULT '0' COMMENT '性别',
+    `short_introduce` varchar(150) DEFAULT NULL COMMENT '一句话介绍自己，最多50个汉字',
+    `user_resume` varchar(300) NOT NULL COMMENT '用户提交的简历存放地址',
+    `user_register_ip` int NOT NULL COMMENT '用户注册时的源ip',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    `user_review_status` tinyint NOT NULL COMMENT '用户资料审核状态，1为通过，2为审核中，3为未通过，4为还未提交审核',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_user_id` (`user_id`),
+    KEY `idx_username`(`username`),
+    KEY `idx_create_time_status`(`create_time`, `user_review_status`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT = '网站用户基本信息'
+~~~
+
+### 关于索引
+
+1. 【强制】InnoDB表必须主键为id int/bigint auto_increment，且主键值 禁止被更新。
+2. 【强制】InnoDB和MyISAM存储引擎表，索引类型必须为 BTREE 。
+3. 【建议】主键的名称以  pk_ 开头，唯一键以  uni_ 或  uk_ 开头，普通索引以  idx_ 开头，一律使用小写格式，以字段的名称或缩写作为后缀。
+4. 【建议】多单词组成的columnname，取前几个单词首字母，加末单词组成column_name。如:sample 表 member_id 上的索引：idx_sample_mid。
+5. 【建议】单个表上的索引个数 不能超过6个 。
+6. 【建议】在建立索引时，多考虑建立 联合索引 ，并把区分度最高的字段放在最前面。
+7. 【建议】在多表 JOIN 的SQL里，保证被驱动表的连接列上有索引，这样JOIN 执行效率最高。
+8. 【建议】建表或加索引时，保证表里互相不存在 冗余索引 。 比如：如果表里已经存在key(a,b)，则key(a)为冗余索引，需要删除。
+
+### SQL编写
+
+1. 【强制】程序端SELECT语句必须指定具体字段名称，禁止写成 *。
+2. 【建议】程序端insert语句指定具体字段名称，不要写成INSERT INTO t1 VALUES(…)。
+3. 【建议】除静态表或小表（100行以内），DML语句必须有WHERE条件，且使用索引查找。
+4. 【建议】INSERT INTO…VALUES(XX),(XX),(XX).. 这里XX的值不要超过5000个。 值过多虽然上线很快，但会引起主从同步延迟。
+5. 【建议】SELECT语句不要使用UNION，推荐使用UNION ALL，并且UNION子句个数限制在5个以内。
+6. 【建议】线上环境，多表 JOIN 不要超过5个表。
+7. 【建议】减少使用ORDER BY，和业务沟通能不排序就不排序，或将排序放到程序端去做。ORDERBY、GROUP BY、DISTINCT 这些语句较为耗费CPU，数据库的CPU资源是极其宝贵的。
+8. 【建议】包含了ORDER BY、GROUP BY、DISTINCT 这些查询的语句，WHERE 条件过滤出来的结果集请保持在1000行以内，否则SQL会很慢。
+9. 【建议】对单表的多次alter操作必须合并为一次对于超过100W行的大表进行alter table，必须经过DBA审核，并在业务低峰期执行，多个alter需整合在一起。 因为alter table会产生 表锁 ，期间阻塞对于该表的所有写入，对于业务可能会产生极
+   大影响。
+10. 【建议】批量操作数据时，需要控制事务处理间隔时间，进行必要的sleep。
+11. 【建议】事务里包含SQL不超过5个。因为过长的事务会导致锁数据较久，MySQL内部缓存、连接消耗过多等问题。
+12. 【建议】事务里更新语句尽量基于主键或UNIQUE KEY，如UPDATE… WHERE id=XX;否则会产生间隙锁，内部扩大锁定范围，导致系统性能下降，产生死锁。
+
 ## 数据库锁
 
 ### 对MySQL的锁了解吗
@@ -694,7 +945,7 @@ commit;
 + **在Repeatable Read级别下**，读操作需要加共享锁，但是在事务提交之前并不释放共享锁，也就是必须等待事务执行完毕以后才释放共享锁。
 + **SERIALIZABLE 是限制性最强的隔离级别**，因为该级别**锁定整个范围的键**，并一直持有锁，直到事务完成。
 
-### Mysql锁
+### Mysql锁汇总
 
 [参考资料](https://blog.csdn.net/bbj12345678/article/details/120797923?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-4-120797923-blog-114342619.pc_relevant_default&spm=1001.2101.3001.4242.3&utm_relevant_index=7)
 
@@ -710,6 +961,12 @@ commit;
 + 元数据锁（Meta data lock）
   + 主要用户保护数据库中表的信息
   + 如果没有MDL的保护，T1在select t1的时候刚拿到t1的元数据，准备读数据的时候，恰好T2进来到存储引擎并马上将t1删除了，从而会在存储引擎出现错误。所以，有MDL锁的时候，如果T1先拿到锁，那么T2，就会被阻塞在sql层，等T1完成。
+
+
+
+![image-20230415231547996](img/image-20230415231547996.png)
+
+
 
 
 
@@ -878,812 +1135,4 @@ Innodb_row_lock_waits: 系统启动后到现在总共等待的次数
 当事务太大的时候，可能会发生锁表的事情
 
 最简单的事情就是将大的事务简化为小的事务
-
-
-
-## SQL优化
-
-### SQL性能下降的原因
-
-执行时间长，等待时间长
-- 查询语句写的烂
-- 索引失效
-  - 单值索引
-  - 复合索引
-- 关联查询太多join（设计缺陷或不得已的需求）
-- 服务器调优及各个参数设置（缓冲、线程数等）
-
-
-
-### Explain解析
-
-+ 是什么（查看执行计划）
-
-  ​	使用EXPLAIN关键字可以模拟优化器执行SQL查询语句，从而知道MySQL是如何处理你的SQL语句的。分析你的查询语句或是表结构的性能瓶颈。
-
-+ 能干嘛
-
-  + 表的读取顺序
-  + 数据读取操作的操作类型
-  + 哪些索引可以使用
-  + 哪些索引被实际使用
-  + 表之间的应用
-  + 每张表有多少行被优化器查询
-
-+ 对于低性能的SQL语句的定位，最重要也是最有效的方法就是使用执行计划，MySQL提供了explain命令来查看语句的执行计划。 我们知道，不管是哪种数据库，或者是哪种数据库引擎，在对一条SQL语句进行执行的过程中都会做很多相关的优化，**对于查询语句，最重要的优化方式就是使用索引**。 而**执行计划，就是显示数据库引擎对于SQL语句的执行的详细情况，其中包含了是否使用索引，使用什么索引，使用的索引的相关信息等**。
-
-![在这里插入图片描述](img/20201113232021.png)
-
-执行计划包含的信息 **id** 有一组数字组成。表示一个查询中各个子查询的执行顺序;
-
-- id相同执行顺序由上至下。
-- id不同，id值越大优先级越高，越先被执行。
-- id为null时表示一个结果集，不需要使用它查询，常出现在包含union等查询语句中。
-
-**select_type** 每个子查询的查询类型，一些常见的查询类型。
-
-| id   | select_type  | description                               |
-| ---- | ------------ | ----------------------------------------- |
-| 1    | SIMPLE       | 不包含任何子查询或union等查询             |
-| 2    | PRIMARY      | 包含子查询最外层查询就显示为 PRIMARY      |
-| 3    | SUBQUERY     | 在select或 where字句中包含的查询          |
-| 4    | DERIVED      | from字句中包含的查询                      |
-| 5    | UNION        | 出现在union后的查询语句中                 |
-| 6    | UNION RESULT | 从UNION中获取结果集，例如上文的第三个例子 |
-
-**table** 查询的数据表，当从衍生表中查数据时会显示 x 表示对应的执行计划id **partitions** 表分区、表创建的时候可以指定通过那个列进行表分区。 举个例子：
-
-```sql
-create table tmp (    
-    id int unsigned not null AUTO_INCREMENT,    
-    name varchar(255),    
-    PRIMARY KEY (id)
-) engine = innodbpartition by key (id) partitions 5;
-```
-
-**type**(**非常重要**，可以看到有没有走索引) 访问类型
-
-- ALL 扫描全表数据
-- index 遍历索引
-- range 索引范围查找
-- index_subquery 在子查询中使用 ref
-- unique_subquery 在子查询中使用 eq_ref
-- ref_or_null 对Null进行索引的优化的 ref
-- fulltext 使用全文索引
-- ref 使用非唯一索引查找数据
-- eq_ref 在join查询中使用PRIMARY KEYorUNIQUE NOT NULL索引关联。
-
-**possible_keys** 可能使用的索引，注意不一定会使用。查询涉及到的字段上若存在索引，则该索引将被列出来。当该列为 NULL时就要考虑当前的SQL是否需要优化了。
-
-**key** 显示MySQL在查询中实际使用的索引，若没有使用索引，显示为NULL。
-
-**TIPS**:查询中若使用了覆盖索引(覆盖索引：索引的数据覆盖了需要查询的所有数据)，则该索引仅出现在key列表中
-
-**key_length** 索引长度
-
-**ref** 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值
-
-**rows** 返回估算的结果集数目，并不是一个准确的值。
-
-**extra** 的信息非常丰富，常见的有：
-
-1. Using index 使用覆盖索引
-2. Using where 使用了用where子句来过滤结果集
-3. Using filesort 使用文件排序，使用非索引列进行排序时出现，非常消耗性能，尽量优化。
-4. Using temporary 使用了临时表 sql优化的目标可以参考阿里开发手册
-5. Using join buffer：使用了连接缓存。
-6. distinct：优化distinct操作，在找到第一匹配的元组后即停止找相同值的动作。
-
-```
-【推荐】SQL性能优化的目标：至少要达到 range 级别，要求是ref级别，如果可以是consts最好。 说明： 1） consts 单表中最多只有一个匹配行（主键或者唯一索引），在优化阶段即可读取到数据。 2） ref 指的是使用普通的索引（normal index）。 3） range 对索引进行范围检索。 反例：explain表的结果，type=index，索引物理文件全扫描，速度非常慢，这个index级别比较range还低，与全表扫描是小巫见大巫。
-```
-
-
-
-### Explain Case
-
-![img](img/20190812192639363.png)
-
-
-
-![img](img/2019081219283684.png)
-
-
-
-
-
-### 一般的优化流程
-
-+ 分析
-  + 观察，至少跑1天，看看生产的慢SQL情况。
-  + 开启慢查询日志，设置阈值，比如超过5秒钟的就是慢SQL，并将它抓取出来。
-  + explain + 慢SQL分析
-  + show profile
-  + 运维经理 or DBA，进行SQL数据库服务器参数调优。
-
-+ 总结
-  + 慢查询的开启并捕获
-  + explain + 慢SQL分析
-  + show profile查询SQL在Mysql服务器里面的执行细节和生命周期情况
-  + SQL数据库服务器的参数调优
-
-
-
-### 大表数据查询，怎么优化
-
-1. 优化shema、sql语句+索引；
-2. 第二加缓存，memcached, redis；
-3. 主从复制，读写分离；
-4. 垂直拆分，根据你模块的耦合度，将一个大的系统分为多个小的系统，也就是分布式系统；
-5. 水平切分，针对数据量大的表，这一步最麻烦，最能考验技术水平，要选择一个合理的sharding key, 为了有好的查询效率，表结构也要改动，做一定的冗余，应用也要改，sql中尽量带sharding key，将数据定位到限定的表上去查，而不是扫描全部的表；
-
-
-
-### 超大分页怎么处理？
-
-超大的分页一般从两个方向上来解决.
-
-- 数据库层面,这也是我们主要集中关注的(虽然收效没那么大),类似于`select * from table where age > 20 limit 1000000,10;这种查询其实也是有可以优化的余地的. 这条语句需要load1000000 数据然后基本上全部丢弃,只取10条当然比较慢. 当时我们可以修改为`select * from table where id in (select id from table where age > 20 limit 1000000,10)`.这样虽然也load了一百万的数据,但是由于索引覆盖,要查询的所有字段都在索引中,所以速度会很快. 同时如果ID连续的好,我们还可以`select * from table where id > 1000000 limit 10`,效率也是不错的,优化的可能性有许多种,但是核心思想都一样,就是减少load的数据.
-- 从需求的角度减少这种请求…主要是不做类似的需求(直接跳转到几百万页之后的具体某一页.只允许逐页查看或者按照给定的路线走,这样可预测,可缓存)以及防止ID泄漏且连续被人恶意攻击.
-
-解决超大分页,其实主要是靠缓存,可预测性的提前查到内容,缓存至 redis 等 k-V 数据库中,直接返回即可.
-
-在阿里巴巴《Java开发手册》中,对超大分页的解决办法是类似于上面提到的第一种.
-
-```sql
-【推荐】利用延迟关联或者子查询优化超多分页场景。 
-说明：MySQL并不是跳过offset行，而是取offset+N行，然后返回放弃前offset行，
-返回N行，那当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，
-要么对超过特定阈值的页数进行SQL改写。 正例：先快速定位需要获取的id段，
-然后再关联： 
-SELECT a.* FROM 表1 a, 
-(select id from 表1 
- where 条件 
- LIMIT 100000,20 )
- b where a.id=b.id
-```
-
-
-
-### mysql 分页
-
-​		LIMIT 子句可以被用于强制 SELECT 语句返回指定的记录数。LIMIT 接受一个或两个数字参数。参数必须是一个整数常量。如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，第二个参数指定返回记录行的最大数目。初始记录行的偏移量是 0(而不是 1)
-
-```
-mysql> SELECT * FROM table LIMIT 5,10; // 检索记录行 6-15 
-```
-
-为了检索从某一个偏移量到记录集的结束所有的记录行，可以指定第二个参数为 -1：
-
-```
-mysql> SELECT * FROM table LIMIT 95,-1; // 检索记录行 96-last. 
-```
-
-如果只给定一个参数，它表示返回最大的记录行数目：
-
-```
-mysql> SELECT * FROM table LIMIT 5; //检索前 5 个记录行 
-```
-
-换句话说，LIMIT n 等价于 LIMIT 0,n。
-
-
-
-
-
-
-
-## 其他优化
-
-### 应用优化
-
-#### 减少对MySQL的访问
-
-比如 ，需要获取书籍的id 和name字段 ， 则查询如下：
-
-~~~SQL
-select id , name from tb_book;
-~~~
-
-
-之后，在业务逻辑中有需要获取到书籍状态信息， 则查询如下：
-
-~~~SQL
-select id , status from tb_book;
-~~~
-
-
-这样，就需要向数据库提交两次请求，数据库就要做两次查询操作。其实完全可以用一条SQL语句得到想要的结果。
-
-~~~SQL
-select id, name , status from tb_book;
-~~~
-
-#### 增加cache层
-
-​		在应用中，我们可以在应用中增加 缓存层来达到减轻数据库负担的目的。缓存层有很多种，也有很多实现方式，只要能达到降低数据库的负担又能满足应用需求就可以。
- 		因此可以部分数据从数据库中抽取出来放到应用端以文本方式存储， 或者使用框架(Mybatis, Hibernate)提供的一级缓存/二级缓存，或者使用redis数据库来缓存数据 。
-
-#### 负载均衡
-
-​       负载均衡是应用中使用非常普遍的一种优化方法，它的机制就是利用某种均衡算法，将固定的负载量分布到不同的服务器上， 以此来降低单台服务器的负载，达到优化的效果。
-
-+ 主从复制
-
-+ 分布式数据库架构
-
-
-
-### 查询缓存优化
-
-#### 基本情况
-
-查看当前的MySQL数据库**是否支持查询缓存：**
-
-~~~SQL
-show variables like 'have_query_cache';
-~~~
-
-![img](img/20190710144948407.png)
-
-查看当前MySQL**是否开启了查询缓存 ：**
-
-~~~SQl
-show variables like 'query_cache_type';
-~~~
-
-![img](img/20190710145131165.png)
-
-查看**查询缓存的占用大小 ：**
-
-~~~SQl
-show variables like 'query_cache_size';
-~~~
-
-![img](img/20190710145330151.png)
-
- 查看**查询缓存的状态变量：**
-
-~~~sql
-show status like 'Qcache%';
-~~~
-
-![img](img/20190710145649298.png)
-
-
-
-各个变量的含义如下：
-
-![image-20210701001204039](img/image-20210701001204039.png)
-
-
-
-#### 操作
-
-##### 开启查询缓存
-
-MySQL的查询缓存默认是关闭的，需要手动配置参数 query_cache_type ， 来开启查询缓存。query_cache_type该参数的可取值有三个 
-![image-20210701001440278](img/image-20210701001440278.png)
-
-在 **/usr/my.cnf** 配置中，增加以下配置 ：
-
-~~~bash
-#开启MySQL的查询缓存query_cache_type=1
-~~~
-
-**配置完毕之后，重启服务既可生效 ；**
-
-然后就可以在命令行执行SQL语句进行验证 ，执行一条比较耗时的SQL语句，然后再多执行几次，查看后面几次的执行时间；获取通过查看查询缓存的缓存命中数，来判定是否走查询缓存。
-
-![img](img/20190710151146213.png)
-
-
-
-##### 查询缓存SELECT选项
-
-可以在SELECT语句中指定两个与查询缓存相关的选项 ：
-SQL_CACHE : 如果查询结果是可缓存的，并且 query_cache_type 系统变量的值为ON或 DEMAND ，则缓存查询结果 。
-SQL_NO_CACHE : 服务器不使用查询缓存。它既不检查查询缓存，也不检查结果是否已缓存，也不缓存查询结果。
-例子：**SQL_CACHE的使用**
-
-![img](img/20190710152053844.png)
-
-
-
-**SQL_NO_CACHE** 的使用：
-
-![img](img/20190710152338702.png)
-
-
-
-#### 查询缓存失效的情况
-
-1） SQL 语句不一致的情况， 要想命中查询缓存，查询的SQL语句必须一致。
-
-我们之前已经执行过：select count(*) from tb_item;  这条语句的结果已经进入了缓存的，下面我们执行 Select count(*) from tb_item; 这条语句和之前的只有S是大写，其他的完全一样，接下来看是否走缓存：
-
-![img](img/20190710152848615.png)
-
-
-
-2） 当查询语句中有一些不确定的时，则不会缓存。如 ： now() , current_date() , curdate() , curtime() , rand() ,uuid() , user() , database() 。
-
-![img](img/20190710153125255.png)
-
-
-
-3） 不使用任何表查询语句。
-
-~~~
-select 'A';
-~~~
-
-
-4） 查询 mysql， information_schema或 performance_schema 数据库中的表时，不会走查询缓存。
-
-~~~
-select * from information_schema.engines;
-~~~
-
-
-5） 在存储函数，存储过程，触发器或事件的主体内执行的查询，是不会走查询缓存的。
-
-6） 如果表更改，则使用该表的所有高速缓存查询都将变为无效并从高速缓存中删除。这包括使用MERGE 映射到已更改表的表的查询。一个表可以被许多类型的语句，如被改变 INSERT， UPDATE， DELETE， TRUNCATETABLE， ALTER TABLE， DROP TABLE，或 DROP DATABASE 。
-
-
-
-
-
-### 内存管理及优化
-
-#### 内存优化原则
-
-1. 将尽量多的内存分配给MySQL做缓存，但要给操作系统和其他程序预留足够内存。
-2. MyISAM 存储引擎的数据文件读取依赖于操作系统自身的IO缓存，因此，如果有MyISAM表，就要预留更多的内存给操作系统做IO缓存。
-3. 排序区、连接区等缓存是分配给每个数据库会话（session）专用的，其默认值的设置要根据最大连接数合理分配，如果设置太大，不但浪费资源，而且在并发连接较高时会导致物理内存耗尽。
-
-#### InnoDB 内存优化
-
-InnoDB 用一块内存区做IO缓存池，该缓存池不仅用来缓存InnoDB 的索引块，而且也用来缓存InnoDB 的数据块。
-
-1. `innodb_buffer_pool_size`：该变量决定了` innodb` 存储引擎表数据和索引数据的最大缓存区大小。在保证操作系统及其他程序有足够内存可用的情况下，`innodb_buffer_pool_size` 的值越大，缓存命中率越高，访问InnoDB表需要的磁盘I/O 就越少，性能也就越高。
-
-   也是在MySQL的参数文件（`/usr/my.cnf`）中进行设置：
-
-~~~properties
-# 默认128M
-innodb_buffer_pool_size=512M
-~~~
-
-2. `innodb_log_buffer_size`：决定了`innodb`重做日志缓存的大小，对于可能产生大量更新记录的大事务，增加`innodb_log_buffer_size`的大小，可以避免`innodb`在事务提交前就执行不必要的日志写入磁盘操作。
-
-~~~properties
-innodb_log_buffer_size=10M
-~~~
-
-
-
-### 并发参数调整
-
-从实现上来说，MySQL Server 是多线程结构，包括后台线程和客户服务线程。多线程可以有效利用服务器资源，提高数据库的并发性能。在Mysql中，控制并发连接和线程的主要参数包括 
-
-+　max_connections、
-+　back_log、
-+　thread_cache_size、
-+　table_open_cahce。
-
-
-
-#### max_connections
-
- 采用max_connections 控制允许连接到MySQL数据库的最大数量，默认值是 151。如果状态变量connection_errors_max_connections 不为零，并且一直增长，则说明不断有连接请求因数据库连接数已达到允许最大值而失败，这是可以考虑增大max_connections 的值。
-       Mysql 最大可支持的连接数，取决于很多因素，包括给定操作系统平台的线程库的质量、内存大小、每个连接的负荷、CPU的处理速度，期望的响应时间等。**在Linux 平台下，性能好的服务器，支持 500-1000 个连接不是难事，需要根据服务器性能进行评估设定**。
-
-查看和设置参数方式：
-
-~~~properties
---查看参数的值(默认151)
-show variables like 'max_connections';
---修改参数的值，修改/usr/my.cnf文件，添加如下的内容：
-max_connections=168
-~~~
-
-
-
-#### back_log
-
-​		back_log 参数控制MySQL监听TCP端口时设置的积压请求栈大小。如果MySql的连接数达到max_connections时，新来的请求将会被存在堆栈中，以等待某一连接释放资源，该堆栈的数量即back_log，如果等待连接的数量超过back_log，将不被授予连接资源，将会报错。5.6.6 版本之前默认值为 50 ， 之后的版本默认为 50 +（max_connections / 5）， 但最大不超过900。
-
-​		如果需要数据库在较短的时间内处理大量连接请求， 可以考虑适当增大back_log 的值。
-
-
-
-#### table_open_cache
-
-该参数用来控制所有SQL语句执行线程可打开表缓存的数量， 而在执行SQL语句时，每一个SQL执行线程至少要打开 1 个表缓存。该参数的值应该根据设置的最大连接数 max_connections 以及每个连接执行关联查询中涉及的表的最大数量来N设定 ：
-
-max_connections x N ；默认值是2000，如下所示：
-
-~~~
-mysql> show variables like 'table_open_cache';
-+------------------+-------+| Variable_name    | Value |
-+------------------+-------+| table_open_cache | 2000  |
-+------------------+-------+
-~~~
-
-
-
-#### thread_cache_size
-
- 为了加快连接数据库的速度，MySQL 会缓存一定数量的客户服务线程以备重用，通过参数 thread_cache_size 可控制 MySQL 缓存客户服务线程的数量。**默认是9：**
-
-~~~
-mysql> show variables like 'thread_cache_size';
-+-------------------+-------+| Variable_name     | Value |
-+-------------------+-------+| thread_cache_size | 9     |
-+-------------------+-------+
-~~~
-
-
-
-####  innodb_lock_wait_timeout
-
-**该参数是用来设置InnoDB 事务等待行锁的时间，默认值是50ms** ， 可以根据需要进行动态设置。对于需要快速反馈的业务系统来说，可以将行锁的等待时间调小，以避免事务长时间挂起； 对于后台运行的批量处理程序来说，可以将行锁的等待时间调大， 以避免发生大的回滚操作。
-
-~~~
-mysql> show variables like 'innodb_lock_wait_timeout';
-+--------------------------+-------+| Variable_name            | Value |
-+--------------------------+-------+| innodb_lock_wait_timeout | 50    |
-+--------------------------+-------+
-~~~
-
-## 日志文件
-
-​		在任何一种数据库中，都会有各种各样的日志，记录着数据库工作的方方面面，以帮助数据库管理员追踪数据库曾经发生过的各种事件。MySQL 也不例外，在 MySQL 中，有 4 种不同的日志，分别是**错误日志、二进制日志（BINLOG 日志）、查询日志和慢查询日志**，这些日志记录着数据库在不同方面的踪迹。
-
-###  错误日志
-
-​		错误日志是 MySQL 中最重要的日志之一，它记录了当 mysqld 启动和停止时，以及服务器在运行过程中发生任何严重错误时的相关信息。当数据库出现任何故障导致无法正常使用时，可以首先查看此日志。
-​       该日志是默认开启的 ， 默认存放目录为 mysql 的数据目录`（var/lib/mysql）`, 默认的日志文件名为`hostname.err`（`hostname`是主机名）。
-
-#### 查看日志位置指令
-
-~~~
-show variables like 'log_error%';
-~~~
-
-~~~
-mysql> show variables like 'log_error%';
-+---------------+---------------------------------+
-| Variable_name | Value                           |
-+---------------+---------------------------------+
-| log_error     | /var/lib/mysql/image-server.err |
-+---------------+---------------------------------+
-~~~
-
-#### 查看日志内容
-
-~~~
-tail -f /var/lib/mysql/image-server.err
-~~~
-
-![img](img/20190711154442611.png)
-
-### 二进制日志
-
-#### 概述
-
- 		二进制日志（BINLOG）记录了所有的 DDL（数据定义语言）语句和 DML（数据操纵语言）语句，但是不包括数据查询语句。此日志对于灾难时的数据恢复起着极其重要的作用，MySQL的主从复制， 就是通过该binlog实现的。
- 	   二进制日志，默认情况下是没有开启的，需要到MySQL的配置文件中开启，并配置MySQL日志的格式。
- 	   配置文件位置 : /etc/my.cnf
- 	   日志存放位置 : 配置时，给定了文件名但是没有指定路径，日志默认写入Mysql的数据目录。
-
-~~~bash
-#配置开启binlog日志， 
-#日志的文件前缀为 mysqlbin -----> 生成的文件名如 :mysqlbin.000001,mysqlbin.000002
-log_bin=mysqlbin
-
-#配置二进制日志的格式
-binlog_format=STATEMENT
-~~~
-
-
-
-#### 二进制日志的格式
-
-##### STATEMENT
-​       该日志格式在日志文件中记录的都是SQL语句（statement），每一条对数据进行修改的SQL都会记录在日志文件中，通过Mysql提供的mysqlbinlog工具，可以清晰的查看到每条语句的文本。主从复制的时候，从库（slave）会将日志解析为原文本，并在从库重新执行一次。
-
-##### ROW
-​       该日志格式在日志文件中记录的是每一行的数据变更，而不是记录SQL语句。比如，执行SQL语句 ： update tb_book set status='1' , 如果是STATEMENT 日志格式，在日志中会记录一行SQL文件； 如果是ROW，由于是对全表进行更新，也就是每一行记录都会发生变更，ROW 格式的日志中会记录每一行的数据变更。
-
-##### MIXED
-​       这是目前MySQL默认的日志格式，即混合了STATEMENT 和 ROW两种格式。默认情况下采用STATEMENT，但是在一些特殊情况下采用ROW来进行记录。MIXED 格式能尽量利用两种模式的优点，而避开他们的缺点。
-
-
-
-#### 日志读取
-
-由于日志以二进制方式存储，不能直接读取，需要用mysqlbinlog工具来查看，语法如下 ：
-
-~~~
-mysqlbinlog log-file；
-~~~
-
-
-
-##### 查看STATEMENT格式日志
-
-执行插入语句 ：
-
-~~~
-insert into tb_book values(null,'Lucene','2088-05-01','0');
-~~~
-
-查看日志文件 ：
-![img](img/20190711161006648.png)
-
-**mysqlbin.index : 该文件是日志索引文件 ， 记录日志的文件名；
-mysqlbing.000001 ：日志文件**
-
-![img](img/20190711161148680.png)
-
-通过mysqlbinlog来查看日志文件的内容：
-
-~~~bash
-mysqlbinlog mysqlbin.000001 ;
-~~~
-
-![img](img/20190711161445323.png)
-
-
-
-##### **查看ROW格式日志**
-
-修改配置文件：
-
-~~~cnf
-# 配置开启binlog日志， 
-# 日志的文件前缀为 mysqlbin -----> 生成的文件名如 :mysqlbin.000001,mysqlbin.000002
-log_bin=mysqlbin
-# 配置二进制日志的格式
-binlog_format=ROW
-~~~
-
-重启mysql服务。
-
-插入数据 :
-
-~~~sql
-insert into tb_book values(null,'SpringCloud实战','2088-05-05','0');
-~~~
-
-如果日志格式是 ROW , 直接查看数据 , 是查看不懂的 ; 可以在mysqlbinlog 后面加上参数 -vv
-
-~~~bash
-mysqlbinlog -vv mysqlbin.000002
-~~~
-
-![img](img/20190711162018270.png)
-
-
-
-#### 日志删除
-
-对于比较繁忙的系统，由于每天生成日志量大 ，这些日志如果长时间不清楚，将会占用大量的磁盘空间。下面我们将会讲解几种删除日志的常见方法 ：
-方式一
-       通过 Reset Master 指令删除全部 binlog 日志，删除之后，日志编号，将从 xxxx.000001重新开始 。
-查询之前 ，先查询下日志文件 ：
-
-![img](img/2019071116230181.png)
-
-执行删除日志指令：Reset Master（是在连接mysql的情况下执行的）
-
-![img](img/20190711162435621.png)
-
-再次查看日志文件，发现如下所示：
-
-![img](img/20190711162532280.png)
-
-这个时候，mysqlbin.000001文件中的内容也是空：
-
- 
-
-方式二
-
-执行指令
-
-~~~
- purge master logs to 'mysqlbin.******' ，
-~~~
-
-该命令将删除 `******`  编号之前的所有日志。
-
-
-方式三
-
-   	执行指令 `purge master logs before 'yyyy-mm-dd hh24:mi:ss' `，该命令将删除日志为 `"yyyy-mm-dd hh24:mi:ss" `之前产生的所有日志 。
-
-方式四
-
-​		设置参数` expire_logs_days=# `，此参数的含义是设置日志的过期天数， 过了指定的天数后日志将会被自动删除，这样将有利于减少`DBA `管理日志的工作量。
-
-
-
-### 查询日志
-
-**查询日志中记录了客户端的所有操作语句，而二进制日志不包含查询数据的SQL语句。**
-**默认情况下， 查询日志是未开启的。如果需要开启查询日志，可以设置以下配置 ：**
-
-~~~properties
-#该选项用来开启查询日志 ， 可选值 ： 0 或者 1 ； 0 代表关闭， 1 代表开启
-general_log=1
-#设置日志的文件名 ， 如果没有指定， 默认的文件名为 host_name.log
-general_log_file=mysql_query.log
-~~~
-
-在 mysql 的配置文件 /usr/my.cnf 中配置如下内容 ：
-
-![img](img/2019071116445389.png)
-
-~~~sql
-select * from tb_book;
-select * from tb_book where id = 1;
-update tb_book set name = 'lucene入门指南' where id = 5;
-select * from tb_book where id < 8;
-~~~
-
-执行完毕之后， 再次来查询日志文件 ：
-
-![img](img/20190711164716344.png)
-
-
-
-### 慢查询日志
-
- **慢查询日志记录了所有执行时间超过参数 long_query_time 设置值并且扫描记录数不小于min_examined_row_limit 的所有的SQL语句的日志。long_query_time 默认为 10 秒，最小为 0， 精度可以到微秒。**
-
-#### 文件位置和格式
-
-**慢查询日志默认是关闭的 。可以通过两个参数来控制慢查询日志 ：**
-
-~~~
-# 该参数用来控制慢查询日志是否开启， 可取值： 1 和 0 ， 1 代表开启， 0 代表关闭
-slow_query_log=1
-# 该参数用来指定慢查询日志的文件名
-slow_query_log_file=slow_query.log
-# 该选项用来配置查询的时间限制， 超过这个时间将认为值慢查询， 将需要进行日志记录， 默认10s
-long_query_time=0.5
-~~~
-
-在`/etc/my.cnf`中配置上述的参数，然后重启服务。 
-
-
-
-#### 日志的读取
-
-**和错误日志、查询日志一样，慢查询日志记录的格式也是纯文本，可以被直接读取。**
-执行查询操作：
-
-~~~sql
-use demo_02;
-select * from tb_item where item_price<900000;
-~~~
-
-查看慢查询日志文件:
-
-直接通过cat 指令查询该日志文件 ：
-
-![img](img/2019071117012610.png)
-
-
-
-如果慢查询日志内容很多， 直接查看文件，比较麻烦， 这个时候可以借助于mysql自带的 `mysqldumpslow` 工具， 来对慢查询日志进行分类汇总。
-
-![img](img/20190711170241893.png)
-
-
-
-## 常用工具
-
-### mysql
-
-该mysql不是指mysql服务，而是指**mysql的客户端工具。**
-
-语法 ：
-
-```sql
-mysql [options] [database]
-```
-
-#### 连接选项options
-
-~~~~
-参数 ：
--u, --user=name 指定用户名
--p, --password[=name] 指定密码
--h, --host=name 指定服务器IP或域名
--P, --port=# 指定连接端口
-示例 ：
-mysql -h 127.0.0.1 -P 3306 -u root -p
-mysql -h127.0.0.1 -P3306 -uroot -p2143
-~~~~
-
-#### 执行选项
-
-~~~SQl
--e, --execute=name 执行SQL语句并退出
-~~~
-
-此选项可以在**Mysql客户端执行SQL语句，而不用连接到MySQL数据库再执行，对于一些批处理脚本，这种方式尤其方便。**
-
-~~~Sql
-mysql -uroot -pBob.123456 demo_03 -e "select * from tb_book";
-~~~
-
-
-
-### mysqladmin
-
-**mysqladmin 是一个执行管理操作的客户端程序。可以用它来检查服务器的配置和当前状态、创建并删除数据库等。**
-可以通过 ： mysqladmin --help 指令查看帮助文档
-
-![img](img/20190711142157690.png)
-
-![img](img/20190711142701478.png)
-
-
-
-### mysqlbinlog
-
-**由于服务器生成的二进制日志文件以二进制格式保存，所以如果想要查看这些文件的文本格式，就会使用到mysqlbinlog 日志管理工具。**
-
-~~~SQl
-mysqlbinlog [options] log-files1 log-files2 ...
-选项：
--d, --database=name : 指定数据库名称，只列出指定的数据库相关操作。
--o, --offset=# : 忽略掉日志中的前n行命令。
--r,--result-file=name : 将输出的文本格式日志输出到指定文件。
--s, --short-form : 显示简单格式， 省略掉一些信息。
---start-datatime=date1 --stop-datetime=date2 : 指定日期间隔内的所有日志。
---start-position=pos1 --stop-position=pos2 : 指定位置间隔内的所有日志。
-~~~
-
-
-
-### mysqldump
-
-**mysqldump 客户端工具用来备份数据库或在不同数据库之间进行数据迁移。备份内容包含创建表，及插入表的SQL语句。**
-
-~~~
-mysqldump [options] db_name [tables]
-mysqldump [options] --database/-B db1 [db2 db3...]
-mysqldump [options] --all-databases/-A
-~~~
-
-#### 连接选项[options]
-
-~~~
-参数 ：
--u, --user=name 指定用户名
--p, --password[=name] 指定密码
--h, --host=name 指定服务器IP或域名
--P, --port=# 指定连接端口
-~~~
-
-#### 输出内容选项
-
-~~~
-参数：
---add-drop-database 在每个数据库创建语句前加上 Drop database 语句
---add-drop-table 在每个表创建语句前加上 Drop table 语句 , 默认开启 ;
-				不开启 (--skip-add-drop-table)
--n, --no-create-db 不包含数据库的创建语句
--t, --no-create-info 不包含数据表的创建语句
--d --no-data 不包含数据
--T, --tab=name 自动生成两个文件：一个.sql文件，创建表结构的语句；
-				一个.txt文件，数据文件，相当于select into outfile
-~~~
-
-
 
