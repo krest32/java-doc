@@ -744,18 +744,12 @@ from
 假如我们现在想找到 emp 表中 dept_name 与 dept表中 dept_name 对应不上的员工数据，也就是 emp 表第二行记录，sql 如下：
 
 ~~~sql
-SELECT
-    *
-from
-    emp e
-where
-    exists (
-        SELECT
-            *
-        from
-            dept p
-        where
-            e.dept_id = p.dept_id
+SELECT *
+from emp e
+where exists (
+        SELECT  *
+        from dept p
+        where e.dept_id = p.dept_id
             and e.dept_name != p.dept_name
     )
 ~~~
@@ -769,15 +763,12 @@ SELECT
     name,
     GROUP_CONCAT(
         title
-        ORDER BY
-            id desc SEPARATOR '-'
+        ORDER BY id desc 
+        SEPARATOR '-'
     )
-from
-    order_diy
-GROUP BY
-    name
-ORDER BY
-    NULL;
+from order_diy
+GROUP BY name
+ORDER BY NULL;
 ~~~
 
 
@@ -799,8 +790,8 @@ SELECT
     t3.job_name '三级职位'
 from
     tree t1
-    join tree t2 on t1.id = t2.pid
-    left join tree t3 on t2.id = t3.pid
+join tree t2 on t1.id = t2.pid
+left join tree t3 on t2.id = t3.pid
 where
     t1.pid = 0;
 ~~~
@@ -951,8 +942,7 @@ where
     name like '%苏三%'
 order by
     char_length(name) asc
-limit
-    5;
+limit 5;
 ~~~
 
 ![image-20230401103345283](img/image-20230401103345283.png)
@@ -1086,12 +1076,9 @@ from
     dual
 where
     not exists (
-        select
-            *
-        from
-            `brand`
-        where
-            name = '苏三'
+        select  *
+        from `brand`
+        where name = '苏三'
     );
 ~~~
 

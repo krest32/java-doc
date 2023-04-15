@@ -3,6 +3,7 @@
 * [Sql答疑](./docs/数据库/常用Sql/常用SQL问题.md)
 * [Mysql初级](./docs/数据库/mysql/mysql/概念/mysql初级.md)
 * [Mysql高级](./docs/数据库/mysql/mysql/概念/mysql高级.md)
+* [Mysql指令](./docs/数据库/mysql/mysql/实操/mysql.md)
 * [InnoDB](./docs/数据库/mysql/mysql/概念/InnoDB.md)
 * [B+树](./docs/数据库/mysql/B+树/B+树.md)
 * [Redis基础](./docs/数据库/redis/Redis-基础/redis.md)
