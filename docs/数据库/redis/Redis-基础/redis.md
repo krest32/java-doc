@@ -1,5 +1,7 @@
 # Redis
 
+[Redis7 笔记](https://blog.csdn.net/m0_55993923/article/details/129718974)
+
 ## 概述
 
 ### 什么是 Redis
