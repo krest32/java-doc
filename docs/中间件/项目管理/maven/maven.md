@@ -1191,3 +1191,164 @@ Maven区别对待Java代码和资源文件，maven-resources-plugin则用来处�
     <properties />
 </project>    
 ```
+
+## 搭建Maven私服
+
+### 了解
+
+总体上来说私服有以下好处：
+
++ 加速maven构件的下载速度
++ 节省宽带，加速项目构建速度
++ 方便部署自己的构件以供他人使用
++ 提高maven的稳定性，中央仓库需要本机能够访问外网，而如果采用私服的方式，只需要本机可以访问内网私服就可以了
+
+有3种专门的maven仓库管理软件可以用来帮助我们搭建私服：
+
+~~~bash
+Apache基金会的archiva
+http://archiva.apache.org/
+
+JFrog的Artifactory
+https://jfrog.com/artifactory/
+
+Sonatype的Nexus
+https://my.sonatype.com/
+~~~
+
+这些都是开源的私服软件，都可以自由使用。用的最多的是第三种Nexus
+
+下载地址：https://help.sonatype.com/repomanager3/download
+
+### 安装
+
+~~~bash
+root@nianyu-virtual-machine:/opt# mkdir nexus && cd nexus
+root@nianyu-virtual-machine:/opt# tar -zxvf nexus-3.46.0-01-unix.tar.gz
+
+-- 解压出两个文件夹
+nexus-3.25.1-04：用于实现 nexus 功能
+sonatype-work：用于存储数据
+~~~
+
+### 启动
+
+nexus-3.25.1-04/bin 目录，可以看见 **nexus 文件**，这就是 Nexus 服务的脚本文件:
+
+![image-20230416183549210](img/image-20230416183549210.png)
+
+ 通过观察该文件文本内容，可以看到 **start 和 run 命令都可以用来启动 Nexus 服务**；区别在于：
+
+> start 是后台启动，日志以文件形式保存；
+>
+> run 是当前进程启动，直接打印在控制台
+
+**其他常用命令还有：**
+
+> stop 是停止服务；
+>
+> restart 是重启服务；
+>
+> status 是查看服务状态
+
+**Nexus 服务的默认端口是 8081 。**
+
+默认端口是 8081，如果要修改，可以在 **sonatype-work/nexus3/etc** 目录下的 **nexus.properties** 配置文件，将 **application-port** 配置成你要的端口号即可：
+
+**总结：**
+为了不占用当前命令终端窗口，推荐使用 2.1 start命令启动（后台进程形式）Nexus 服务。
+
+**开放端口：**
+最后一步，也是非常重要的一步，就是开放 linux 系统的防火墙端口，这里我使用了 Nexus 服务的 默认端口 8081，所以开放的就是 8081 端口：
+
+### 使用
+
+Maven Setting配置
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <localRepository>E:\MavenRepository</localRepository>
+    <pluginGroups></pluginGroups>
+    <proxies></proxies>
+    <servers>
+        
+        <server>
+            <id>maven-releases</id>
+            <username>admin</username>
+            <password>密码</password>
+        </server>
+        <server>
+            <id>maven-snapshots</id>
+            <username>admin</username>
+            <password>密码</password>
+        </server>
+    </servers>
+
+    <mirrors>
+        <mirror>
+            <id>maven-public</id>
+            <!--表示所有jar包都走这里 -->
+            <mirrorOf>*</mirrorOf>
+            <name>maven-public</name>
+            <url>http://witerk.top:8081/repository/maven-public/</url>
+        </mirror>
+    </mirrors>
+    <profiles>
+        <profile>
+            <id>jdk-1.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+            </properties>
+        </profile>
+    </profiles>
+</settings>
+~~~
+
+
+
+Pom配置
+
+发布自定义jar包
+
+~~~xml
+<distributionManagement>
+    <repository>
+        <id>maven-releases</id>
+        <name>maven-releases</name>
+        <url>http://witerk.top:8081/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+        <id>maven-snapshots</id>
+        <name>maven-snapshots</name>
+        <url>http://witerk.top:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
+</distributionManagement>
+~~~
+
+拉取jar信息
+
+~~~xml
+<repositories>
+    <repository>
+        <id>maven-nexus</id>
+        <url>http://witerk.top:8081/repository/maven-public/</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+~~~
+

@@ -421,7 +421,7 @@ tar -zxvf apache-maven-3.3.9-bin.tar.gz
 ~~~bash
 vim /etc/profile
 
-export MAVEN_HOME=/usr/local/software/maven/
+export MAVEN_HOME=/usr/local/module/maven-3.3.9/
 export PATH=${PATH}:${MAVEN_HOME}/bin
 
 ~~~
@@ -435,7 +435,7 @@ mvn -version
 本地仓库
 
 ~~~bash
-mkdir -p /usr/local/software/data/mvnRepo
+mkdir -p /usr/local/module/data/mvnRepo
 ~~~
 
 修改配置
@@ -469,7 +469,6 @@ vim /usr/local/maven/apache-maven-3.3.9/conf/settings.xml
 	    <activeByDefault>true</activeByDefault>
         <jdk>1.8</jdk>
       </activation>
-
       <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
