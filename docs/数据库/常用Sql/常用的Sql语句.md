@@ -551,7 +551,9 @@ FROM
     Websites;
 ~~~
 
-### NOW()
+### 日期函数
+
+#### NOW()
 
 返回当前系统的日期和时间。
 
@@ -563,6 +565,98 @@ SELECT
 FROM
     Websites;
 ~~~
+
+#### CURDATE()
+
+~~~sql
+select CURDATE()
+~~~
+
+#### CURTIME()
+
+~~~sql
+select CURTIME()
+~~~
+
+#### EXTRACT
+
+抽取年份
+
+~~~sql
+SELECT
+    EXTRACT(
+        YEAR
+        FROM
+            OrderDate
+    ) AS OrderYear,
+    EXTRACT(
+        MONTH
+        FROM
+            OrderDate
+    ) AS OrderMonth,
+    EXTRACT(
+        DAY
+        FROM
+            OrderDate
+    ) AS OrderDay
+FROM
+    Orders
+WHERE
+    OrderId = 1
+~~~
+
+#### DATE_ADD() 
+
+追加45天
+
+~~~sql
+SELECT 
+	OrderId,
+	DATE_ADD(OrderDate,INTERVAL 45 DAY) AS OrderPayDate
+FROM Orders
+~~~
+
+#### DATE_SUB();
+
+~~~sql
+SELECT 
+	OrderId,
+	DATE_SUB(OrderDate,INTERVAL 5 DAY) AS SubtractDate
+FROM Orders
+~~~
+
+#### DATEDIFF()
+
+~~~sql
+SELECT DATEDIFF('2008-11-30','2008-11-29') AS DiffDate
+~~~
+
+#### DATE_FORMAT()
+
+~~~sql
+DATE_FORMAT(NOW(),'%b %d %Y %h:%i %p')
+DATE_FORMAT(NOW(),'%m-%d-%Y')
+DATE_FORMAT(NOW(),'%d %b %y')
+DATE_FORMAT(NOW(),'%d %b %Y %T:%f')
+
+-- 结果
+Nov 04 2008 11:45 PM
+11-04-2008
+04 Nov 08
+04 Nov 2008 11:45:34:243
+
+%a	缩写星期名
+%b	缩写月名
+%d	月的天，数值（00-31）
+%Y	年，4 位
+%H	小时（00-23
+%p	AM 或 PM
+%m	月，数值（00-12）
+%f	微秒
+%T	时间, 24-小时（hh:mm:ss）
+~~~
+
+
 
 ### FORMAT()
 
@@ -582,6 +676,61 @@ SELECT
 FROM
     Websites;
 ~~~
+
+### Round()
+
+~~~sql
+DROP TABLE IF EXISTS `Products`;
+
+CREATE TABLE IF NOT EXISTS `Products` (
+    `prod_id` VARCHAR(255) NOT NULL COMMENT '产品 ID',
+    `prod_price` DOUBLE NOT NULL COMMENT '产品价格'
+);
+
+INSERT INTO
+    `Products`
+VALUES
+    ('a0011', 9.49),
+    ('a0019', 600),
+    ('b0019', 1000);
+    
+    
+-- 保留几位小数
+select
+    prod_id,
+    prod_price,
+    round(prod_price * 0.911, 10) as sale_price
+from
+    Products;
+~~~
+
+
+
+### CONVERT
+
+**排序**
+
+~~~sql
+SELECT
+    *
+from
+    teacher t
+order by
+    CONVERT(tname USING utf8mb4) desc;
+-- 可以转化字符类型排序，中文排序可以使用GBK
+~~~
+
+
+
+
+
+### 窗口函数
+
+目前mysql从8.0开始支持窗口函数，使用窗口函数，会令我们的分组查询变得便捷。
+
+窗口函数：对一个查询SQL，将其结果集按指定的规则进行分区，每个分区可以看作是一个窗口，分区内的每一行，根据其所属分区内的行数据进行函数计算，获取计算结果，作为该行的窗口函数结果值。
+
+
 
 ## 高级
 
@@ -687,7 +836,7 @@ asc
 
 
 
-## 优化
+
 
 ### 自定义排序字段
 
