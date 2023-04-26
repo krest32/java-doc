@@ -25,6 +25,9 @@ sxl133
 ~~~bash
 vim /etc/hosts
 192.168.1.101  centos7
+192.168.160.142 sharding1
+192.168.160.145 sharding2
+192.168.160.144 vitess3
 ~~~
 
 这样局域网内就可以通过主机名互相访问了，当然局域网内的主机hosts文件都得添加映射关系
@@ -42,7 +45,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 配置，然后重新重启网路
 
 ~~~bash
-IPADDR=192.168.160.129
+IPADDR=192.168.160.144
 NETMASK=255.255.255.0
 GATEWAY=192.168.160.2
 DNS1=8.8.8.8
@@ -139,7 +142,7 @@ yum clean all
      exit;
    fi
    #2. 遍历集群所有机器
-   for host in hadoop102 hadoop103 hadoop104
+   for host in sharding1 sharding2 
    do
      echo ====================  $host  ====================
      #3. 遍历所有目录，挨个发送
@@ -172,6 +175,47 @@ yum clean all
    ~~~bash
    [atguigu@hadoop102 bin]$ xsync xsync
    ~~~
+
+6. 全局生效
+
+   ~~~bin
+   sudo cp /home/krest/bin/xsync /bin/
+   
+   sudo ./bin/xsync /etc/profile.d/my_env.sh
+   
+   [atguigu@hadoop103 bin]$ source /etc/profile
+   [atguigu@hadoop104 opt]$ source /etc/profile
+   ~~~
+
+   
+
+~~~my_env.sh
+export JAVA_HOME=/usr/local/software/jdk8
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+source /opt/rh/devtoolset-9/enable
+
+
+export GOROOT=/usr/local/software/go
+export GOPATH=/usr/local/software/data/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH
+# 开启 Go moudles 特性
+export GO111MODULE="on"
+# 安装 Go 模块时，国内代理服务器设置
+export GOPROXY=https://goproxy.cn,direct
+
+export NODE_HOME=/usr/local/software/node14
+export PATH=$PATH:$NODE_HOME/bin
+export NODE_PATH=$NODE_HOME/lib/node_mudules
+export PATH NODE_HOME NODE_PATH
+
+export MAVEN_HOME=/usr/local/software/maven/
+export PATH=${PATH}:${MAVEN_HOME}/bin
+~~~
+
+
+
+
 
 # SSH无密登录配置
 
@@ -259,6 +303,18 @@ yum clean all
 解压出来就是文件夹.
 ~~~
 
+## 查找指令
+
+~~~shell
+find / -name a* 查找根目录a开头的文件
+
+find /etc/ -size +50k 查找etc下面文件大于50k的
+
+find / -user lq 查找系统中属主(用户)为lq的内容
+
+find / -type f 查找系统中的所有文本文件
+~~~
+
 
 
 # 集群脚本示例
@@ -298,7 +354,7 @@ done
 ~~~shell
 #! /bin/bash
  
-for i in hadoop102 hadoop103 hadoop104
+for i in vitess1 vitess2 vitess3
 do
     echo --------- $i ----------
     ssh $i "$*"
@@ -308,6 +364,14 @@ done
 ~~~bash
 [atguigu@hadoop102 bin]$ chmod 777 xcall
 [atguigu@hadoop102 bin]$ xcall.sh jps
+
+
+sudo cp /home/krest/bin/xcall /bin/
+
+sudo ./bin/xsync /etc/profile.d/my_env.sh
+
+[atguigu@hadoop103 bin]$ source /etc/profile
+[atguigu@hadoop104 opt]$ source /etc/profile
 ~~~
 
 
@@ -625,7 +689,7 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
   cat /var/log/mysqld.log |grep password
   ~~~
 
-+ 登陆 mysql -u root -p
+  + 登陆 mysql -u root -p
 
 + 修改密码
 
