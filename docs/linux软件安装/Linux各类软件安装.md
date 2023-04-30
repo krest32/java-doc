@@ -179,7 +179,7 @@ yum clean all
 6. 全局生效
 
    ~~~bin
-   sudo cp /home/krest/bin/xsync /bin/
+   sudo cp /home/krest/bin/xsync /bin/xsync
    
    sudo ./bin/xsync /etc/profile.d/my_env.sh
    
@@ -366,7 +366,7 @@ done
 [atguigu@hadoop102 bin]$ xcall.sh jps
 
 
-sudo cp /home/krest/bin/xcall /bin/
+sudo cp /home/krest/bin/xcall /bin/xcsll
 
 sudo ./bin/xsync /etc/profile.d/my_env.sh
 
@@ -1716,8 +1716,8 @@ docker run -d \
 [bigdata@linux zookeeper-3.4.10]$ cp ./conf/zoo_sample.cfg ./conf/zoo.cfg   
 // 修改zookeeper配置文件
 [bigdata@linux zookeeper-3.4.10]$ vim conf/zoo.cfg
-dataDir=/usr/local/module/zookeeper/data  #将数据目录地址修改为创建的目录
-dataLogDir=/usr/local/module/zookeeper/logs
+dataDir=/usr/local/software/zookeeper/data  #将数据目录地址修改为创建的目录
+dataLogDir=/usr/local/software/zookeeper/logs
 
 
 // 启动Zookeeper服务
