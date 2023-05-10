@@ -25,9 +25,9 @@ sxl133
 ~~~bash
 vim /etc/hosts
 192.168.1.101  centos7
-192.168.160.142 sharding1
-192.168.160.145 sharding2
-192.168.160.144 vitess3
+192.168.160.128 mgr1
+192.168.160.146 mgr2
+192.168.160.147 mgr3
 ~~~
 
 这样局域网内就可以通过主机名互相访问了，当然局域网内的主机hosts文件都得添加映射关系
@@ -45,7 +45,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 配置，然后重新重启网路
 
 ~~~bash
-IPADDR=192.168.160.144
+IPADDR=192.168.160.146
 NETMASK=255.255.255.0
 GATEWAY=192.168.160.2
 DNS1=8.8.8.8
@@ -142,7 +142,7 @@ yum clean all
      exit;
    fi
    #2. 遍历集群所有机器
-   for host in sharding1 sharding2 
+   for host in mgr1 mgr2 mgr3 
    do
      echo ====================  $host  ====================
      #3. 遍历所有目录，挨个发送
@@ -190,6 +190,9 @@ yum clean all
    
 
 ~~~my_env.sh
+vi /etc/profile.d/my_env.sh
+
+
 export JAVA_HOME=/usr/local/software/jdk8
 export PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
@@ -231,9 +234,9 @@ export PATH=${PATH}:${MAVEN_HOME}/bin
 2. 将hadoop102公钥拷贝到要免密登录的目标机器上
 
    ~~~bash
-   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop102
-   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop103
-   [atguigu@hadoop102 .ssh]$ ssh-copy-id hadoop104
+   ssh-copy-id mgr1
+   ssh-copy-id mgr2
+   ssh-copy-id mgr3
    ~~~
 
 3. hadoop103上生成公钥和私钥：
@@ -354,7 +357,7 @@ done
 ~~~shell
 #! /bin/bash
  
-for i in vitess1 vitess2 vitess3
+for i in mgr1 mgr2 mgr3
 do
     echo --------- $i ----------
     ssh $i "$*"
@@ -652,7 +655,7 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
 
 
 
-# Mysql
+# Mysql 单节点
 
 ## yum安装5.7
 
@@ -721,6 +724,952 @@ mysql> update user set host="%" where user="root";
 mysql> flush privileges;
 mysql> quit;
 ~~~
+
+# MGR 集群
+
+## 条件准备：
+
+1. 三台虚拟机
+2. Mysql， 版本在5.7.17之上，但是推荐mysql的版本在8以上
+
+## 准备工作：
+
+1. 设置mysql的server uuid 避免一样
+2. 添加 host 配置信息
+3. 安装 mysql
+
+~~~bash
+修改mysql server uuid 
+cd /var/lib/mysql/
+vi auto.cnf 
+然后进行修改
+~~~
+
+## 开始安装 mgr1
+
+### 配置说明
+
+~~~ini
+开始搭建系统
+vim /etc/my.cnf 
+# 禁用密码校验
+validate-password=OFF
+# Group Replication
+# 服务 ID
+server_id=100 
+# 全局事务
+gtid_mode=ON
+# 强制 GTID 的一致性
+enforce_gtid_consistency=ON
+# 将 master.info 元数据保存在系统表中
+master_info_repository=TABLE
+# 将 relay.info 元数据保存在系统表中
+relay_log_info_repository=TABLE
+# 禁用二进制日志事件校验
+binlog_checksum=NONE
+# 级联复制
+log_slave_updates=ON
+# 开启二进制日志记录
+log_bin=binlog
+# 以行的格式记录
+binlog_format=ROW
+# 使用哈希算法将其编码为散列
+transaction_write_set_extraction=XXHASH64
+# 加入的组名
+loose-group_replication_group_name="ce9be252-2b71-11e6-b8f4-00212844f856"
+# 不自动启用组复制集群
+loose-group_replication_start_on_boot =OFF
+# 以本机端口 33061 接受来自组中成员的传入连接
+loose-group_replication_local_address='mgr3:33061'
+# 组中成员访问表
+loose-group_replication_group_seeds="mgr1:33061, mgr2:33061, mgr3:33061"
+# 不启用引导组
+loose-group_replication_bootstrap_group=OFF
+# 設置Ip白名單
+loose-group_replication_ip_whitelist='mgr1,mgr2,mgr3'
+# 自动尝试连入集群的次数，
+group_replication_autorejoin_tries=3
+# 尝试间隔5s（group_replication_member_expel_timeout），如果设置为0，表示禁用尝试。
+group_replication_member_expel_timeout=5
+# 网络分区时，少数派状等待此时长后，状态变为Error，回滚pending事务
+group_replication_unreachable_majority_timeout=5
+~~~
+
+### 配置信息
+
+~~~ini
+开始搭建系统
+vim /etc/my.cnf 
+
+
+validate-password=OFF
+server_id=101
+gtid_mode=ON
+enforce_gtid_consistency=ON
+master_info_repository=TABLE
+relay_log_info_repository=TABLE
+binlog_checksum=NONE
+log_slave_updates=ON
+log_bin=binlog
+binlog_format=ROW
+transaction_write_set_extraction=XXHASH64
+loose-group_replication_group_name="ce9be252-2b71-11e6-b8f4-00212844f856"
+loose-group_replication_start_on_boot =OFF
+loose-group_replication_local_address="mgr1:33061"
+loose-group_replication_group_seeds="mgr1:33061, mgr2:33061, mgr3:33061"
+loose-group_replication_bootstrap_group=OFF
+loose-group_replication_ip_whitelist='mgr1,mgr2,mgr3'
+report_host=mgr1
+report_port=3306
+group_replication_unreachable_majority_timeout=5
+
+
+# 需要在 Mysql8 以上才能使用
+group_replication_autorejoin_tries=3
+group_replication_member_expel_timeout=20
+~~~
+
+### 指令执行
+
+~~~bash
+# 重启Mysql, 每次修改配置文件都需要重启
+systemctl restart mysqld
+mysql -u root -pBob.123456
+# 停掉日志记录
+set SQL_LOG_BIN=0;
+# 生成帐号
+grant replication slave on *.* to repl@'%' identified by '123456';
+flush privileges;
+
+set SQL_LOG_BIN=1;  
+# 生成组
+change master to master_user='repl',master_password='123456' for channel 'group_replication_recovery'; 
+# 安装插件
+install PLUGIN group_replication SONAME 'group_replication.so';
+
+show plugins;
+# 开启组复制
+set global group_replication_bootstrap_group=ON;
+start group_replication;
+set global group_replication_bootstrap_group=OFF;
+
+# 查看组成员、組复制配置信息
+select * from performance_schema.replication_group_members;
+show variables like 'group_replication%';
+~~~
+
+## 开始安装Mgr2、Mgr3
+
+### 配置说明
+
+~~~ini
+开始搭建系统
+vim /etc/my.cnf 
+
+
+validate-password=OFF
+server_id=101
+gtid_mode=ON
+enforce_gtid_consistency=ON
+master_info_repository=TABLE
+relay_log_info_repository=TABLE
+binlog_checksum=NONE
+log_slave_updates=ON
+log_bin=binlog
+binlog_format=ROW
+transaction_write_set_extraction=XXHASH64
+loose-group_replication_group_name="ce9be252-2b71-11e6-b8f4-00212844f856"
+loose-group_replication_start_on_boot =OFF
+loose-group_replication_local_address="mgr2:33061"
+loose-group_replication_group_seeds="mgr1:33061, mgr2:33061, mgr3:33061"
+loose-group_replication_bootstrap_group=OFF
+loose-group_replication_ip_whitelist='mgr1,mgr2,mgr3'
+report_host=mgr2
+report_port=3306
+
+
+~~~
+
+### 指令执行
+
+~~~bash
+重启 MySQL 服务
+systemctl restart mysqld
+用户授权
+mysql -u root -pBob.123456
+# 停掉日志记录
+set SQL_LOG_BIN=0;
+grant replication slave on *.* to repl@'%' identified by '123456';
+flush privileges;
+# 开启日志记录
+set SQL_LOG_BIN=1; 
+# 构建 group replication 集群
+change master to master_user='repl',master_password='123456' for channel 'group_replication_recovery';
+安装 group replication 插件
+install PLUGIN group_replication SONAME 'group_replication.so';
+ 
+把实例添加到之前的复制组
+set global group_replication_allow_local_disjoint_gtids_join=ON;
+start group_replication;
+
+~~~
+
+## 验证
+
+~~~bash
+
+系统查看
+# 根据只读方式查看是否为主节点，从节点为只读模式
+# read_only OFF 代表此节点为主节点
+show variables like '%read_only'; 
+
+验证高可用，停止插件，然后查看节点的只读状态
+STOP GROUP_REPLICATION;
+show variables like '%read_only';
+
+
+数据验证
+create database test;
+use test;
+create table t1 (id int primary key,name varchar(20));
+insert into t1 values (1,'man');
+select * from t1;
+show binlog events;
+~~~
+
+## 扩展
+
+~~~bash
+扩展：扩展-multi-primary 多主模式
+1. 该模式启用需设置两个参数
+# 这个参数很好理解，就是关闭单 master 模式
+group_replication_single_primary_mode=0
+# 这个参数设置多主模式下各个节点严格一致性检查
+group_replication_enforce_update_everywhere_checks=1
+2. 默认启动的都是单 master 模式，其他节点都设置了 read_only、super_read_only 这两个参
+数，需要修改这两个配置
+3. 完成上面的配置后就可以执行多点写入了，多点写入会存在冲突检查，这耗损性能挺大的，官方建议采用网络分区功能，在程序端把相同的业务定位到同一节点，尽量减少冲突发生几率。由单主模式修改为多主模式方法
+
+~~~
+
+# ProxySql
+
+## 说明
+
++ 1.XX版本在读负载均衡时可能存在问题，最好使用2.XX以上的版本
++ 该部署流程实现最起码需要存在2个以上的mysql节点，并且配置了MGR才可以
+
+## 安装
+
+~~~bin
+//配置yum源
+[root@xian ~]# cat <<EOF | tee /etc/yum.repos.d/proxysql.repo
+[proxysql_repo]
+name= ProxySQL
+baseurl=http://repo.proxysql.com/ProxySQL/proxysql-2.0.x/centos/7
+gpgcheck=1
+gpgkey=http://repo.proxysql.com/ProxySQL/repo_pub_key
+EOF
+[proxysql_repo]
+name= ProxySQL
+baseurl=http://repo.proxysql.com/ProxySQL/proxysql-2.0.x/centos/7
+gpgcheck=1
+gpgkey=http://repo.proxysql.com/ProxySQL/repo_pub_key
+
+[root@xian ~]# yum -y install proxysql
+[root@xian ~]# systemctl start proxysql
+[root@xian ~]# chkconfig proxysql on
+Note: Forwarding request to 'systemctl enable proxysql.service'.
+[root@xian ~]# ss -antl
+State       Recv-Q Send-Q Local Address:Port               Peer Address:Port              
+LISTEN      0      128     *:9000                *:*                  
+LISTEN      0      128     *:6032                *:*                  
+LISTEN      0      128     *:6033                *:*                  
+LISTEN      0      128     *:6033                *:*                  
+LISTEN      0      128     *:6033                *:*                  
+LISTEN      0      128     *:6033                *:*                  
+LISTEN      0      128     *:22                  *:*                  
+LISTEN      0      100    127.0.0.1:25                  *:*                  
+LISTEN      0      80     :::3306               :::*                  
+LISTEN      0      128    :::22                 :::*                  
+LISTEN      0      100       ::1:25                 :::*                  
+
+~~~
+
+当 ProxySQL 启动后，将监听两个端口：
+
+admin管理接口，默认端口为6032。该端口用于查看、配置ProxySQL
+接收SQL语句的接口，默认端口为6033，这个接口类似于MySQL的3306端口
+
+ProxySQL 的 admin 管理接口是一个使用 MySQL 协议的接口，所以，可以直接使用 mysql 客户端、navicat 等工具去连接这个管理接口，其默认的用户名和密码均为 admin
+
+例如，使用 mysql 客户端去连接 ProxySQL 的管理接口：
+
+~~~bin
+[root@xian ~]# mysql -uadmin -padmin -h127.0.0.1 -P6032
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1
+Server version: 5.5.30 (ProxySQL Admin Module)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> mysql> show databases;
++-----+---------------+-------------------------------------+
+| seq | name          | file                                |
++-----+---------------+-------------------------------------+
+| 0   | main          |                                     |
+| 2   | disk          | /var/lib/proxysql/proxysql.db       |
+| 3   | stats         |                                     |
+| 4   | monitor       |                                     |
+| 5   | stats_history | /var/lib/proxysql/proxysql_stats.db |
++-----+---------------+-------------------------------------+
+5 rows in set (0.00 sec)
+~~~
+
+## 添加帐号
+
+~~~bin
+添加管理员帐户
+
+mysql> select @@admin-admin_credentials;
++---------------------------+
+| @@admin-admin_credentials |
++---------------------------+
+| admin:admin               |
++---------------------------+
+1 row in set (0.00 sec)
+
+//设置管理员帐号myadmin,密码yei123!
+mysql> set admin-admin_credentials='admin:admin;myadmin:yei123!';
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select @@admin-admin_credentials;
++-----------------------------+
+| @@admin-admin_credentials   |
++-----------------------------+
+| admin:admin;myadmin:yei123! |
++-----------------------------+
+1 row in set (0.00 sec)
+
+mysql> load admin variables to runtime;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> save admin variables to disk;   
+Query OK, 35 rows affected (0.00 sec)
+
+修改后，就可以使用该用户名和密码连接管理接口
+
+[root@xian ~]# mysql -u myadmin -p yei123! -hmgr1 -P6032
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.5.30 (ProxySQL Admin Module)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+
+所有的配置操作都是在修改main库中对应的表
+
+mysql> select * from global_variables where variable_name='admin-admin_credentials'; 
++-------------------------+-----------------------------+
+| variable_name           | variable_value              |
++-------------------------+-----------------------------+
+| admin-admin_credentials | admin:admin;myadmin:yei123! |
++-------------------------+-----------------------------+
+1 row in set (0.01 sec)
+
+~~~
+
+必须要区分admin管理接口的用户名和mysql_users中的用户名
+
+admin管理接口的用户是连接到管理接口(默认端口6032)上用来管理、配置ProxySQL的
+mysql_users表中的用户名是应用程序连接ProxySQL(默认端口6033)，以及ProxySQL连接后端MySQL Servers使用的用户。它的作用是发送、路由SQL语句，类似于MySQL Server的3306端口。所以，这个表中的用户必须已经在后端MySQL Server上存在且授权了
+admin管理接口的用户必须不能存在于mysql_users中，这是出于安全的考虑，防止通过admin管理接口用户猜出mysql_users中的用户
+
+## 启动
+
+~~~bin
+systemctl start proxysql
+~~~
+
+## 规划读写组
+
+| 默认的写组 | 后备的写组 | 读组 | 离线组 |
+| ---------- | ---------- | ---- | ------ |
+| 10         | 20         | 30   | 40     |
+
+## 配置ProxySQL
+
+在MGR主节点执行下面SQL语句，创建视图提供给ProxySQL判断该节点状态
+
+~~~sql
+USE sys;
+
+DELIMITER $$
+
+CREATE FUNCTION IFZERO(a INT, b INT)
+RETURNS INT
+DETERMINISTIC
+RETURN IF(a = 0, b, a)$$
+
+CREATE FUNCTION LOCATE2(needle TEXT(10000), haystack TEXT(10000), offset INT)
+RETURNS INT
+DETERMINISTIC
+RETURN IFZERO(LOCATE(needle, haystack, offset), LENGTH(haystack) + 1)$$
+
+CREATE FUNCTION GTID_NORMALIZE(g TEXT(10000))
+RETURNS TEXT(10000)
+DETERMINISTIC
+RETURN GTID_SUBTRACT(g, '')$$
+
+CREATE FUNCTION GTID_COUNT(gtid_set TEXT(10000))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+  DECLARE result BIGINT DEFAULT 0;
+  DECLARE colon_pos INT;
+  DECLARE next_dash_pos INT;
+  DECLARE next_colon_pos INT;
+  DECLARE next_comma_pos INT;
+  SET gtid_set = GTID_NORMALIZE(gtid_set);
+  SET colon_pos = LOCATE2(':', gtid_set, 1);
+  WHILE colon_pos != LENGTH(gtid_set) + 1 DO
+     SET next_dash_pos = LOCATE2('-', gtid_set, colon_pos + 1);
+     SET next_colon_pos = LOCATE2(':', gtid_set, colon_pos + 1);
+     SET next_comma_pos = LOCATE2(',', gtid_set, colon_pos + 1);
+     IF next_dash_pos < next_colon_pos AND next_dash_pos < next_comma_pos THEN
+       SET result = result +
+         SUBSTR(gtid_set, next_dash_pos + 1,
+                LEAST(next_colon_pos, next_comma_pos) - (next_dash_pos + 1)) -
+         SUBSTR(gtid_set, colon_pos + 1, next_dash_pos - (colon_pos + 1)) + 1;
+     ELSE
+       SET result = result + 1;
+     END IF;
+     SET colon_pos = next_colon_pos;
+  END WHILE;
+  RETURN result;
+END$$
+
+CREATE FUNCTION gr_applier_queue_length()
+RETURNS INT
+DETERMINISTIC
+BEGIN
+  RETURN (SELECT sys.gtid_count( GTID_SUBTRACT( (SELECT
+Received_transaction_set FROM performance_schema.replication_connection_status
+WHERE Channel_name = 'group_replication_applier' ), (SELECT
+@@global.GTID_EXECUTED) )));
+END$$
+
+CREATE FUNCTION gr_member_in_primary_partition()
+RETURNS VARCHAR(3)
+DETERMINISTIC
+BEGIN
+  RETURN (SELECT IF( MEMBER_STATE='ONLINE' AND ((SELECT COUNT(*) FROM
+performance_schema.replication_group_members WHERE MEMBER_STATE != 'ONLINE') >=
+((SELECT COUNT(*) FROM performance_schema.replication_group_members)/2) = 0),
+'YES', 'NO' ) FROM performance_schema.replication_group_members JOIN
+performance_schema.replication_group_member_stats USING(member_id));
+END$$
+
+CREATE VIEW gr_member_routing_candidate_status AS SELECT
+sys.gr_member_in_primary_partition() as viable_candidate,
+IF( (SELECT (SELECT GROUP_CONCAT(variable_value) FROM
+performance_schema.global_variables WHERE variable_name IN ('read_only',
+'super_read_only')) != 'OFF,OFF'), 'YES', 'NO') as read_only,
+sys.gr_applier_queue_length() as transactions_behind, Count_Transactions_in_queue as 'transactions_to_cert' from performance_schema.replication_group_member_stats;$$
+
+DELIMITER ;
+~~~
+
+
+到各个节点检查视图是否创建成功
+
+~~~sql
+mysql> SELECT * FROM sys.gr_member_routing_candidate_status;
++------------------+-----------+---------------------+----------------------+
+| viable_candidate | read_only | transactions_behind | transactions_to_cert |
++------------------+-----------+---------------------+----------------------+
+| YES              | NO        |                   0 |                    0 |
++------------------+-----------+---------------------+----------------------+
+1 row in set (0.00 sec)
+~~~
+
+
+在MGR主节点执行下面SQL语句,创建监控用户用于ProxySQL监控数据库状态
+
+~~~sql
+create user 'monitor'@'%' identified by 'monitor';
+grant select on sys.* to 'monitor'@'%';
+~~~
+
+
+在MGR主节点创建用户，用于ProxySQL访问
+
+~~~sql
+create user 'proxysql'@'%' identified by 'proxysql';
+grant all on *.* to 'proxysql'@'%';
+~~~
+
+
+在ProxySQL节点，连接ProxySQL的Admin管理接口
+
+~~~sql
+mysql -uadmin -padmin --prompt='proxysql> ' -P6032 -h127.0.0.1
+~~~
+
+
+在mysql_servers添加后端节点
+
+~~~sql
+insert into mysql_servers(hostgroup_id,hostname,port,weight,max_connections,max_replication_lag,comment) values (10,'192.168.160.128',3306,1,3000,10,'mgr_node1');
+insert into mysql_servers(hostgroup_id,hostname,port,weight,max_connections,max_replication_lag,comment) values (10,'192.168.160.146',3306,1,3000,10,'mgr_node2');
+insert into mysql_servers(hostgroup_id,hostname,port,weight,max_connections,max_replication_lag,comment) values (10,'192.168.160.147',3306,1,3000,10,'mgr_node3');
+
+select * from mysql_servers;
+~~~
+
+~~~sql
+# 将mysql_servers表加载到runtime
+LOAD mysql users TO RUNTIME;
+LOAD mysql servers TO RUNTIME;
+# 将mysql_servers表保存到磁盘
+SAVE mysql servers TO DISK;
+~~~
+
+~~~sql
+# 设置监控用户账户密码
+proxysql> set mysql-monitor_username='monitor';
+proxysql> set mysql-monitor_password='monitor';
+# 加载到runtime
+proxysql> LOAD mysql variables TO RUNTIME;
+# 保存到磁盘中
+proxysql> SAVE mysql variables TO DISK;
+~~~
+
+~~~sql
+#设置提供访问 mgr集群 的用户
+insert into mysql_users(username,password,active,default_hostgroup,transaction_persistent)values('proxysql','proxysql',1,10,1);
+select * from mysql_users;
+# 加载到runtime
+load mysql users to runtime;
+# 保存到磁盘中
+save mysql users to disk;
+~~~
+
+~~~sql
+# 配置mysql_group_replication_hostgroups表
+insert into mysql_group_replication_hostgroups(writer_hostgroup,backup_writer_hostgroup,reader_hostgroup,offline_hostgroup,active,max_writers,writer_is_also_reader,max_transactions_behind)  values(10,20,30,40,1,1,0,0);
+select * from mysql_group_replication_hostgroups;
+
+# 加载到runtime
+load mysql servers to runtime;
+# 保存到磁盘中
+save mysql servers to disk;
+~~~
+
+
+~~~sql
+# 设置读写分离规则
+insert into mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)values(1,1,'^SELECT.*FOR UPDATE$',10,1);
+insert into mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)values(2,1,'^SELECT',30,1);
+select * from mysql_query_rules;
+
+proxysql> load mysql query rules to runtime;
+proxysql> save mysql query rules to disk;
+~~~
+
+
+## 查看相关状态
+### 查看后端节点健康状态
+
+~~~sql
+proxysql>  SELECT * FROM monitor.mysql_server_connect_log ORDER BY time_start_us DESC LIMIT 10 ;
+proxysql>  SELECT * FROM monitor.mysql_server_ping_log ORDER BY time_start_us DESC LIMIT 10;
+
+# 查看MGR配置
+proxysql> select * from mysql_group_replication_hostgroups\G
+*************************** 1. row ***************************
+       writer_hostgroup: 10  # 写组
+backup_writer_hostgroup: 20  # 后备写组
+       reader_hostgroup: 30  # 读组
+      offline_hostgroup: 40  # 下线组
+                 active: 1   # 是否启用
+            max_writers: 1   # 最多的写节点个数
+  writer_is_also_reader: 0   # 决定一个节点升级为写节点(放进writer_hostgroup)后是否仍然保留在reader_hostgroup组中提供读服务。如果mgr多主模式需要设置为1
+max_transactions_behind: 0   #  该字段决定最多延后写节点多少个事务
+                comment: NULL # 注释
+1 row in set (0.00 sec)
+
+# 查看MGR相关的监控指标
+MySQL [(none)]> select * from mysql_server_group_replication_log desc limit 10;
+
+proxysql> select * from mysql_server_group_replication_log group by hostname;
++-----------------+------+------------------+-----------------+------------------+-----------+---------------------+-------+
+| hostname        | port | time_start_us    | success_time_us | viable_candidate | read_only | transactions_behind | error |
++-----------------+------+------------------+-----------------+------------------+-----------+---------------------+-------+
+| 192.168.160.128 | 3306 | 1683597644641467 | 2550            | YES              | NO        | 0                   | NULL  |
+| 192.168.160.146 | 3306 | 1683597644642388 | 3956            | YES              | YES       | 0                   | NULL  |
+| 192.168.160.147 | 3306 | 1683597644642843 | 2472            | YES              | YES       | 0                   | NULL  |
++-----------------+------+------------------+-----------------+------------------+-----------+---------------------+-------+
+3 rows in set (0.00 sec)
+~~~
+
+
+## 测试
+
+### 测试读场景
+
+~~~sql
+[root@localhost ~]> for i in `seq 1 10`; do mysql -uproxysql -pproxysql -hmgr1 -P6033 -e 'select * from performance_schema.global_variables where variable_name="server_id";' ; done  | grep server
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       53
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       53
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       53
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       53
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       52
+~~~
+
+
+可以看到读组默认都到了52和53上
+
+### 测试写场景
+
+~~~sql
+[root@localhost ~]# for i in `seq 1 10`; do mysql -uproxysql -pproxysql -h192.168.240.54 -P6033 -e 'select * from performance_schema.global_variables where variable_name="server_id" for update;' ; done  | grep server
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+mysql: [Warning] Using a password on the command line interface can be insecure.
+server_id       51
+
+~~~
+
+for update请求都到了51节点上
+
+
+
+### 测试插入
+
+因为只有主可写，所以只要正常插入没问题，则表示插入操作自动路由到写节点
+
+~~~sql
+[root@localhost ~]# for i in `seq 1 10`; do mysql -uproxysql -pproxysql -h192.168.240.54 -P6033 -e "insert into mgr_test.t values($i)" ; done
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+~~~
+
+
+进入数据库从节点查看表
+
+~~~sql
+mysql> select * from mgr_test.t;
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
+|  4 |
+|  5 |
+|  6 |
+|  7 |
+|  8 |
+|  9 |
+| 10 |
++----+
+
+10 rows in set (0.00 sec)
+~~~
+
+
+### 测试MGR故障转移
+
+~~~sql
+down掉主节点
+
+mysqladmin  shutdown
+1
+执行写入操作
+
+[root@localhost ~]# for i in `seq 11 20`; do mysql -uproxysql -pproxysql -h192.168.240.54 -P6033 -e "insert into mgr_test.t values($i)" ; done
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+
+能正常继续写入,进入ProxySQL管理节点查看节点状态
+
+[root@localhost ~]# mysql -uadmin -padmin -P6032 -h127.0.0.1 -e "select hostgroup_id, hostname, port,status from runtime_mysql_servers;"
++--------------+----------------+------+---------+
+| hostgroup_id | hostname       | port | status  |
++--------------+----------------+------+---------+
+| 10           | 192.168.240.53 | 3306 | ONLINE  |
+| 30           | 192.168.240.52 | 3306 | ONLINE  |
+| 20           | 192.168.240.51 | 3306 | SHUNNED |
++--------------+----------------+------+---------+
+可以看到51节点已经状态为SHUNNED，被避开了
+
+现在启动51节点的MySQL
+mysqld --daemonize
+
+进入51节点数据库中启动组复制
+stop group_replication;
+CHANGE MASTER TO MASTER_USER='rpl_user', MASTER_PASSWORD='Hal@123' FOR CHANNEL 'group_replication_recovery';
+start group_replication;
+再次查看组成员状态
+
+[root@localhost ~]# mysql -uadmin -padmin -P6032 -h127.0.0.1 -e "select hostgroup_id, hostname, port,status from runtime_mysql_servers;"
++--------------+----------------+------+--------+
+| hostgroup_id | hostname       | port | status |
++--------------+----------------+------+--------+
+| 10           | 192.168.240.53 | 3306 | ONLINE |
+| 30           | 192.168.240.51 | 3306 | ONLINE |
+| 30           | 192.168.240.52 | 3306 | ONLINE |
++--------------+----------------+------+--------+
+
+可以看到已经自动上线了
+~~~
+
+## 远程链接方式
+
+~~~sql
+6033 可操作MGR数据库的帐号和密码
+~~~
+
+
+
+# Mysql-Router
+
+## 概述
+
++ 可以事项故障迁移 和 读写分离的负载均衡
++ 但是针对MGR的单主模式支持不是很好，不能够将写库重新加入到服务列表当中
+
+## 下载安装
+
+~~~bash
+wget https://dev.mysql.com/get/Downloads/MySQL-Router/mysql-router-8.0.11-linux-glibc2.12-x86-64bit.tar.gz
+tar -zxvf mysql-router-8.0.11-linux-glibc2.12-x86-64bit.tar.gz
+cp -rf mysql-router-2.1.4-linux-glibc2.12-x86-64bit /usr/local/mysql-router 
+mkdir /usr/local/mysql-router/conf/
+~~~
+
+
+
+## 配置文件
+
+~~~ini
+[DEFAULT]
+logging_folder=/usr/local/mysql-router/log
+runtime_folder=/usr/local/mysql-router/run
+data_folder=/usr/local/mysql-router/data
+connect_timeout=30
+read_timeout=30
+
+[logger]
+level=INFO
+
+[routing:failover]
+bind_address=0.0.0.0
+bind_port=7001
+max_connections=1024
+mode=read-write
+# 可用的支持写操作的主库，或者主库共用的VIP
+destinations=mgr1:3306,mgr2:3306,mgr3:3306
+routing_strategy=first-available
+
+
+# 读写分离配置
+[routing:balancing] 
+bind_address=0.0.0.0
+# 端口7002 
+bind_port=7002
+max_connections=1024 
+mode=read-only
+destinations=mgr1:3306,mgr2:3306,mgr3:3306
+~~~
+
+
+
+## 环境变量
+
+~~~bash
+改一下环境变量：
+
+echo "export PATH=$PATH:/usr/local/mysql-router/bin/" >> /etc/profile
+source /etc/profile
+
+验证安装配置是否成功：
+mysqlrouter -V
+MySQL Router v8.0.11 on Linux (64-bit) (GPL community edition)
+
+chown -R mysql: /usr/local/mysql-router
+
+~~~
+
+## 启动
+
+~~~bash
+/usr/local/mysql-router/bin/mysqlrouter -c /usr/local/mysql-router/conf/mysqlrouter.ini &
+netstat -ntpl|grep mysqlrouter
+# 可以看到7001和7002端口已经被使用；
+
+[root@mgr1 conf]# netstat -ntpl|grep mysqlrouter
+tcp        0      0 0.0.0.0:7001            0.0.0.0:*               LISTEN      38133/mysqlrouter   
+tcp        0      0 0.0.0.0:7002            0.0.0.0:*               LISTEN      38133/mysqlrouter   
+[2]+  退出 1                /usr/local/mysql-router/bin/mysqlrouter -c /usr/local/mysql-router/conf/mysqlrouter.ini
+~~~
+
+
+
+## 测试
+
+~~~bash
+ mysql -uroot -pBob.123456 -h mgr1 -P 7001 -e "select * from performance_schema.replication_group_members\G"
+ mysql -uroot -pBob.123456 -hmgr1 -P 7001 -e "INSERT INTO mgr_test.t (id) VALUES('27');"
+
+先测试写端口7001：
+mysql -uroot -pBob.123456 -hmgr1 -P 7001 -e "select @@hostname"
+mgr1，因为写的话read-write里面的两个主机，首先访问第一个，只有第一个故障才会访问第二个；
+
+再测试读：
+mysql -uroot -pBob.123456 -hmgr1 -P 7002 -e "select @@hostname"
+轮询显示mgr1和mgr2。
+
+fail-over测试,
+从库failover：重新拉起后可以自动加入轮询；
+mgr2上执行pkill mysql 
+mysql -umonitor -pmonitor -h 192.168.1.99 -P 7002 -e "select @@hostname"
+只得到mgr3
+重启mgr2上的mysql再次执行
+mysql -umonitor -pmonitor -h 192.168.1.99 -P 7002 -e "select @@hostname"可轮询。
+
+主库failover
+mgr1上pkill mysql
+mysql -umonitor -pmonitor -h 192.168.1.99 -P 7001 -e "select @@hostname"
+得到mgr2，但是如果执行：
+mysql -umonitor -pmonitor -h 192.168.1.99 -P 7001 -e "create database xxxx"
+就会报错：The MySQL server is running with the --super-read-only option so it cannot execute this statement
+说明备份主库不能是read-only，否则主库切换之后会报错，MGR单主模式不行。
+~~~
+
+
+
+## 官方配置文件
+
+~~~ini
+[DEFAULT]
+logging_folder=/opt/routers/myrouter/log
+runtime_folder=/opt/routers/myrouter/run
+data_folder=/opt/routers/myrouter/data
+keyring_path=/opt/routers/router/data/keyring
+master_key_path=/opt/routers/myrouter/mysqlrouter.key
+connect_timeout=30
+read_timeout=30
+
+[logger]
+level = INFO
+
+[metadata_cache:mycluster]
+router_id=5
+bootstrap_server_addresses=mysql://localhost:3310,mysql://localhost:3320,mysql://localhost:3330
+user=mysql_router5_6owf3spq1c6n
+metadata_cluster=mycluster
+ttl=5
+
+[routing:mycluster_default_rw]
+bind_address=0.0.0.0
+bind_port=6446
+destinations=metadata-cache://mycluster/default?role=PRIMARY
+routing_strategy=round-robin
+protocol=classic
+
+[routing:mycluster_default_ro]
+bind_address=0.0.0.0
+bind_port=6447
+destinations=metadata-cache://mycluster/default?role=SECONDARY
+routing_strategy=round-robin
+protocol=classic
+
+[routing:mycluster_default_x_rw]
+bind_address=0.0.0.0
+bind_port=64460
+destinations=metadata-cache://mycluster/default?role=PRIMARY
+routing_strategy=round-robin
+protocol=x
+
+[routing:mycluster_default_x_ro]
+bind_address=0.0.0.0
+bind_port=64470
+destinations=metadata-cache://mycluster/default?role=SECONDARY
+routing_strategy=round-robin
+protocol=x
+~~~
+
+
+
+
+
+
+
+
 
 
 
