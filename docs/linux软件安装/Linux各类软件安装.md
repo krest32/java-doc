@@ -45,7 +45,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 配置，然后重新重启网路
 
 ~~~bash
-IPADDR=192.168.160.146
+IPADDR=192.168.160.152
 NETMASK=255.255.255.0
 GATEWAY=192.168.160.2
 DNS1=8.8.8.8
@@ -256,24 +256,28 @@ export PATH=${PATH}:${MAVEN_HOME}/bin
 
 # 设置开机启动
 
-以`Redis`为例
+以`nginx`为例
 
 + 新建一个系统服务文件：
 
   ~~~bash
-  vi /etc/systemd/system/redis.service
+  cd /lib/systemd/system   //存放由操作系统管理的启动程序
+  vim nginx.service     //创建一个nginx服务文件
+  
   ~~~
 
 + 内容如下
 
   ~~~txt
   [Unit]
-  Description=redis-server
+  Description=nginx
   After=network.target
   
   [Service]
   Type=forking
-  ExecStart=/usr/local/module/redis/src/redis-server /usr/local/module/redis/redis.conf
+  ExecStart=/usr/local/nginx/sbin/nginx
+  ExecReload=/usr/local/nginx/sbin/nginx -s reload
+  ExecStop=/usr/local/nginx/sbin/nginx -s stop
   PrivateTmp=true
   
   [Install]
@@ -283,16 +287,21 @@ export PATH=${PATH}:${MAVEN_HOME}/bin
 + 重载系统服务
 
   ~~~bash
+  # 重新加载配置
   systemctl daemon-reload
   ~~~
 
 + 设置开机启动
 
   ~~~bash
-  systemctl enable redis
+  systemctl [操作] nginx.service/nginx
+  
+  systemctl stop nginx        #停止
+  systemctl restart nginx    #重启
+  systemctl status nginx     #状态
+  systemctl enable nginx     #允许开机自动启动
+  systemctl disable nginx    #禁止开机自动启动(默认)
   ~~~
-
-+ 控制 Redis 服务
 
 
 
@@ -709,6 +718,56 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
   update user set host = '%' where user = 'root'; #使root能再任何host访问
   FLUSH PRIVILEGES;    #刷新
   ~~~
+
+## yum 安装mysql8.0.33
+
+~~~bash
+
+wget https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm
+rpm -ivh mysql80-community-release-el7-7.noarch.rpm
+
+yum -y install mysql mysql-server mysql-devel
+或者
+yum -y install mysql-server
+
+
+
+systemctl daemon-reload
+systemctl start mysqld.service
+netstat -lnp|grep 3306
+systemctl restart mysqld.service
+
+ 
+// 重新加载
+systemctl daemon-reload
+// 启动
+systemctl start mysqld.service
+// 重启
+systemctl restart mysqld.service
+// 停止
+systemctl stop mysqld.service
+// 查看启动状态
+systemctl status mysqld.service
+// 加入开机启动
+systemctl enable mysqld.service
+// 取消开机启动
+systemctl disable mysqld.service
+
+
+
+# 查看临时密码
+/var/log/mysqld.log
+
+mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'myW.MyyhTw147258';
+FLUSH PRIVILEGES;   
+~~~
+
+
+
+
+
+
 
 ## 设置密码策略
 
@@ -2272,6 +2331,42 @@ cd /usr/local/nginx/sbin
 ps -ef|grep nginx
 ~~~
 
+## 开机启动
+
+~~~shell
+cd /lib/systemd/system   //存放由操作系统管理的启动程序
+vim nginx.service     //创建一个nginx服务文件
+
+
+
+[Unit]
+Description=nginx
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s stop
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+# 重新加载配置
+systemctl daemon-reload
+创建好这个服务文件后，启动nginx就可以在任何目录中使用
+systemctl [操作] nginx.service/nginx
+
+systemctl stop nginx        #停止
+systemctl restart nginx    #重启
+systemctl status nginx     #状态
+systemctl enable nginx     #允许开机自动启动
+systemctl disable nginx    #禁止开机自动启动(默认)
+
+~~~
+
 
 
 # Tomcat
@@ -2308,6 +2403,410 @@ ps -ef|grep nginx
   ~~~
 
 + 重新启动访问：http://192.168.160.128:8002/
+
+## 开机启动
+
+~~~shell
+cd /lib/systemd/system   //存放由操作系统管理的启动程序
+vim tomcat.service     //创建一个tomcat服务文件
+
+
+[Unit]
+Description=Apache Tomcat 8
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/tomcat/bin/startup.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/usr/local/tomcat/bin/shutdown.sh
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+# 重新加载配置
+systemctl daemon-reload
+# 系统指令
+systemctl stop tomcat       #停止
+systemctl restart tomcat    #重启
+systemctl status tomcat     #状态
+systemctl enable tomcat     #允许开机自动启动
+systemctl disable tomcat    #禁止开机自动启动(默认)
+~~~
+
+
+
+
+
+
+
+# Keepalived
+
+## 功能
+
+可以实现服务的高可用，自动进行主备切换，一般来说配置是一主一从的主备切换
+
+**非抢占模式下：**当master机器出现故障时，keepalived第一时间收回虚拟IP地址并分配给slave机器，此时相当于slave机器升级为master机器,此时用户只需要记住keepalived的虚拟IP地址即可
+
+## 架构说明
+
+1. Nginx+keepalived 双机主从模式：即前端使用两台服务器，一台主服务器和一台热备服务器，正常情况下，主服务器绑定一个公网虚拟IP，提供负载均衡服务，热备服务器处于空闲状态；当主服务器发生故障时，热备服务器接管主服务器的公网虚拟IP，提供负载均衡服务；但是热备服务器在主机器不出现故障的时候，永远处于浪费状态，对于服务器不多的网站，该方案不经济实惠。
+2. Nginx+keepalived 双机主主模式：即前端使用两台负载均衡服务器，互为主备，且都处于活动状态，同时各自绑定一个公网虚拟IP，提供负载均衡服务；当其中一台发生故障时，另一台接管发生故障服务器的公网虚拟IP（这时由非故障机器一台负担所有的请求）。这种方案，经济实惠，非常适合于当前架构环境。
+
+## 准备工作
+
+~~~bash
+临时关闭：
+[root@localhost ~]# getenforce Enforcing
+[root@localhost ~]# setenforce 0
+[root@localhost ~]# getenforce
+Permissive
+
+永久关闭：
+[root@localhost ~]# vim /etc/sysconfig/selinux
+SELINUX=enforcing 改为 SELINUX=disabled
+
+sed -i "s/^SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config
+然后重启
+
+~~~
+
+## 安装配置（双主）
+
+以`keepalived+nginx`为例
+
+~~~bash
+# 安装
+yum -y install keepalived
+
+# 配置
+vim etc/keepalived/keepalived.conf
+
+~~~
+
+### 主机配置文件
+
+~~~conf
+# 修改 Keepalived 配置文件，将原本的 keepalived.conf 文件备份，新建 keepalived.conf 文件加入如下内容
+mv /etc/keepalived/keepalived.conf /etc/keepalived/keepalived.conf.bak
+vim /etc/keepalived/keepalived.conf
+
+
+# 注意：这个是 master(主机) 的配置文件
+! Configuration File for keepalived		# 这一行为注释
+global_defs { 
+  notification_email {
+      clevercode@qq.com
+      clevercode1@qq.com
+      clevercode2@qq.com
+  }
+  notification_email_from root
+  smtp_server 127.0.0.1
+  smtp_connect_timeout 30
+  router_id nginx01							# router_id 机器标识，通常使用 hostname，相对具有唯一性，和备机区分开，不能使用同一个标识
+}
+
+
+vrrp_script chk_nginx {						# 定义一个检测脚本，在global_defs之外配置
+  script "/etc/keepalived/check_nginx.sh"	# 自己写的监测脚本
+  interval 2								# 每2s监测一次
+  weight 10									# 该参数用于指定当监测失效时，该设备的优先级会减少的值，该值为负表示减少
+  fall 2       								# 尝试两次都成功才成功
+  rise 2        							# 尝试两次都失败才失败
+}
+
+
+vrrp_instance VI_1 {		# 定义一个vrrp_install实例，名称为VI_1
+	state MASTER			# 表示该实例的角色状态，有MASTER和BACKUP两种主备状态
+	interface ens33			# 对外提供服务的网络接口，注意修改为自己的网卡名称，如 ens33,eth0,eth1
+	virtual_router_id 51	# 虚拟路由ID标识，主备服务器配置中相同实例的ID必须一致
+	priority 100			# priority表示实例优先级，数字越大，优先级越高。master 的优先级必须大于 backup
+	advert_int 1			# 设定 master 与 backup 负载均衡器之间同步检查的时间间隔，默认是秒
+	
+	authentication {		# 权限认证配置
+		auth_type PASS		# 主要有 PASS 和 AH 两种
+		auth_pass 1111		# 验证密码，同一个 vrrp_instance 下 MASTER 和 BACKUP 密码必须相同
+	}
+	
+	virtual_ipaddress {
+		192.168.160.160		# 虚拟IP地址；可以配置多个IP，每个IP占一行。注意，这里的IP就是在工作中访问 zabbix server 需要和域名绑定的ip
+	}
+	
+	track_script {			# 调用自定义的脚本
+        chk_nginx
+    }	
+   # notify_master "/etc/keepalived/notify.sh master 172.16.159.140"
+   # notify_backup "/etc/keepalived/notify.sh backup 172.16.159.140"
+   # notify_fault  "/etc/keepalived/notify.sh fault 172.16.159.140"
+
+}
+
+vrrp_instance VI_2 {
+    state BACKUP
+    interface eth0
+    virtual_router_id 52
+    priority 70
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.160.160
+    }
+   # notify_master "/etc/keepalived/notify.sh master 172.16.159.140"
+   # notify_backup "/etc/keepalived/notify.sh backup 172.16.159.140"
+   # notify_fault  "/etc/keepalived/notify.sh fault 172.16.159.140"
+}
+~~~
+
+### 备机配置文件
+
+~~~conf
+# 注意：这个是 master(备机) 的配置文件
+mv /etc/keepalived/keepalived.conf /etc/keepalived/keepalived.conf.bak
+
+vim /etc/keepalived/keepalived.conf
+
+! Configuration File for keepalived			# 这一行为注释
+global_defs { 
+  notification_email {
+      clevercode@qq.com
+      clevercode1@qq.com
+      clevercode2@qq.com
+  }
+  notification_email_from root
+  smtp_server 127.0.0.1
+  smtp_connect_timeout 30
+  router_id nginx02						# router_id 机器标识，通常使用 hostname，相对具有唯一性，和主机区分开，不能使用同一个标识
+}
+
+vrrp_script chk_nginx {						# 定义一个检测脚本，在global_defs之外配置
+  script "/etc/keepalived/check_nginx.sh"	# 自己写的监测脚本
+  interval 2								# 每2s监测一次
+  weight 10									# 该参数用于指定当监测失效时，该设备的优先级会减少的值，该值为负表示减少
+  fall 2        							# 尝试两次都成功才成功
+  rise 2        							# 尝试两次都失败才失败
+}
+
+vrrp_instance VI_1 {		# 定义一个vrrp_install实例，名称为VI_1
+	state BACKUP			# 表示该实例的角色状态，有MASTER和BACKUP两种主备状态
+	interface ens33			# 对外提供服务的网络接口，注意修改为自己的网卡名称，如 ens33,eth0,eth1
+	virtual_router_id 51	# 虚拟路由ID标识，主备服务器配置中相同实例的ID必须一致
+	priority 70 			# priority表示实例优先级，数字越大，优先级越高。master 的优先级必须大于 backup
+	advert_int 1			# 设定 master 与 backup 负载均衡器之间同步检查的时间间隔，默认是秒
+	
+	authentication {		# 权限认证配置
+		auth_type PASS		# 主要有 PASS 和 AH 两种
+		auth_pass 1111		# 验证密码，同一个 vrrp_instance 下 MASTER 和 BACKUP 密码必须相同
+	}
+	
+	virtual_ipaddress {
+		192.168.160.160  	# 虚拟IP地址；可以配置多个IP，每个IP占一行。注意，这里的IP就是在工作中访问需要和域名绑定的ip
+	}
+	
+	track_script {			# 调用自定义的脚本
+        chk_nginx
+    }
+	
+   # notify_master "/etc/keepalived/notify.sh master 172.16.159.140"
+   # notify_backup "/etc/keepalived/notify.sh backup 172.16.159.140"
+   # notify_fault  "/etc/keepalived/notify.sh fault 172.16.159.140"
+}
+
+vrrp_instance VI_2 {
+    state MASTER
+    interface eth0
+    virtual_router_id 52
+    priority 100
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.160.160
+    }
+    	
+   # notify_master "/etc/keepalived/notify.sh master 172.16.159.140"
+   # notify_backup "/etc/keepalived/notify.sh backup 172.16.159.140"
+   # notify_fault  "/etc/keepalived/notify.sh fault 172.16.159.140"
+}
+~~~
+
+
+
+
+
+### Nginx 服务检查脚本
+
+~~~shell
+vi /etc/keepalived/check_nginx.sh
+chmod +777 /etc/keepalived/check_nginx.sh
+~~~
+
+~~~
+如果抓取得到的服务个数 等于0，那么执行重启命令，重启之后，如果服务数量等于0，那么说明重启失败，那么返回0即可
+~~~
+
+版本一 nginx停止，keepalive 仍然存活
+
+~~~shell
+#!/bin/bash
+A=`ps -C nginx --no-header |wc -l`        
+if [ $A -eq 0 ];then                            
+    systemctl start nginx
+	if [ `ps -C nginx --no-header |wc -l` -eq 0 ];then
+		exit 1
+	else
+		exit 0
+	fi
+else
+	exit 0
+fi
+~~~
+
+版本二 nginx停止，keepalived 同样停止活动
+
+~~~shell
+#!/bin/bash
+counter=`ps -C nginx --no-header |wc -l`
+echo "$counter"
+if [ ${counter} -eq 0 ]; then
+    systemctl start nginx
+    # sleep 2 不能停止 2s, 否则脚本执行不成功
+    if [ `ps -C nginx --no-header |wc -l` -eq 0 ]; then
+        # /etc/init.d/keepalived stop
+        systemctl stop keepalived
+    fi
+fi
+~~~
+
+
+
+### 备机切换脚本
+
+~~~shell
+# 指定当切换到 backup 时，执行的脚本，切换到 backup 时将 master 的 server 关掉
+#!/bin/bash
+sshpass -p 0 ssh -o StrictHostKeyChecking=no root@192.168.169.151 "nginx -s stop"
+nginx
+~~~
+
+### 修改 nginx 配置文件（非必须）
+
+~~~cnf
+server {
+	listen       80;
+	server_name  192.168.169.200;	# 这里是使用虚拟 IP 访问
+
+	location / {
+		proxy_pass  http://192.168.169.150:8080;
+	}	
+}
+~~~
+
+## 配置通知提醒脚本
+
+~~~shel
+vi /etc/keepalived/notify.sh
+
+chmod +777 /etc/keepalived/notify.sh
+~~~
+
+
+
+~~~shell
+#!/bin/bash
+
+SMS_LIST="18688888881 18688888882 18688888883"
+host_name=`hostname`
+notify ( ) {
+  local now_time=$(date "+%Y-%m-%d %H:%M:%S")
+  #记录日志
+  echo $now_time keepalived ${host_name} change $1 >> /etc/keepalived/notify.log
+  #发送告警短信
+  for i in $SMS_LIST
+  do
+       #python /etc/keepalived/sendsms.py $i keepalived "${now_time} ${host_name} change $1"
+       echo $now_time $i keepalived "${host_name} change $1" >> /etc/keepalived/notify.log
+  done
+}
+case "$1" in
+    master)
+       notify master
+    exit 0
+    ;;
+    backup)
+       notify backup
+    exit 0
+    ;;
+    fault)
+       notify fault
+    exit 0
+    ;;
+    *)
+      echo 'Usage: `basename $0` {master|backup|fault}'
+    exit 1
+    ;;
+esac
+~~~
+
+
+
+
+
+## 启动
+
+~~~bash
+# 启动 keepalived
+systemctl restart keepalived.service
+systemctl enable keepalived.service
+
+
+# master 查看虚拟 IP 地址
+ip a
+~~~
+
+## 日志
+
+查看keepalived日志
+
+~~~bash
+默认日志存放在系统日志：/var/log/messages下
+cat /var/log/messages
+
+Sep 20 11:34:38 localhost Keepalived[10493]: Starting Keepalived v1.2.12 (09/18,2019)
+Sep 20 11:34:38 localhost Keepalived[10494]: Starting Healthcheck child process, pid=10496
+Sep 20 11:34:38 localhost Keepalived[10494]: Starting VRRP child process, pid=10497
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Netlink reflector reports IP 172.16.159.142 added
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Netlink reflector reports IP fe80::250:56ff:fe32:5998 added
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Registering Kernel netlink reflector
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Registering Kernel netlink command channel
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Registering gratuitous ARP shared channel
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Opening file '/etc/keepalived/keepalived.conf'.
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Configuration is using : 65592 Bytes
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: Using LinkWatch kernel netlink reflector...
+Sep 20 11:34:38 localhost Keepalived_vrrp[10497]: VRRP sockpool: [ifindex(2), proto(112), unicast(0), fd(10,11)]
+Sep 20 11:34:38 localhost Keepalived_healthcheckers[10496]: Netlink reflector reports IP 172.16.159.142 added
+
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
