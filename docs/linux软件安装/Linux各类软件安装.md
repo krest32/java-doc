@@ -1810,7 +1810,8 @@ props:
 ### conifg-sharding.yml
 
 ~~~yml
-schemaName: sharding_db
+
+schemaName: sharding_db2
 dataSources:
   ds_0:
     url: jdbc:mysql://192.168.160.151:3306/ds0?serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&useSSL=true
@@ -1835,7 +1836,7 @@ rules:
   tables:
     t_order:
       actualDataNodes: ds_${0..1}.t_order
-      tableStrategy:
+      databaseStrategy:
         standard:
           shardingColumn: order_id
           shardingAlgorithmName: t_order_inline
@@ -1844,36 +1845,28 @@ rules:
         keyGeneratorName: snowflake
     t_order_item:
       actualDataNodes: ds_${0..1}.t_order_item
-      tableStrategy:
+      # 分库分表采用同一个字段，保证了可以进行 join 查询
+      databaseStrategy:
         standard:
           shardingColumn: order_id
-          shardingAlgorithmName: t_order_item_inline
+          shardingAlgorithmName: t_order_inline
       keyGenerateStrategy:
         column: order_item_id
         keyGeneratorName: snowflake
-  # 进行分库的选择字段，这个字段必须存在在所有的表中 
-  defaultDatabaseStrategy:
-    standard:
-      shardingColumn: user_id
-      shardingAlgorithmName: database_inline
-  defaultTableStrategy:
-    none:
   shardingAlgorithms:
     # 分库的字段计算规则
     database_inline:
       type: INLINE
       props:
         algorithm-expression: ds_${user_id % 2}
-    # t_order的分表字段计算规则，可以计算出表名
     t_order_inline:
       type: INLINE
       props:
-        algorithm-expression: t_order
-    # t_order的分表字段计算规则，可以计算出表名
+        algorithm-expression: ds_${order_id % 2}
     t_order_item_inline:
       type: INLINE
       props:
-        algorithm-expression: t_order_item
+        algorithm-expression: ds_${order_item_id % 2}
   keyGenerators:
     snowflake:
       type: SNOWFLAKE
