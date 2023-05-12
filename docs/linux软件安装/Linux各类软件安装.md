@@ -113,6 +113,7 @@ yum clean all
 # 删除软件
 
 + 查看Linux自带Java软件：rpm -qa | grep java
++ 查看安装的文件夹：rpm -qal | grep postgres
 + 逐个删除自带软件：rpm -e --nodeps  软件名称
 + 查找存在的文件夹 如： find / -name mysql，然后逐个删除
 
@@ -661,6 +662,39 @@ npm install -g cnpm --registry=https://registry.npm.taobao.org
 + git config --global user.email  "XXXXXXXXXX@qq.com"  
 + git config --global user.password tianshan
 + git config --list (查看是否配置成功)
+
+
+
+# PGSql-14
+
+## 查看是否安装
+
+~~~bash
+rpm -qa | grep postgres    检查PostgreSQL 是否已经安装
+rpm -qal | grep postgres   检查PostgreSQL 安装位置
+~~~
+
+## 安装
+
+~~~bash
+#Install the repository RPM: 下载资源文件
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+#Disable the built-in PostgreSQL module: 去掉原有的数据库文件
+sudo dnf -qy module disable postgresql
+
+#Install PostgreSQL: 安装数据库
+sudo dnf install -y postgresql14-server
+
+#Optionally initialize the database and enable automatic start:
+sudo /usr/pgsql-14/bin/postgresql-14-setup initdb
+sudo systemctl enable postgresql-14
+sudo systemctl start postgresql-14
+~~~
+
+
+
+
 
 
 
@@ -1726,9 +1760,135 @@ protocol=x
 
 
 
+# Sharding Proxy(5.0.0)
+
+## 安装
+
+1. 下载sharding proxy从官网，如果是链接Mysql，同样需要下载Mysql驱动
+2. 文件解压后，路径名会太长导致报错，所以要修改文件夹
+3. 删除start.bat/start.sh中的JVM配置，因为如果保留，会报错
+
+## 配置
+
+### server.yml
+
+~~~yml
+rules:
+  - !AUTHORITY
+    users:
+      - root@%:root
+      - sharding@:sharding
+    provider:
+      type: ALL_PRIVILEGES_PERMITTED
+#  - !TRANSACTION
+#    defaultType: XA
+#    providerType: Atomikos
+
+props:
+  max-connections-size-per-query: 1
+  kernel-executor-size: 16
+  proxy-frontend-flush-threshold: 128
+  proxy-opentracing-enabled: false
+  proxy-hint-enabled: false
+  sql-show: true
+  check-table-metadata-enabled: false
+  show-process-list-enabled: false
+#    # Proxy backend query fetch size. A larger value may increase the memory usage of ShardingSphere Proxy.
+#    # The default value is -1, which means set the minimum value for different JDBC drivers.
+  proxy-backend-query-fetch-size: -1
+  check-duplicate-table-enabled: false
+  sql-comment-parse-enabled: false
+#  proxy-frontend-executor-size: 0 # Proxy frontend executor size. The default value is 0, which means let Netty decide.
+#    # Available options of proxy backend executor suitable: OLAP(default), OLTP. The OLTP option may reduce time cost of writing packets to client, but it may increase the latency of SQL execution
+#    # if client connections are more than proxy-frontend-netty-executor-size, especially executing slow SQL.
+#  proxy-backend-executor-suitable: OLAP
+#  proxy-frontend-max-connections: 0 # Less than or equal to 0 means no limitation.
+  sql-federation-enabled: false
+
+~~~
+
+### conifg-sharding.yml
+
+~~~yml
+schemaName: sharding_db
+dataSources:
+  ds_0:
+    url: jdbc:mysql://192.168.160.151:3306/ds0?serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&useSSL=true
+    username: root
+    password: Bob.123456
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+  ds_1:
+    url: jdbc:mysql://192.168.160.151:3306/ds1?serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true&useSSL=true
+    username: root
+    password: Bob.123456
+    connectionTimeoutMilliseconds: 30000
+    idleTimeoutMilliseconds: 60000
+    maxLifetimeMilliseconds: 1800000
+    maxPoolSize: 50
+    minPoolSize: 1
+rules:
+- !SHARDING
+  tables:
+    t_order:
+      actualDataNodes: ds_${0..1}.t_order
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: t_order_inline
+      keyGenerateStrategy:
+        column: order_id
+        keyGeneratorName: snowflake
+    t_order_item:
+      actualDataNodes: ds_${0..1}.t_order_item
+      tableStrategy:
+        standard:
+          shardingColumn: order_id
+          shardingAlgorithmName: t_order_item_inline
+      keyGenerateStrategy:
+        column: order_item_id
+        keyGeneratorName: snowflake
+  # 进行分库的选择字段，这个字段必须存在在所有的表中 
+  defaultDatabaseStrategy:
+    standard:
+      shardingColumn: user_id
+      shardingAlgorithmName: database_inline
+  defaultTableStrategy:
+    none:
+  shardingAlgorithms:
+    # 分库的字段计算规则
+    database_inline:
+      type: INLINE
+      props:
+        algorithm-expression: ds_${user_id % 2}
+    # t_order的分表字段计算规则，可以计算出表名
+    t_order_inline:
+      type: INLINE
+      props:
+        algorithm-expression: t_order
+    # t_order的分表字段计算规则，可以计算出表名
+    t_order_item_inline:
+      type: INLINE
+      props:
+        algorithm-expression: t_order_item
+  keyGenerators:
+    snowflake:
+      type: SNOWFLAKE
+      props:
+        worker-id: 123
+~~~
 
 
 
+## 启动
+
+~~~shell
+# 启动端口位置
+start.bat 3366
+~~~
 
 
 
