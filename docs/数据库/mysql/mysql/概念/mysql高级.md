@@ -972,11 +972,7 @@ insert into user(id,name,sex) values(null,'Dawn','1');
 
 ​        使用repair table 或者 OPTIMIZE table命令来修复，REPAIR TABLE table_name 修复表 OPTIMIZE TABLE table_name 优化表 REPAIR TABLE 用于修复被破坏的表。 OPTIMIZE TABLE 用于回收闲置的数据库空间，当表上的数据行被删除时，所占据的磁盘空间并没有立即被回收，使用了OPTIMIZE TABLE命令后这些空间将被回收，并且对磁盘上的数据行进行重排（注意：是磁盘上，而非数据库）
 
-
-
-
-
-### MGR
+## MGR
 
 MGR全称为MySQL Group Replication组复制，采用ROW格式日志文件+GTID的方式工作。
 
@@ -993,6 +989,8 @@ MGR是一种分布式集群，基于paxos协议，数据具备准数据同步性
 
 1. 白名单：因为在k8s、openshift平台下，容器化部署的mysql数据库存在跨网段访问，需要通过mysql mgr的白名单来解决。
 2. mysql8.0 之后加密规则变成 caching_sha2_password了，造成复制通道无法正常通讯，需要开启公钥访问功能。
+
+
 
 
 
