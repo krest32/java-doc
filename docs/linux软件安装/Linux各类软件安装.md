@@ -4,6 +4,33 @@
 
 + [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
+# 同步服务时间
+
+~~~shell
+yum install -y ntpdate  
+# 或者
+yum install -y ntp
+# 如果安装时显示没有找到安装包，则可以手动安装
+yum  install  -y ntpdate-4.2.6p5-29.el7.centos.2.x86_64.rpm
+
+# 执行同步命令
+ntpdate ntp1.aliyun.com
+
+# 创建定时任务
+为什么创建定时任务？
+因为物理主机运行时间久了时钟难免发生细微变化，或者因为断电等其他原因导致时钟发生变化。因此为了避免时钟阶段性异常，我们通过定时任务的方式定时主动同步时钟。
+#现在命令行输入crontab -i回车
+$ crontab -i
+
+# 此时打开了一个编辑窗口，然后输入如下配置
+# 组成  时间表达式 + 命令 + 参数
+# 当前含义 每天夜里12:00同步一次时钟
+0 0 * * * ntpdate ntp1.aliyun.com
+
+~~~
+
+
+
 # 修改主机名
 
 查看当前的主机名
@@ -765,7 +792,6 @@ rpm -ivh mysql80-community-release-el7-7.noarch.rpm
 yum -y install mysql mysql-server mysql-devel
 或者
 yum -y install mysql-server
-
 
 
 systemctl daemon-reload
