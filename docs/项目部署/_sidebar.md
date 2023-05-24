@@ -2,4 +2,4 @@
 * [Jenkins](./docs/项目部署/Jenkins/Jenkins.md)
 * [Docker](./docs/项目部署/Docker/Docker.md)
 * [K8S](./docs/项目部署/云原生/云原生.md)
-* [SkyWalking ](./docs/项目部署/SkyWalking /SkyWalking .md)
+* [SkyWalking](./docs/项目部署/SkyWalking /SkyWalking.md)
