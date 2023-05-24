@@ -1,6 +1,8 @@
 
 
+# 很多文件下载地址
 
++ [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
 # 修改主机名
 
@@ -3306,9 +3308,9 @@ docker run -d \
 
 ~~~bash
 // 通过wget下载zookeeper安装包
-[bigdata@linux ~]$ wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.10/zookeeper-3.4.10.tar.gz 
+[bigdata@linux ~]$ wget https://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.7.1/apache-zookeeper-3.7.1.tar.gz
 // 将zookeeper解压到安装目录
-[bigdata@linux ~]$ tar –xf zookeeper-3.4.10.tar.gz –C ./cluster
+[bigdata@linux ~]$ tar xf zookeeper-3.4.10.tar.gz –C ./cluster
 // 进入zookeeper安装目录
 [bigdata@linux cluster]$ cd zookeeper-3.4.10/
 // 创建data数据目录
@@ -3317,7 +3319,8 @@ docker run -d \
 [bigdata@linux zookeeper-3.4.10]$ cp ./conf/zoo_sample.cfg ./conf/zoo.cfg   
 // 修改zookeeper配置文件
 [bigdata@linux zookeeper-3.4.10]$ vim conf/zoo.cfg
-dataDir=/usr/local/software/zookeeper/data  #将数据目录地址修改为创建的目录
+#将数据目录地址修改为创建的目录
+dataDir=/usr/local/software/zookeeper/data
 dataLogDir=/usr/local/software/zookeeper/logs
 
 

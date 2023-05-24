@@ -19,6 +19,10 @@
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
 + [后端架构师技术图谱](https://juejin.cn/post/6844903602369232904)
 
+### 2024年5月
+
++ [java实现文件分片上传并且断点续传](https://juejin.cn/post/7222910781921837093)
+
 ### 2023年4月
 + [一次JVM GC长暂停的排查过程](https://juejin.cn/post/7186830360389353528?share_token=4dfc8d86-857c-49e8-9d28-9ec57d9715da)
 + [一次简单的 JVM 调优](https://juejin.cn/post/7184047757869449273?share_token=44116cc3-1b45-486b-86be-2b60bea609d9)
