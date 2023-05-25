@@ -1150,17 +1150,15 @@ public class TransactionMQProducerExample {
 
 当消息被清理完之后，消息也就结束了它精彩的一生。
 
+## 使用
 
-
-# 源码
-
-## 原理图
+### 原理图
 
 ![在这里插入图片描述](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3l1YW5zaGFuZ3NoZW5naHVv,size_16,color_FFFFFF,t_70#pic_center.png)
 
-## 生产者
+### 生产者
 
-### 启动代码
+#### 启动代码
 
 ~~~java
   public static void main(String[] args) throws MQClientException, InterruptedException {
@@ -1188,7 +1186,7 @@ public class TransactionMQProducerExample {
     }
 ~~~
 
-### 创建生产者
+#### 创建生产者
 
 1. 也就是一个线程池，然后绑定 NameSever 端口
 2. 然后启动线程池
@@ -1265,3 +1263,229 @@ public void start(String nameSrvAddr, AccessChannel accessChannel) throws MQClie
 }
 ~~~
 
+## 总结
+
+### 架构总览
+
+RocketMQ架构上主要分为四部分，如上图所示:
+
+- Producer：消息发布的角色，支持分布式集群方式部署。Producer通过MQ的负载均衡模块选择相应的Broker集群队列进行消息投递，投递的过程支持快速失败并且低延迟。
+- Consumer：消息消费的角色，支持分布式集群方式部署。支持以push推，pull拉两种模式对消息进行消费。同时也支持集群方式和广播方式的消费，它提供实时消息订阅机制，可以满足大多数用户的需求。
+- NameServer：NameServer是一个非常简单的Topic路由注册中心，其角色类似Dubbo中的zookeeper，支持Broker的动态注册与发现。主要包括两个功能：Broker管理，NameServer接受Broker集群的注册信息并且保存下来作为路由信息的基本数据。然后提供心跳检测机制，检查Broker是否还存活；路由信息管理，每个NameServer将保存关于Broker集群的整个路由信息和用于客户端查询的队列信息。然后Producer和Conumser通过NameServer就可以知道整个Broker集群的路由信息，从而进行消息的投递和消费。NameServer通常也是集群的方式部署，各实例间相互不进行信息通讯。Broker是向每一台NameServer注册自己的路由信息，所以每一个NameServer实例上面都保存一份完整的路由信息。当某个NameServer因某种原因下线了，Broker仍然可以向其它NameServer同步其路由信息，Producer,Consumer仍然可以动态感知Broker的路由的信息。
+- BrokerServer：Broker主要负责消息的存储、投递和查询以及服务高可用保证
+
+### 消息处理流程
+
+![img](img/1.png)
+
++ 消息接收：消息接收是指接收`producer`的消息，处理类是`SendMessageProcessor`，将消息写入到`commigLog`文件后，接收流程处理完毕；
++ 消息分发：`broker`处理消息分发的类是`ReputMessageService`，它会启动一个线程，不断地将`commitLong`分到到对应的`consumerQueue`，这一步操作会写两个文件：`consumerQueue`与`indexFile`，写入后，消息分发流程处理 完毕；
++ 消息投递：消息投递是指将消息发往`consumer`的流程，`consumer`会发起获取消息的请求，`broker`收到请求后，调用`PullMessageProcessor`类处理，从`consumerQueue`文件获取消息，返回给`consumer`后，投递流程处理完毕。
+
+### 三高保证
+
+#### 高并发
+
+1. netty 高性能传输：`producer`、`broker`、`comsumer`之间使用netty通信，高性能传输；业务处理时，使用的是自定义的工作线程池，最终处理操作在`NettyServerHandler`中丢给工作线程池。
+2. 自旋锁减少上下文切换：RocketMQ 的 CommitLog 为了避免并发写入，使用一个 `PutMessageLock`。`PutMessageLock` 有 2 `个实现版本：PutMessageReentrantLock` 和 `PutMessageSpinLock`。`PutMessageReentrantLock` 是基于 java 的同步等待唤醒机制；`PutMessageSpinLock` 使用 Java 的 CAS 原语，通过自旋设值实现上锁和解锁。RocketMQ 默认使用 `PutMessageSpinLock` 以提高高并发写入时候的上锁解锁效率，并减少线程上下文切换次数。
+3. 顺序写文件：写入`commitLog`时，使用的是顺序写入，比随机写入的性能高很多，写入`commitLog`时，并不是直接写入磁盘的，而是先写入`PageCache`，最后由操作系统异步将`PageCache` 的数据刷到磁盘中
+4. `MappedFile` 预热和`零拷贝机制`：Linux 系统在写数据时候不会直接把数据写到磁盘上，而是写到磁盘对应的 `PageCache` 中，并把该页标记为脏页。当脏页累计到一定程度或者一定时间后再把数据 flush 到磁盘（当然在此期间如果系统掉电，会导致脏页数据丢失）。
+5. 多`broker`多`Queue`模式：使用多`broker`多`Queue`的模式，提高消息的并行处理能力。
+
+#### 高可用
+
+RocketMq 的高可用由 DLedger 提供，`DLedger`是一个多节点的集群，内部使用`raft`算法选举`leader`节点，由该`leader`节点对`broker`中的节点进行故障转移
+
+1. 多 `NameServer` 避免 `NameServer` 的单点故障
+2. 多个`broker`集群，当一个`broker`集群出现故障时，其他`broker`集群也能正常工作
+3. 每个`broker`集群有一个`master`节点和多个`slave`节点，当`master`节点出现故障，`DLedger`在感知到故障后，会将其中一个`slave`节点切换为`master`节点，保证该集群继续正常工作
+
+#### 高扩展
+
++ `broker`与`producer`/`consumer`没有耦合关系，
++ 需要添加`broker`集群(1主多从)时，只需配置好`nameServer`的地址，然后添加即可，理论上`broker`可任意扩展。
++ 当`broker`添加到集群后，新加入的 `broker` 集群会被注册到`nameServer`上，`producer`/`consumer`就能发现该`broker`集群了。
+
+### 消息可靠性
+
+`RocketMq` 的消息可靠性分为如下几个阶段：
+
+1. 消息发送阶段的可靠性
+2. 消息存储阶段可靠性
+3. 消息消费阶段的可靠性
+
+####  消息发送阶段的可靠性
+
+消息发送阶段的可靠性由`producer`来处理，`rocketmq`主要支持三种消息发送方式
+
+- 同步：消息发放后，线程会阻塞，直到返回结果
+- 异步：在发送消息时，可以设置消息发送结果的监听，消息发送后，线程不会阻塞，消息发送完成后，发送结果会被监听到
+- 单向：消息发送完成后，线程不会阻塞，不会有结果返回，也无法设置发送结果的监听，即发送就可以，不关心发送结果，不关心是否发送成功
+
+在消息可靠性方面，
+
+- 同步发送：消息发送失败时，内部会**重试**（默认1次发送+2次失败重试，共3次），另外，由于发送完成后可以得到发送结果，因此也**可对失败的结果进行自主处理**
+- 异步发送：消息发送失败时，同时有内部**重试**（默认1次发送+2次失败重试，共3次），另外，发送消息时可以设置消息的监听规则，当发送失败时，可以**在监听代码中自主对失败的消息进行处理**
+- 单向发送：该模式下，消息发送失败时**无重试**（只是打出一条warn级别的日志），且**无发送结果返回、无结果监听**
+
+#### 消息存储阶段可靠性
+
+消息存储阶段可靠性由`broker`来保证，
+
+在单`master`架构的`broker`中，消息先写入内存的`PageCache`中，然后再进行刷盘，刷盘方式有两种：
+
+- `SYNC_FLUSH`（同步刷盘）：消息写入内存的 PageCache后，立刻通知刷盘线程刷盘，然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写成功的状态。这种方式可以保证数据绝对安全，但是吞吐量不大。
+- `ASYNC_FLUSH`（异步刷盘(默认)）：消息写入到内存的 PageCache中，就立刻给客户端返回写操作成功，当 PageCache中的消息积累到一定的量时，触发一次写操作，或者定时等策略将 PageCache中的消息写入到磁盘中。这种方式吞吐量大，性能高，但是 PageCache 中的数据可能丢失，不能保证数据绝对的安全。
+
+小结：同步刷盘，不丢失数据但影响性能；异步刷盘性能高，但如果在消息刷盘前发生断电意外，消息就会丢失。
+
+如果一主多从的`broker`架构中，`master`节点有两种角色选择：
+
+- `SYNC_MASTER`（同步主机）：当接收到消息后，立即同步到`slave`节点，当`slave`节点同步成功后，才返回成功，可靠性高
+- `ASYNC_MASTER`（异步主机）：当接收到消息，并不立即同步给`slave`节点，同步操作由后台线程进行，如果在发生主从切换时，同步操作还未进行，就有可能会丢失数据
+
+小结：同步主机可靠性高，发生主从切换时不会丢失数据，但由于需要等待`slave`节点同步成功后才返回，因此性能略低；异步主机性能高，但如果在同步操作前发生了主从切换，原`master`上的数据可能并没有同步给`slave`，因此会造成消息丢失
+
+总结：如果要保证消息的可靠性，单`master`节点的刷新方式可选择`SYNC_FLUSH`（同步刷盘）方式；一主多从的`broker`架构中，`master`节点的刷新方式可选择`ASYNC_FLUSH`（异步刷盘）方式，`master`节点的角色使用`SYNC_MASTER`（同步主机），实际中就结合具体场景进行合理选择。
+
+#### 消息消费阶段的可靠性
+
+消息消费阶段的可靠性由`comsumer`来保证。在消费消息时，可返回两种结果：
+
+- `CONSUME_SUCCESS`：消费成功
+- `RECONSUME_LATER`：消费失败，稍后再消费
+
+`Consumer`消费消息失败后，`RocketMq`会提供一种重试机制，令消息再消费一次。`Consumer`消费消息失败通常可以认为有以下几种情况：
+
+- 由于消息本身的原因，例如反序列化失败，消息数据本身无法处理（例如话费充值，当前消息的手机号被注销，无法充值）等。这种错误通常需要跳过这条消息，再消费其它消息，而这条失败的消息即使立刻重试消费，99%也不成功，所以最好提供一种定时重试机制，即过10秒后再重试。
+- 由于依赖的下游应用服务不可用，例如db连接不可用，外系统网络不可达等。遇到这种错误，即使跳过当前失败的消息，消费其他消息同样也会报错。这种情况建议应用sleep 30s，再消费下一条消息，这样可以减轻Broker重试消息的压力。
+
+RocketMQ会为每个消费组都设置一个Topic名称为`%RETRY%+consumerGroup`的重试队列（这里需要注意的是，这个Topic的重试队列是针对消费组，而不是针对每个Topic设置的），用于暂时保存因为各种异常而导致Consumer端无法消费的消息。考虑到异常恢复起来需要一些时间，会为重试队列设置多个重试级别，每个重试级别都有与之对应的重新投递延时，重试次数越多投递延时就越大。RocketMQ对于重试消息的处理是先保存至Topic名称为`SCHEDULE_TOPIC_XXXX`的延迟队列中，后台定时任务按照对应的时间进行Delay后重新保存至`%RETRY%+consumerGroup`的重试队列中。
+
+### 负载均衡
+
+#### producer 负载均衡
+
+Producer端在发送消息的时候，会先根据Topic找到指定的`TopicPublishInfo`，在获取了`TopicPublishInfo`路由信息后，RocketMQ的客户端在默认方式下`selectOneMessageQueue()`方法会从`TopicPublishInfo`中的`messageQueueList`中选择一个队列（MessageQueue）进行发送消息。具体的容错策略均在`MQFaultStrategy`这个类中定义。
+
+这里有一个`sendLatencyFaultEnable`开关变量，如果开启，在随机递增取模的基础上，再过滤掉`not available`的Broker代理。所谓的"latencyFaultTolerance"，是指对之前失败的，按一定的时间做退避。例如，如果上次请求的latency超过550Lms，就退避3000Lms；超过1000L，就退避60000L；如果关闭，采用随机递增取模的方式选择一个队列（`MessageQueue`）来发送消息，`latencyFaultTolerance`机制是实现消息发送高可用的核心关键所在。
+
+#### consumer 负载均衡
+
+在RocketMQ中，Consumer端的两种消费模式（Push/Pull）都是基于拉模式来获取消息的，而在Push模式只是对pull模式的一种封装，其本质实现为消息拉取线程在从服务器拉取到一批消息后，然后提交到消息消费线程池后，又“马不停蹄”的继续向服务器再次尝试拉取消息。如果未拉取到消息，则延迟一下又继续拉取。在两种基于拉模式的消费方式（Push/Pull）中，均需要Consumer端在知道从Broker端的哪一个消息队列—队列中去获取消息。因此，有必要在Consumer端来做负载均衡，即Broker端中多个MessageQueue分配给同一个ConsumerGroup中的哪些Consumer消费。
+
+1. Consumer端的心跳包发送
+
+在Consumer启动后，它就会通过定时任务不断地向RocketMQ集群中的所有Broker实例发送心跳包（其中包含了，消息消费分组名称、订阅关系集合、消息通信模式和客户端id的值等信息）。Broker端在收到Consumer的心跳消息后，会将它维护在ConsumerManager的本地缓存变量—consumerTable，同时并将封装后的客户端网络通道信息保存在本地缓存变量—channelInfoTable中，为之后做Consumer端的负载均衡提供可以依据的元数据信息。
+
+1. Consumer端实现负载均衡的核心类—RebalanceImpl
+
+在Consumer实例的启动流程中的启动MQClientInstance实例部分，会完成负载均衡服务线程—RebalanceService的启动（每隔20s执行一次）。通过查看源码可以发现，RebalanceService线程的run()方法最终调用的是RebalanceImpl类的rebalanceByTopic()方法，该方法是实现Consumer端负载均衡的核心。这里，rebalanceByTopic()方法会根据消费者通信类型为“广播模式”还是“集群模式”做不同的逻辑处理。这里主要来看下集群模式下的主要处理流程：
+
+1. 从rebalanceImpl实例的本地缓存变量—topicSubscribeInfoTable中，获取该Topic主题下的消息消费队列集合（mqSet）；
+2. 根据topic和consumerGroup为参数调用mQClientFactory.findConsumerIdList()方法向Broker端发送获取该消费组下消费者Id列表的RPC通信请求（Broker端基于前面Consumer端上报的心跳包数据而构建的consumerTable做出响应返回，业务请求码：GET_CONSUMER_LIST_BY_GROUP）；
+3. 先对Topic下的消息消费队列、消费者Id排序，然后用消息队列分配策略算法（默认为：消息队列的平均分配算法），计算出待拉取的消息队列。这里的平均分配算法，类似于分页的算法，将所有MessageQueue排好序类似于记录，将所有消费端Consumer排好序类似页数，并求出每一页需要包含的平均size和每个页面记录的范围range，最后遍历整个range而计算出当前Consumer端应该分配到的记录
+
+### 顺序消息
+
+消息有序指的是一类消息消费时，能按照发送的顺序来消费。例如：一个订单产生了三条消息分别是订单创建、订单付款、订单完成。消费时要按照这个顺序消费才能有意义，但是同时订单之间是可以并行消费的。
+
+RocketMQ可以严格的保证消息有序。
+
+顺序消息分为全局顺序消息与分区顺序消息，全局顺序是指某个Topic下的所有消息都要保证顺序；部分顺序消息只要保证每一组消息被顺序消费即可。
+
+- 全局顺序：对于指定的一个 Topic，所有消息按照严格的先入先出（FIFO）的顺序进行发布和消费。 适用场景：性能要求不高，所有的消息严格按照 FIFO 原则进行消息发布和消费的场景
+- 分区顺序：对于指定的一个 Topic，所有消息根据 sharding key 进行区块分区。 同一个分区内的消息按照严格的 FIFO 顺序进行发布和消费。 Sharding key 是顺序消息中用来区分不同分区的关键字段，和普通消息的 Key 是完全不同的概念。 适用场景：性能要求高，以 sharding key 作为分区字段，在同一个区块中严格的按照 FIFO 原则进行消息发布和消费的场景。
+
+### 事务消息
+
+1. 事务消息发送及提交：
+
+- 发送消息（half消息）。
+- 服务端响应消息写入结果。
+- 根据发送结果执行本地事务（如果写入失败，此时half消息对业务不可见，本地逻辑不执行）。
+- 根据本地事务状态执行Commit或者Rollback（Commit操作生成消息索引，消息对消费者可见）
+
+1. 补偿流程：
+
+- 对没有Commit/Rollback的事务消息（pending状态的消息），从服务端发起一次“回查”
+- Producer收到回查消息，检查回查消息对应的本地事务的状态
+- 根据本地事务状态，重新Commit或者Rollback
+
+其中，补偿阶段用于解决消息`Commit`或者`Rollback`发生超时或者失败的情况。
+
+### 广播模式与集群模式
+
++ 广播模式： 同一条消息会被同一`consumerGroup`下的每个`consumer`消费
++ 集群模式：同一条消息只会被同一`consumerGroup`下的一个`consumer`消费
+
+## Dledger
+
+### DLedger引入目的
+
+在 RocketMQ 4.5 版本之前，RocketMQ 只有 Master/Slave 一种部署方式，一组 broker 中有一个 Master ，有零到多个 Slave，Slave 通过同步复制或异步复制的方式去同步 Master 数据。Master/Slave 部署模式，提供了一定的高可用性。 
+
+但这样的部署模式，有一定缺陷。比如故障转移方面，如果主节点挂了，还需要人为手动进行重启或者切换，无法自动将一个从节点转换为主节点。因此，我们希望能有一个新的多副本架构，去解决这个问题。
+
+新的多副本架构首先需要解决自动故障转移的问题，本质上来说是自动选主的问题。这个问题的解决方案基本可以分为两种：
+
+- 利用第三方协调服务集群完成选主，比如 zookeeper 或者 etcd。这种方案会引入了重量级外部组件，加重部署，运维和故障诊断成本，比如在维护 RocketMQ 集群还需要维护 zookeeper 集群，并且 zookeeper 集群故障会影响到 RocketMQ 集群。
+- 利用 raft 协议来完成一个自动选主，raft 协议相比前者的优点是不需要引入外部组件，自动选主逻辑集成到各个节点的进程中，节点之间通过通信就可以完成选主。
+
+因此最后选择用 raft 协议来解决这个问题，而 DLedger 就是一个基于 raft 协议的 commitlog 存储库，也是 RocketMQ 实现新的高可用多副本架构的关键。
+
+### DLedger 设计理念
+
+1. Raft 协议是复制状态机的实现，这种模型应用到消息系统中就会存在问题。对于消息系统来说，它本身是一个中间代理，commitlog 状态是系统最终状态，并不需要状态机再去完成一次状态构建。因此 DLedger 去掉了 raft 协议中状态机的部分，但基于raft协议保证commitlog 是一致的，并且是高可用的。
+2. 另一方面 DLedger 又是一个轻量级的 java library。它对外提供的 API 非常简单，append 和 get。Append 向 DLedger 添加数据，并且添加的数据会对应一个递增的索引，而 get 可以根据索引去获得相应的数据。因此 DLedger 是一个 append only 的日志系统。
+
+### DLedger 应用场景
+
+1. DLedger 其中一个应用就是在分布式消息系统中，RocketMQ 4.5 版本发布后，可以采用 RocketMQ on DLedger 方式进行部署。DLedger commitlog 代替了原来的 commitlog，使得 commitlog 拥有了选举复制能力，然后通过角色透传的方式，raft 角色透传给外部 broker 角色，leader 对应原来的 master，follower 和 candidate 对应原来的 slave。
+2. 因此 RocketMQ 的 broker 拥有了自动故障转移的能力。在一组 broker 中， Master 挂了以后，依靠 DLedger 自动选主能力，会重新选出 leader，然后通过角色透传变成新的 Master。
+3. DLedger 还可以构建高可用的嵌入式 KV 存储。我们把对一些数据的操作记录到 DLedger 中，然后根据数据量或者实际需求，恢复到hashmap 或者 rocksdb 中，从而构建一致的、高可用的 KV 存储系统，应用到元信息管理等场景。
+
+### DLedger 的优化
+
+#### 性能优化
+
+Raft 协议复制过程可以分为四步，先是发送消息给 leader，leader 除了本地存储之外，会把消息复制给 follower，然后等待follower 确认，如果得到多数节点确认，该消息就可以被提交，并向客户端返回发送成功的确认。DLedger 中如何去优化这一复制过程？
+
+**1. 异步线程模型**
+
+DLedger 采用一个异步线程模型，异步线程模型可以减少等待。在一个系统中，如果阻塞点越少，每个线程处理请求时能减少等待，就能更好的利用 CPU，提高吞吐量和性能。
+
+以 DLedger 处理 Append 请求的整个过程来讲述 DLedger 异步线程模型。图中粗箭头表示 RPC 请求，实现箭头表示数据流，虚线表示控制流。
+
+首先客户端发送 Append 请求，由 DLedger 的通信模块处理，当前 DLedger 默认的通信模块是利用 Netty 实现的，因此 Netty IO 线程会把请求交给业务线程池中的线程进行处理，然后 IO 线程直接返回，处理下一个请求。业务处理线程处理 Append 请求有三个步骤，首先是把 Append 数据写入自己日志中，也就是 pagecache 中。然后生成 Append CompletableFuture ，放入一个 Pending Map 中，由于该日志还没有得到多数的确认，所以它是一个判定状态。第三步唤醒 EnrtyDispatcher 线程，通知该线程去向follower 复制日志。三步完成以后业务线程就可以去处理下一个 Append 请求，中间几乎没有任何等待。
+
+另一方面，复制线程 EntryDispatcher 会向 follower 复制日志，每一个 follower 都对应一个 EntryDispatcher 线程，该线程去记录自己对应 follower 的复制位点，每次位点移动后都会去通知 QurumAckChecker 线程，这个线程会根据复制位点的情况，判断是否一条日志已经复制到多数节点上，如果已被复制到了多数节点，该日志就可以被提交，并去完成对应的 Append CompletableFuture ，通知通信模块向客户端返回响应。
+
+**2. 独立并发的复制过程**
+
+在 DLedger 中，leader 向所有 follower 发送日志也是完全相互独立和并发的，leader 为每个 follower 分配一个线程去复制日志，并记录相应的复制位点，然后再由一个单独的异步线程根据位点情况检测日志是否被复制到了多数节点上，返回给客户端响应。
+
+**3. 日志并行复制**
+
+传统的线性复制是 leader 向 follower 复制日志，follower 确认后下一个日志条目再复制，也就是 leader 要等待 follower 对前一条日志确认后才能复制下一条日志。这样的复制方式保证了顺序性，且不会出错，但吞吐量很低，时延也比较高，因此DLedger设计并实现日志并行复制的方案，不再需要等待前一个日志复制完成再复制下一个日志，只需在 follower 中维护一个按照日志索引排序请求列表， follower 线程按照索引顺序串行处理这些复制请求。而对于并行复制后可能出现数据缺失问题，可以通过少量数据重传解决
+
+#### 可靠性优化
+
+**DLedger对网络分区的优化**
+
+
+
+![img](img/22.png)
+
+如果出现上图的网络分区，n2与集群中的其他节点发生了网络隔离，按照 raft 论文实现，n2会一直请求投票，但得不到多数的投票，term 一直增大。一旦网络恢复后，n2就会去打断正在正常复制的n1和n3，进行重新选举。为了解决这种情况，DLedger 的实现改进了 raft 协议，请求投票过程分成了多个阶段，其中有两个重要阶段：WAIT_TO_REVOTE和WAIT_TO_VOTE_NEXT。WAIT_TO_REVOTE是初始状态，这个状态请求投票时不会增加 term，WAIT_TO_VOTE_NEXT则会在下一轮请求投票开始前增加 term。对于图中n2情况，当有效的投票数量没有达到多数量时。可以将节点状态设置WAIT_TO_REVOTE，term 就不会增加。通过这个方法，提高了Dledger对网络分区的容忍性。
+
+#### **DLedger 可靠性测试**
+
+DLedger 还有非常高的容错性。它可以容忍各种各样原因导致节点无法正常工作，比如：
+
++ 进程异常崩溃
++ 机器节点异常崩溃（机器断电，操作系统崩溃）
++ 慢节点（出现 Full GC，OOM 等
++ 网络故障，各种各样的网络分区
+
+为了验证 DLedger 对这些故障的容忍性，除了本地对 DLedger 进行了各种各样的测试，还利用分布式系统验证与故障注入框架 Jepsen 来检测 DLedger 存在的问题，并验证系统的可靠性。

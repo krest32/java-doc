@@ -3491,6 +3491,12 @@ bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 -
 ./kafka-console-consumer.sh --bootstrap-server 192.168.xxx.xxx:9092 --topic zabbixVm #查看最新的数据
 ~~~
 
+# Apisix
+
+## 概诉
+
+整体的核心实现是 Nginx+Lua，可以实现热加载，可以提供一些网关功能，但是整体相对于Gateway仍然比较偏弱，倒是觉得可以提到Nginx，毕竟热加载+高性能也是一个不错的点
+
 
 
 # Hive 环境搭建
