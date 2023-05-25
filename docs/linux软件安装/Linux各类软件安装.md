@@ -4,6 +4,12 @@
 
 + [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
+# 服务器选择
+
++ CPU：如果是计算密集型，那么就需要选择高频的CPU
++ 内存
+  + mysql innodb会将索引放在内存中，所以mysql也会比较吃内存
+
 # 同步服务时间
 
 ~~~shell
