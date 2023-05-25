@@ -4690,6 +4690,229 @@ CREATE LOCAL INDEX my_index ON my_table (my_column);
 0: jdbc:phoenix:hadoop102,hadoop103,hadoop104> explain select id,name,addr from student1 where age = 10;
 ~~~
 
+# Prometheus + Grafana 
+
+## 原文地址
+
++ [安装配置](https://blog.csdn.net/weixin_46902396/article/details/118637402?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168497589516800211535132%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=168497589516800211535132&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-118637402-null-null.142^v87^control_2,239^v2^insert_chatgpt&utm_term=%E6%99%AE%E7%BD%97%E7%B1%B3%E4%BF%AE%E6%96%AF&spm=1018.2226.3001.4187)
+
+## Prometheus(数据收集)
+
+### 概述
+
+Prometheus（普罗米修斯）是一套开源的监控&报警&时间序列数据库的组合，由 SoundCloud 公司开发。
+
+Prometheus 基本原理是通过 HTTP 协议周期性抓取被监控组件的状态，这样做的好处是任意组件只要提供 HTTP 接口就可以接入监控系统，不需要任何 SDK 或者其他的集成过程。这样做非常适合虚拟化环境比如 VM 或者 Docker 。
+
+Prometheus 应该是为数不多的适合 Docker、Mesos、Kubernetes 环境的监控系统之一。
+
+### 优势
+
+1. 易于管理：
+   + Prometheus核心部分只有一个单独的二进制文件，不存在任何的第三方依赖（数据库，缓存等等）；
+   + 唯一需要的就是本地磁盘，因此不会有潜在级联故障的风险。
+2. 强大的查询语言 PromQL：
+   + Prometheus 内置一个强大的数据查询语言 PromQL，通过 PromQL 可以实现对监控数据的查询、聚合。
+   + 同时 PromQL 也被应用于数据可视化（如 Grafana）以及告警中。
+3. 高效：
+   + 对于监控系统而言，大量的监控任务必然导致有大量的数据产生。而 Prometheus 可以高效的处理这些数据。
+4. 可扩展：
+   + Prometheus 支持联邦集群，可以让多个 Prometheus 实例产生一个逻辑集群；
+   + 当单实例 Prometheus 处理的任务量过大时，通过使用功能分区（sharding）+ 联邦集群（federation）可以对其进行扩展。
+5. 易于集成：
+   + 目前官网提供了多种语言的客户端 SDK，基于这些 SDK 可以快速让应用程序纳入到监控系统中，同时还支持与其它的监控系统集成。
+6. 可视化：
+   + Prometheus Server 自带一个 UI，通过这个 UI 可以方便对数据进行查询和图形化展示；
+   + 同时还可以对接 Grafana 可视化工具展示精美监控指标。
+
+### 安装
+
+~~~shell
+# 下载
+[root@Prometheus ~]# wget https://github.com/prometheus/prometheus/releases/download/v2.16.0/prometheus-2.16.0.linux-amd64.tar.gz
+[root@Prometheus ~]# tar xf prometheus-2.16.0.linux-amd64.tar.gz
+[root@Prometheus ~]# mv prometheus-2.16.0.linux-amd64 /usr/local/prometheus
+
+# 配置
+[root@Prometheus ~]# useradd -s /sbin/nologin prometheus
+[root@Prometheus ~]# chown -R prometheus:prometheus /usr/local/prometheus/
+
+# 开机启动文件
+[root@Prometheus ~]# vim /usr/lib/systemd/system/prometheus.service
+[Unit]
+Description=prometheus
+After=network.target 
+
+[Service]
+User=prometheus
+Group=prometheus
+WorkingDirectory=/usr/local/prometheus
+ExecStart=/usr/local/prometheus/prometheus
+[Install]
+WantedBy=multi-user.target
+
+# 启动
+[root@Prometheus ~]# systemctl daemon-reload
+[root@Prometheus ~]# systemctl enable --now prometheus								# 启动并开启自启		
+~~~
+
+当启动 Prometheus 后，便可以通过 `9090` 端口来访问 Prometheus 自带的 UI 界面
+
+
+
+## influxdb(数据存储)
+
+### 概述
+
+- 默认情况下 Prometheus 会将采集的数据存储到本机的 `/usr/local/prometheus/data` 目录，存储数据的大小受限和扩展不便；
+- 所以这里使用 `influxdb` 作为后端的数据库来存储数据。
+
+### 安装
+
+~~~bash
+# 下载安装
+[root@Prometheus ~]# wget https://dl.influxdata.com/influxdb/releases/influxdb-1.7.8.x86_64.rpm
+[root@Prometheus ~]# yum -y localinstall influxdb-1.7.8.x86_64.rpm
+[root@Prometheus ~]# cp /etc/influxdb/influxdb.conf /etc/influxdb/influxdb.conf.default
+[root@Prometheus ~]# systemctl enable --now influxdb
+
+# 验证
+[root@Prometheus ~]# influx
+Connected to http://localhost:8086 version 1.7.8
+InfluxDB shell version: 1.7.8
+> create database prometheus;
+> exit
+
+~~~
+
+### 配置Prometheus
+
+~~~bash
+[root@Prometheus ~]# vim /usr/local/prometheus/prometheus.yml
+在最后面添加：
+remote_write:
+  - url: "http://localhost:8086/api/v1/prom/write?db=prometheus"
+remote_read:
+  - url: "http://localhost:8086/api/v1/prom/read?db=prometheus"
+
+# 重启
+[root@Prometheus ~]# systemctl restart prometheus									# 重启 Prometheus
+~~~
+
+
+
+
+
+## Node_Exporter(系统监控)
+
+### 概述
+
+- 因为 Prometheus 并不能直接监控服务，其主要任务负责数据的收集，存储并对外提供数据查询支持；
+- 因此，为了能够监控到某些东西，如：主机的 CPU 使用率，我们需要使用到 Exporter。
+
+### 安装
+
+~~~bash
+[root@Client ~]# wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
+[root@Client ~]# tar xf node_exporter-0.18.1.linux-amd64.tar.gz
+[root@Client ~]# mv node_exporter-0.18.1.linux-amd64 /usr/local/exporter/
+
+# 配置开机启动
+[root@Client ~]# vim /usr/lib/systemd/system/node_exporter.service
+[Unit]
+Description=node_exporter
+After=network.target 
+
+[Service]
+User=prometheus
+Group=prometheus
+ExecStart=/usr/local/exporter/node_exporter \
+          --web.listen-address=:20001 \
+          --collector.systemd \
+          --collector.systemd.unit-whitelist=(sshd|nginx).service \
+          --collector.processes
+[Install]
+WantedBy=multi-user.target
+
+# 重置系统配置
+[root@Client ~]# systemctl daemon-reload
+[root@Client ~]# systemctl enable --now node_exporter
+
+
+~~~
+
+当启动 `node_exporter` 服务后，便可以通过 `20001` 端口来访问 Client 的监控指标。
+
+
+
+### 配置 Promehtues
+
+~~~bash
+# 修改配置
+[root@Prometheus ~]# vim /usr/local/prometheus/prometheus.yml
+- job_name: "Client"
+  static_configs:
+  - targets:
+    - "192.168.1.2:20001"
+    
+# 重启
+[root@Prometheus ~]# systemctl restart prometheus
+
+~~~
+
+
+
+## Grafana(图表展示)
+
+### 概述
+
+- 在 Prometheus 中，我们可以使用 Web 界面进行数据的查询和展示，但是展示效果不是很好；
+- 所以我们这里使用 Grafana 来配合 Prometheus 使用。
+
+### 安装
+
+~~~bash
+[root@Grafana ~]# wget https://dl.grafana.com/oss/release/grafana-6.1.4-1.x86_64.rpm
+[root@Grafana ~]# yum -y localinstall grafana-6.1.4-1.x86_64.rpm
+[root@Grafana ~]# systemctl enable --now grafana-server
+[root@Grafana ~]# netstat -anpt | grep 3000
+~~~
+
+
+
+## 配置 Grafana 的 Web 界面
+
+![image-20230525105742995](img/image-20230525105742995.png)
+
+![image-20230525105753024](img/image-20230525105753024.png)
+
+![image-20230525105803254](img/image-20230525105803254.png)
+
+![image-20230525105812115](img/image-20230525105812115.png)![image-20230525105824912](img/image-20230525105824912.png)
+
+
+
+### 修改主题
+
+> [Grafana](https://so.csdn.net/so/search?q=Grafana&spm=1001.2101.3001.7020)可视化工具-之修改主题
+> Grafana默认主题是黑色，将它修改成白色，其它需要第三方支撑
+
+##### 修改配置文件
+
+~~~bash
+[root@showdocserver opt]# vim /etc/grafana/grafana.ini
+\# Default UI theme ("dark" or "light")
+;default_theme = dark
+~~~
+
+### 页面修改
+
+![img](img/fb0769fdb49d4b642bb5e59be57e2509.png)
+
+
+
+
+
 # Superset
 
 ### docker启动
