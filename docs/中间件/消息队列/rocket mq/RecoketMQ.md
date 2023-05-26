@@ -1265,6 +1265,73 @@ public void start(String nameSrvAddr, AccessChannel accessChannel) throws MQClie
 
 ## 总结
 
+### 带着问题去看
+
+#### 1. RockerMQ的工作流程概述
+
+1. 启动NameServer、Broker、Procuder、Consumer
+2. Producer发送消息给到Broker
+3. Broker完成消息存储
+4. Consumer从Broker拉取消息完成消费
+
+#### 2. 消息的流转过程
+
+1. Producer生消息发送到Borker
+2. Broker会先将消息写入到CommitLog
+   1. 单体架构下：
+      1. 异步，那么直接返回ack
+      2. 同步：写入文件后再返回ack
+   2. 集群模式下，需要发送给集群重的其他Broker：
+      1. 异步：直接返回Ack
+      2. 同步：等待其他Broker写入commitLog后，再返回Ack
+3. Broker内部存在消息分发线程，会不断从Commitlog中读取消息，然后写入到消费队列中
+4. Consumer从绑定的消费队列中拉取消息
+
+#### 3. borker集群如何保证消息不丢失?
+
+1. 底层通过Dledger实现，Dledger实现了Raft算法，保证了集群的一致性（也就是commitLog日志的相互之间的复制），同时实现了自动的故障切换
+2. 消息的同步会有异步和同步两种形式
+3. 异步性能高，但是安全性比较差
+4. 同步安全性高，但是性能差
+
+总结：RockerMQ通常的做法：异步落盘、同步发送到集群中的其他Broker
+
+#### 4. 消息的offset同步
+
+1. 每个consummer会维持一个消费的偏移量，并且每隔5s自动同步到所有的Broker
+2. broker会维持一个offset的消费偏移量，获得consumer的偏移量之后，会自动持久化到本地磁盘
+3. 当接收到锁个offst时，broker会保存最小的数字
+4. 所以消费端要做好消息消费的幂等性
+
+#### 5. NameSever的工作原理？
+
+1. Names Server相当与一个注册中心，broker 运行的过程中，会将自己的信息发送给broker
+2. NameServer之间不会相互通信，所以它实现的是CAP中的AP原理，理论上，Broker的数量可以随意增加
+3. Producer和Consumer启动后，会从NameServer中自动同步Broker的信息
+
+#### 6. 负载均衡
+
+1. Producer发送消息时，可以根据负载均衡策略选择合适的Broker发送消息
+2. 然后Broker由底层的Dledger完成Commitlog在不同Broker之间的同步
+3. 在Consumer端来做负载均衡，即Broker端中多个MessageQueue分配给同一个ConsumerGroup中的哪些Consumer消费
+4. 当消费者的数量发生变化时，会进行再平衡操作
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 架构总览
 
 RocketMQ架构上主要分为四部分，如上图所示:
@@ -1374,17 +1441,12 @@ Producer端在发送消息的时候，会先根据Topic找到指定的`TopicPubl
 
 在RocketMQ中，Consumer端的两种消费模式（Push/Pull）都是基于拉模式来获取消息的，而在Push模式只是对pull模式的一种封装，其本质实现为消息拉取线程在从服务器拉取到一批消息后，然后提交到消息消费线程池后，又“马不停蹄”的继续向服务器再次尝试拉取消息。如果未拉取到消息，则延迟一下又继续拉取。在两种基于拉模式的消费方式（Push/Pull）中，均需要Consumer端在知道从Broker端的哪一个消息队列—队列中去获取消息。因此，有必要在Consumer端来做负载均衡，即Broker端中多个MessageQueue分配给同一个ConsumerGroup中的哪些Consumer消费。
 
-1. Consumer端的心跳包发送
+1. Consumer端的心跳包发送：在Consumer启动后，它就会通过定时任务不断地向RocketMQ集群中的所有Broker实例发送心跳包（其中包含了，消息消费分组名称、订阅关系集合、消息通信模式和客户端id的值等信息）。Broker端在收到Consumer的心跳消息后，会将它维护在ConsumerManager的本地缓存变量—consumerTable，同时并将封装后的客户端网络通道信息保存在本地缓存变量—channelInfoTable中，为之后做Consumer端的负载均衡提供可以依据的元数据信息。
+2. Consumer端实现负载均衡的核心类—RebalanceImpl：在Consumer实例的启动流程中的启动MQClientInstance实例部分，会完成负载均衡服务线程—RebalanceService的启动（每隔20s执行一次）。通过查看源码可以发现，RebalanceService线程的run()方法最终调用的是RebalanceImpl类的rebalanceByTopic()方法，该方法是实现Consumer端负载均衡的核心。这里，rebalanceByTopic()方法会根据消费者通信类型为“广播模式”还是“集群模式”做不同的逻辑处理。这里主要来看下集群模式下的主要处理流程：
+   1. 从rebalanceImpl实例的本地缓存变量—topicSubscribeInfoTable中，获取该Topic主题下的消息消费队列集合（mqSet）；
+   2. 根据topic和consumerGroup为参数调用mQClientFactory.findConsumerIdList()方法向Broker端发送获取该消费组下消费者Id列表的RPC通信请求（Broker端基于前面Consumer端上报的心跳包数据而构建的consumerTable做出响应返回，业务请求码：GET_CONSUMER_LIST_BY_GROUP）；
+   3. 先对Topic下的消息消费队列、消费者Id排序，然后用消息队列分配策略算法（默认为：消息队列的平均分配算法），计算出待拉取的消息队列。这里的平均分配算法，类似于分页的算法，将所有MessageQueue排好序类似于记录，将所有消费端Consumer排好序类似页数，并求出每一页需要包含的平均size和每个页面记录的范围range，最后遍历整个range而计算出当前Consumer端应该分配到的记录
 
-在Consumer启动后，它就会通过定时任务不断地向RocketMQ集群中的所有Broker实例发送心跳包（其中包含了，消息消费分组名称、订阅关系集合、消息通信模式和客户端id的值等信息）。Broker端在收到Consumer的心跳消息后，会将它维护在ConsumerManager的本地缓存变量—consumerTable，同时并将封装后的客户端网络通道信息保存在本地缓存变量—channelInfoTable中，为之后做Consumer端的负载均衡提供可以依据的元数据信息。
-
-1. Consumer端实现负载均衡的核心类—RebalanceImpl
-
-在Consumer实例的启动流程中的启动MQClientInstance实例部分，会完成负载均衡服务线程—RebalanceService的启动（每隔20s执行一次）。通过查看源码可以发现，RebalanceService线程的run()方法最终调用的是RebalanceImpl类的rebalanceByTopic()方法，该方法是实现Consumer端负载均衡的核心。这里，rebalanceByTopic()方法会根据消费者通信类型为“广播模式”还是“集群模式”做不同的逻辑处理。这里主要来看下集群模式下的主要处理流程：
-
-1. 从rebalanceImpl实例的本地缓存变量—topicSubscribeInfoTable中，获取该Topic主题下的消息消费队列集合（mqSet）；
-2. 根据topic和consumerGroup为参数调用mQClientFactory.findConsumerIdList()方法向Broker端发送获取该消费组下消费者Id列表的RPC通信请求（Broker端基于前面Consumer端上报的心跳包数据而构建的consumerTable做出响应返回，业务请求码：GET_CONSUMER_LIST_BY_GROUP）；
-3. 先对Topic下的消息消费队列、消费者Id排序，然后用消息队列分配策略算法（默认为：消息队列的平均分配算法），计算出待拉取的消息队列。这里的平均分配算法，类似于分页的算法，将所有MessageQueue排好序类似于记录，将所有消费端Consumer排好序类似页数，并求出每一页需要包含的平均size和每个页面记录的范围range，最后遍历整个range而计算出当前Consumer端应该分配到的记录
 
 ### 顺序消息
 
