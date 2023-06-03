@@ -1,6 +1,6 @@
 
 
-# 很多文件下载地址
+# 文件下载地址
 
 + [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
@@ -13,26 +13,14 @@
 # 同步服务时间
 
 ~~~shell
-yum install -y ntpdate  
-# 或者
-yum install -y ntp
-# 如果安装时显示没有找到安装包，则可以手动安装
-yum  install  -y ntpdate-4.2.6p5-29.el7.centos.2.x86_64.rpm
+# 开启时间同步。
+yum install -y chrony
+systemctl enable chronyd
+systemctl start chronyd
+timedatectl set-ntp true
 
-# 执行同步命令
-ntpdate ntp1.aliyun.com
-
-# 创建定时任务
-为什么创建定时任务？
-因为物理主机运行时间久了时钟难免发生细微变化，或者因为断电等其他原因导致时钟发生变化。因此为了避免时钟阶段性异常，我们通过定时任务的方式定时主动同步时钟。
-#现在命令行输入crontab -i回车
-$ crontab -i
-
-# 此时打开了一个编辑窗口，然后输入如下配置
-# 组成  时间表达式 + 命令 + 参数
-# 当前含义 每天夜里12:00同步一次时钟
-0 0 * * * ntpdate ntp1.aliyun.com
-
+# 设置时区
+timedatectl set-timezone Asia/Shanghai
 ~~~
 
 
@@ -60,9 +48,9 @@ sxl133
 ~~~bash
 vim /etc/hosts
 192.168.1.101  centos7
-192.168.160.128 mgr1
-192.168.160.146 mgr2
-192.168.160.147 mgr3
+192.168.160.152 k8s-1
+192.168.160.153 k8s-2
+192.168.160.154 k8s-3
 ~~~
 
 这样局域网内就可以通过主机名互相访问了，当然局域网内的主机hosts文件都得添加映射关系
@@ -150,7 +138,7 @@ yum clean all
 + 查看Linux自带Java软件：rpm -qa | grep java
 + 查看安装的文件夹：rpm -qal | grep postgres
 + 逐个删除自带软件：rpm -e --nodeps  软件名称
-+ 查找存在的文件夹 如： find / -name mysql，然后逐个删除
++ 查找存在的文件夹 如： find / -name mysql 然后逐个删除
 
 # xsync分发脚本
 
@@ -2448,6 +2436,941 @@ npm run start
   systemctl stop redis
   systemctl restart redis
   ~~~
+
+
+
+# NFS
+
+~~~bash
+## 安装nfs-server
+# 在每个机器。
+yum install -y nfs-utils
+
+
+# 在master 执行以下命令 
+echo "/nfs/data/ *(insecure,rw,sync,no_root_squash)" > /etc/exports
+
+# 执行以下命令，启动 nfs 服务;创建共享目录
+mkdir -p /nfs/data
+
+# 在master执行
+systemctl enable rpcbind
+systemctl enable nfs-server
+systemctl start rpcbind
+systemctl start nfs-server
+# 使配置生效
+exportfs -r
+#检查配置是否生效
+exportfs
+
+
+# 在客户端执行
+# 客户端不需要开启NFS服务，因为不共享目录。
+systemctl enable rpcbind
+systemctl start rpcbind 
+
+showmount -e 192.168.160.152
+mkdir -p /nfs/data
+mount -t nfs 192.168.160.152:/nfs/data /nfs/data
+
+~~~
+
+
+
+# GlusterFS
+
+## 安装
+
+### 环境安装
+
+~~~bash
+# 三台服务 k8s-1 k8s-2 k8s-3
+
+# 通过命令查询gfs可安装的版本
+yum search centos-release-gluster
+
+# 下载所要安装版本的yum源 
+yum -y install centos-release-gluster9
+
+# 安装 server
+ yum -y install glusterfs-server 
+
+# 开启和查看gfs服务
+systemctl enable glusterd
+systemctl start glusterd
+systemctl status glusterd
+
+# 安装后检查服务状况
+glusterfs -V
+# 查看端口
+netstat  -lntup | grep gluster
+# 查看进程
+ps -ef | grep gluster
+
+
+# 配置文件检查
+md5sum /etc/glusterfs/glusterd.vol 
+
+# 查看节点状态
+gluster peer status
+
+
+~~~
+
+### 配置信任池
+
+~~~bash
+# 在gfsserver1服务器上配置信任主机池，其他服务器不用操作，集群配置自动同步，注意不用加gfserver1的节点，执行以下命令：
+gluster peer probe k8s-2
+gluster peer probe k8s-3
+
+# 移除信任节点
+gluster peer detach HOSTNAME
+~~~
+
+
+
+### 创建卷
+
+~~~bash
+mkdir -p /data/br1
+# 创建复制卷，有三种类型分布式卷、复制卷、条带卷
+gluster volume create volume_name replica 3 k8s-1:/data/br1 k8s-2:/data/br1 k8s-3:/data/br1 force
+# volume create: volume_name: success: please start the volume to access data
+
+# 查看复制卷的信息
+gluster volume info volume_name 
+
+# 输出信息 
+Volume Name: volume_name
+Type: Replicate
+Volume ID: 91a0c64a-bdef-4091-adef-e73d35584228
+Status: Created
+Snapshot Count: 0
+Number of Bricks: 1 x 3 = 3
+Transport-type: tcp
+Bricks:
+Brick1: k8s-1:/data/br1
+Brick2: k8s-2:/data/br1
+Brick3: k8s-3:/data/br1
+Options Reconfigured:
+cluster.granular-entry-heal: on
+storage.fips-mode-rchecksum: on
+transport.address-family: inet
+nfs.disable: on
+performance.client-io-threads: off
+
+
+
+# 启动复制卷(启动复制卷后，即可进行挂载)
+gluster volume start volume_name
+
+gluster volume info volume_name 
+# 输出信息
+Volume Name: volume_name
+Type: Replicate
+Volume ID: 91a0c64a-bdef-4091-adef-e73d35584228
+Status: Started
+Snapshot Count: 0
+Number of Bricks: 1 x 3 = 3
+Transport-type: tcp
+Bricks:
+Brick1: k8s-1:/data/br1
+Brick2: k8s-2:/data/br1
+Brick3: k8s-3:/data/br1
+Options Reconfigured:
+cluster.granular-entry-heal: on
+storage.fips-mode-rchecksum: on
+transport.address-family: inet
+nfs.disable: on
+performance.client-io-threads: off
+
+
+# 列出所有的卷
+gluster volume list
+
+gluster volume status all	
+~~~
+
+
+
+### 调优（可不执行）
+
+~~~bash
+# 开启 指定 volume 的配额
+$ gluster volume quota k8s-volume enable
+
+# 限制 指定 volume 的配额
+$ gluster volume quota k8s-volume limit-usage / 1TB
+
+# 设置 cache 大小, 默认32MB
+$ gluster volume set k8s-volume performance.cache-size 4GB
+
+# 设置 io 线程, 太大会导致进程崩溃
+$ gluster volume set k8s-volume performance.io-thread-count 16
+
+# 设置 网络检测时间, 默认42s
+$ gluster volume set k8s-volume network.ping-timeout 10
+
+# 设置 写缓冲区的大小, 默认1M
+$ gluster volume set k8s-volume performance.write-behind-window-size 1024MB
+~~~
+
+
+
+
+
+## 异常处理
+
+### 节点disconnected
+
+~~~bash
+# 问题
+[root@k8s-2 ~]# gluster peer status 
+Number of Peers: 1
+
+Hostname: 192.168.160.154
+Uuid: 6d43d64c-99dc-4281-a7d1-4d44708ede36
+State: Peer in Cluster (Disconnected)
+Other names:
+k8s-3
+[root@k8s-2 ~]# rm -rf /var/lib/glusterd/peers/6d43d64c-99dc-4281-a7d1-4d44708ede36
+[root@k8s-2 ~]# gluster peer status 
+Number of Peers: 1
+
+Hostname: 192.168.160.154
+Uuid: 6d43d64c-99dc-4281-a7d1-4d44708ede36
+State: Peer in Cluster (Disconnected)
+Other names:
+k8s-3
+
+# 处理节点的配置文件，然后重启
+ rm -rf /var/lib/glusterd/peers/f9824e5f-191a-4e3e-afe4-f48d976e9ab9
+ systemctl restart glusterd
+~~~
+
+
+
+## 卸载
+
+~~~bash
+yum remove -y centos-release-gluster glusterfs-server 
+~~~
+
+
+
+# Heketi
+
+[参考](https://blog.csdn.net/weixin_45692576/article/details/122063551?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168550569916782427467886%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=168550569916782427467886&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-122063551-null-null.142^v88^control_2,239^v2^insert_chatgpt&utm_term=kubesphere%20heketi&spm=1018.2226.3001.4187)
+
+实现[k8s](https://so.csdn.net/so/search?q=k8s&spm=1001.2101.3001.7020)动态供给glusterfs存储需要用到Heketi 服务
+
+在k8s官方文档中写到，要使用glusterfs作为后端动态供给存储，在存储类中要配置heketi的接口，并不是直接配置glusterfs的，所以我们需要安装Heketi 服务。Heketi 服务的安装方式分为3种，OpenShift集群安装、Standalone独立单机安装、Kubernetes安装 ，我们采用Standalone独立单机安装方式。
+
+## 安装
+
+~~~bash
+# 在线yum安装heketi服务端和客户端工具，heketi 也是在glusterfs源里面的，如果没有glusterfs源,参考上面的配置glusterfs的yum源
+yum install  heketi heketi-client
+~~~
+
+## 创建heketi用户并配置免密登录
+
+创建免密登录的用户，因为官网要求heketi主机要能免密登录到glusterfs的主机上，这里我不在创建一个heketi用户，直接使用root用户，如果是非root用户，需要有sudo权限。
+
+~~~bash
+
+#建议使用root用户做免密登录
+ssh-keygen -t rsa
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.160.152
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.160.153
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.160.154
+
+~~~
+
+### 修改配置文件
+
+~~~bash
+vim /etc/heketi/heketi.json
+~~~
+
+~~~json
+{
+  "_port_comment": "Heketi Server Port Number",
+  "port": "7080",      #Heketi服务端口，默认是8080，可以自定义
+
+  "_use_auth": "Enable JWT authorization. Please enable for deployment",
+  "use_auth": true,   true,	#是否使用JWT authorization，设置为true
+
+  "_jwt": "Private keys for access",
+  "jwt": {
+    "_admin": "Admin has access to all APIs",
+    "admin": {
+      "key": "bob.123456"     #配置admin的密码
+    },
+    "_user": "User only has access to /volumes endpoint",
+    "user": {
+      "key": "bob.123456"     #配置普通账号的密码
+    }
+  },
+
+  "_glusterfs_comment": "GlusterFS Configuration",
+  "glusterfs": {
+    "_executor_comment": [
+      "Execute plugin. Possible choices: mock, ssh",
+      "mock: This setting is used for testing and development.",
+      "      It will not send commands to any node.",
+      "ssh:  This setting will notify Heketi to ssh to the nodes.",
+      "      It will need the values in sshexec to be configured.",
+      "kubernetes: Communicate with GlusterFS containers over",
+      "            Kubernetes exec api."
+    ],
+    "executor": "ssh",    #命令执行器配置为ssh
+
+    "_sshexec_comment": "SSH username and private key file information",
+    "sshexec": {              #命令执行器为ssh方式，改下面这段
+      "keyfile": "/root/.ssh/id_rsa",      #ssh的密钥
+      "user": "root",           #ssh的用户，我使用的是root用户            
+      "port": "22",             #ssh的端口     
+      "fstab": "/etc/fstab"     #存储挂载点的fstab文件，保持默认即可
+    },
+
+    "_kubeexec_comment": "Kubernetes configuration",
+    "kubeexec": {         #命令执行器没有用到kubernetes，不用改
+      "host" :"https://kubernetes.host:8443",
+      "cert" : "/path/to/crt.file",
+      "insecure": false,
+      "user": "kubernetes username",
+      "password": "password for kubernetes user",
+      "namespace": "OpenShift project or Kubernetes namespace",
+      "fstab": "Optional: Specify fstab file on node.  Default is /etc/fstab"
+    },
+
+    "_db_comment": "Database file name",
+    "db": "/var/lib/heketi/heketi.db",  #heketi数据库文件，保持默认
+
+    "_loglevel_comment": [
+      "Set log level. Choices are:",
+      "  none, critical, error, warning, info, debug",
+      "Default is warning"
+    ],
+    "loglevel" : "warning"             #定义日志几级别
+  }
+}
+
+~~~
+
+### 启动heketi服务
+
+~~~bash
+vim /usr/lib/systemd/system/heketi.service
+User=root	#改为root
+
+systemctl daemon-reload 
+systemctl start  heketi
+systemctl enable heketi
+systemctl status heketi
+
+# 测试
+curl http://192.168.160.152:7080/hello
+Hello from Heketi
+
+~~~
+
+### 配置hekeit-cli客户端工具的环境变量
+
+~~~bash
+#永久设置环境变量
+echo 'export HEKETI_CLI_SERVER=http://192.168.160.152:7080' >> ~/.bash_profile	
+echo 'export HEKETI_CLI_USER=admin'  >> ~/.bash_profile							
+echo 'export HEKETI_CLI_KEY=bob.123456'  >> ~/.bash_profile		
+
+#立即生效
+source  ~/.bash_profile															
+
+~~~
+
+### 集群
+
+#### 指令设置
+
+~~~bash
+##集群显示信息
+heketi-cli --user admin --secret bob.123456 --server http://192.168.160.152:7080 cluster list
+
+##集群建立
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 --json  cluster create
+
+[root@localhost ~]# heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 --json  cluster create
+{"id":"2bfe06768a30c3e464065a86494f663a","nodes":[],"volumes":[],"block":true,"file":true,"blockvolumes":[]}
+
+##节点加入
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 --json node add --cluster "2bfe06768a30c3e464065a86494f663a" --management-host-name 192.168.56.101  --storage-host-name 192.168.56.101  --zone 1 
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 --json node add --cluster "2bfe06768a30c3e464065a86494f663a" --management-host-name 192.168.56.102  --storage-host-name 192.168.56.102  --zone 1 
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 --json node add --cluster "2bfe06768a30c3e464065a86494f663a" --management-host-name 192.168.56.103  --storage-host-name 192.168.56.103  --zone 1 
+
+##节点加入后查看
+heketi-cli --user admin --secret bob.123456 --server http://192.168.160.152:7080 node list
+
+[root@localhost ~]# heketi-cli --user admin --secret 123456 --server http://192.168.160.152:7080 node list
+Id:3128158ceb40e97d51a23fbe3e652bcf     Cluster:1b56e0fcb89e80705840bdfe5e863535
+Id:3e6c3bc3c079015e239bfdf2f3b03726     Cluster:1b56e0fcb89e80705840bdfe5e863535
+Id:6df7f798e29c049b40e03f9c20d4eb19     Cluster:1b56e0fcb89e80705840bdfe5e863535
+
+##磁盘设备加入
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 device add --name "/dev/sdb" --node 3128158ceb40e97d51a23fbe3e652bcf --destroy-existing-data
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 device add --name "/dev/sdb" --node 3e6c3bc3c079015e239bfdf2f3b03726 --destroy-existing-data
+heketi-cli --user admin --secret 123456 --server http://192.168.56.101:8080 device add --name "/dev/sdb" --node 6df7f798e29c049b40e03f9c20d4eb19 --destroy-existing-data
+
+##集群信息查看
+heketi-cli --user admin --secret bob.123456 --server http://192.168.160.152:7080 topology info
+
+##删除磁盘设备
+要先device disable,然后device remove然后device delete
+
+##删除集群（需要先删除磁盘）
+heketi-cli --user admin --secret bob.123456 --server http://192.168.160.152:7080 --json  cluster delete 2bfe06768a30c3e464065a86494f663a
+
+~~~
+
+####  topology文件
+
+官网说必须向Heketi提供关于系统拓扑结构的信息。这允许Heketi决定使用哪些节点、磁盘和集群。
+
+  可以使用命令行客户端创建一个集群，然后向该集群添加节点，然后向每个节点添加磁盘。如果使用命令行，这个过程可能相当乏味。因此，命令行客户端支持使用拓扑文件将这些信息加载到Heketi，该拓扑文件描述集群、集群节点和每个节点上的磁盘信息。
+
+  编写topology文件，这个拓扑文件是一个JSON格式的文件，描述要添加到Heketi的集群、节点和磁盘 [官网示例](https://github.com/heketi/heketi/blob/master/client/cli/go/topology-sample.json)
+
+vi topology.json
+
+~~~json
+{
+    "clusters": [
+        {
+            "nodes": [
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.160.152"
+                            ],
+                            "storage": [
+                                "192.168.160.152"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.160.153"
+                            ],
+                            "storage": [
+                                "192.168.160.153"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "192.168.160.154"
+                            ],
+                            "storage": [
+                                "192.168.160.154"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+~~~
+
+通过拓扑文件加载glusterfs节点到Heketi
+
+~~~bash
+
+[root@gluster1]# heketi-cli topology load --json=/etc/heketi/topology.json --server=http://192.168.160.152:7080 --user=admin --secret=bob.123456
+	Found node 192.168.54.52 on cluster f5dca07fd4e2edbe2e0b0ce5161a1cf7
+		Adding device /dev/vdb ... OK
+	Found node 192.168.54.53 on cluster f5dca07fd4e2edbe2e0b0ce5161a1cf7
+		Adding device /dev/vdb ... OK
+	Found node 192.168.54.54 on cluster f5dca07fd4e2edbe2e0b0ce5161a1cf7
+		Found device /dev/vdb
+
+~~~
+
+查看结果
+
+~~~
+heketi-cli cluster info 1b56e0fcb89e80705840bdfe5e863535 
+~~~
+
+## 挂载Kubesphere
+
+~~~yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: heketi-secret
+  namespace: kube-system
+data:
+  # base64 encoded password. E.g.: echo -n "abc.123456" | base64
+  key: Ym9iLjEyMzQ1Ng==		#这个是heketi服务的admin用户密码bob.123456，仅密码而已
+type: kubernetes.io/glusterfs
+~~~
+
+~~~yml
+vi glusterfs-storageclass.yaml	
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: glusterfs-storageclass						#存储名称
+provisioner: kubernetes.io/glusterfs				#指定存储类的provisioner，这个provisioner是k8s内置的驱动程序
+reclaimPolicy: Retain								#pvc删除，pv采用何种方式处理，这里是保留
+volumeBindingMode: Immediate						#卷的绑定模式，表示创建pvc立即绑定pv
+allowVolumeExpansion: true							#是否运行卷的扩容，配置为true才能实现扩容pvc
+parameters:											#glusterfs的配置参数
+  resturl: "http://192.168.160.152:7080"			    #heketi服务的地址和端口
+  clusterid: "a798fd7cb1147f6387d2c5477084163e"		#集群id，在heketi服务其上执行heketi-cli cluster list能看到
+  restauthenabled: "true"							#Gluster REST服务身份验证布尔值，用于启用对 REST 服务器的身份验证
+  restuser: "admin"									#heketi的用户admin
+  secretNamespace: "kube-system"						#secret所属的密码空间
+  secretName: "heketi-secret"						#secret，使用secret存储了heketi的用户admin的登陆密码
+  volumetype: "replicate:3"                         #挂载类型，三个副本，生产常用
+~~~
+
+~~~yml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: glusterfs-storageclass
+provisioner: kubernetes.io/glusterfs
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+parameters:
+  resturl: "http://192.168.160.152:7080"
+  clusterid: "1b56e0fcb89e80705840bdfe5e863535"
+  restauthenabled: "true"
+  restuser: "admin"
+  secretNamespace: "kube-system"
+  secretName: "heketi-secret"
+  volumetype: "replicate:3"
+~~~
+
+~~~bash
+#创建成功
+kubectl apply -f glusterfs-storageclass.yaml
+
+~~~
+
+查看存储类型，可以使用如下命令进行查看，如果显示创建成功，在kubesphere界面也能看到相应的存储类型。
+
+~~~bash
+[root@master /]# kubectl  get sc
+NAME                          PROVISIONER               RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+glusterfs (default)           kubernetes.io/glusterfs   Delete          Immediate              true                   5h27m
+glusterfs-storageclass        kubernetes.io/glusterfs   Retain          Immediate              true                   4h21m
+glusterfs-test-storageclass   kubernetes.io/glusterfs   Retain          Immediate              true                   3h44m
+local (default)               openebs.io/local          Delete          WaitForFirstConsumer   false                  20d
+
+
+~~~
+
+
+
+## 常用指令
+
+~~~bash
+# 列出volume 
+heketi-cli volume list
+
+# 列出集群信息
+heketi-cli cluster list
+
+
+# 列出节点Node信息
+heketi-cli node list
+
+# 列出集群信息
+heketi-cli cluster info <集群ID>
+heketi-cli topology info 拓扑信息
+
+# 挂载
+mount -t glusterfs -o <mount option>,log-level=WARNING <nodeip>:<vol_name> /tmp/data/
+mount -t glusterfs <nodeip>:<vol_name> /tmp/data/
+
+# 删除volume
+heketi-cli volume delete <volume id>
+
+# 扩展
+heketi-cli volume expand --volume=<volum-id> --expland-size=4
+
+# 创建卷
+# 创建一个1G的磁盘，副本数为2，时间大概2-3分钟。更多用法可以用heketi-cli volume create -h查看
+heketi-cli volume create --size=1 --replica=2 
+
+Name: vol_adf27fe83b028ab6d7b0fde93a749d20                                    # 这个名字记下
+S
+Size: 6000
+V
+Volume Id: adf27fe83b028ab6d7b0fde93a749d20
+C
+Cluster Id: 5ff75a20c566d3ff520026a2bcfbd359
+M
+Mount: 172.17.1.1:vol_adf27fe83b028ab6d7b0fde93a749d20
+M
+Mount Options: backup-volfile-servers=172.17.1.1
+
+#mount -t glusterfs -o backup-volfile-servers=glusterfs-bj-ali-bgp2,log-level=WARNING glusterfs-bj-ali-bgp1:/vol_adf27fe83b028ab6d7b0fde93a749d20 /data/loki
+
+
+# 删除集群
+删除device-->删除node-->删除-->删除cluster集群
+
+heketi-cli  --user admin --secret 123456 device disable deviceID
+heketi-cli  --user admin --secret 123456 device remove deviceID
+heketi-cli  --user admin --secret 123456 device delete deviceID
+heketi-cli device remove 
+
+# heketi-cli topology info | grep Size | awk '{print $1}' | cut -d: -f 2 |xargs -i heketi-cli device delete {}
+heketi-cli node list|awk '{print $1}' | cut -d: -f 2 |xargs -i heketi-cli node delete {}
+heketi-cli cluster delete <cluster ID>
+
+
+
+
+# 创建heketi-ui
+docker pull orachide/heketi-ui
+docker run -d -e HEKETI_SERVER_URL="http://192.168.160.152:7080" -e HEKETI_SERVER_USER="admin" -e HEKETI_SERVER_SECRET="bob.123456" -p 3000:3000 orachide/heketi-ui
+ 
+~~~
+
+
+
+# kubeSphere
+
+[示例地址](https://blog.csdn.net/networken/article/details/109010032?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168542922916800197027617%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=168542922916800197027617&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-109010032-null-null.142^v88^control_2,239^v2^insert_chatgpt&utm_term=kuberkey&spm=1018.2226.3001.4187)
+
+## 下载KK
+
+~~~bash
+export KKZONE=cn
+curl -sfL https://get-kk.kubesphere.io | VERSION=v3.0.7 sh -
+
+tar -zxvf kubekey-v3.0.7-linux-amd64.tar.gz
+mv kk /usr/local/bin/
+
+
+# 查看kubekey版本
+kk version
+# 查看kubekey支持的kubernertes版本
+kk version --show-supported-k8s
+
+
+~~~
+
+## 安装
+
+### glusterFS持久化配置
+
+~~~yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: heketi-secret
+  namespace: kube-system
+type: kubernetes.io/glusterfs
+data:
+  key: "Ym9iLjEyMzQ1Ng=="
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    storageclass.beta.kubernetes.io/is-default-class: "true"
+    storageclass.kubesphere.io/supported-access-modes: '["ReadWriteOnce","ReadOnlyMany","ReadWriteMany"]'
+  name: glusterfs
+parameters:
+  clusterid: "1b56e0fcb89e80705840bdfe5e863535"
+  gidMax: "50000"
+  gidMin: "40000"
+  restauthenabled: "true"
+  resturl: "http://192.168.160.152:7080" 
+  restuser: admin
+  secretName: heketi-secret
+  secretNamespace: kube-system
+  volumetype: "replicate:3"
+provisioner: kubernetes.io/glusterfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+~~~
+
+
+
+### 高可用集群
+
+~~~bash
+kk create config --with-kubesphere v3.3.2 --with-kubernetes v1.22.12 -f config-sample.yaml
+~~~
+
+~~~yml
+apiVersion: kubekey.kubesphere.io/v1alpha1
+kind: Cluster
+metadata:
+  name: sample
+spec:
+  hosts:
+  - {name: k8s-1, address: 192.168.160.152, internalAddress: 192.168.160.152, user: root, password: "123456"}
+  - {name: k8s-2, address: 192.168.160.153, internalAddress: 192.168.160.153, user: root, password: "123456"}
+  - {name: k8s-3, address: 192.168.160.154, internalAddress: 192.168.160.154, user: root, password: "123456"}
+  roleGroups:
+    etcd:
+    - k8s-1
+    control-plane:
+    - k8s-1
+    worker:
+    - k8s-[2:3]
+  controlPlaneEndpoint:
+    ##Internal loadbalancer for apiservers
+    internalLoadbalancer: haproxy
+    domain: lb.kubesphere.local
+    address: ""      # The IP address of your load balancer.
+    port: 6443
+  kubernetes:
+    version: v1.20.6
+    imageRepo: kubesphere
+    clusterName: cluster.local
+  network:
+    plugin: calico
+    kubePodsCIDR: 10.233.64.0/18
+    kubeServiceCIDR: 10.233.0.0/18
+  registry:
+    registryMirrors: []
+    insecureRegistries: []
+  addons: []
+
+~~~
+
+~~~bash
+# 仅安装 k8s
+./kk create cluster -f config-sample.yaml 
+# k8s kubesphere 一起安装
+kk create cluster -f config-sample.yaml --with-kubernetes v1.20.4 --with-kubesphere v3.1.0
+~~~
+
+### 相关指令
+
+~~~bash
+# 创建完成后查看节点状态
+kubectl get nodes -o wide
+
+
+# 查看所有pod状态
+kubectl get pods -A
+
+# 查看多有pod的详细信息
+kubectl get pods -A -o wide
+
+# 查看pod节点上的标签：
+kubectl get pods --show-labels -A
+
+# 查看节点状态信息：
+kubectl get cs
+
+# 查看子命令帮助信息
+kubectl get --help
+ 
+# 列出默认namespace中的所有pod
+kubectl get pods
+ 
+# 列出指定namespace中的所有pod
+kubectl get pods --namespace=test
+ 
+# 列出所有namespace中的所有pod
+kubectl get pods --all-namespaces
+ 
+# 列出所有pod并显示详细信息
+kubectl get pods -o wide
+kubectl get replicationcontroller web
+kubectl get -k dir/
+kubectl get -f pod.yaml -o json
+kubectl get rc/web service/frontend pods/web-pod-13je7
+kubectl get pods/app-prod-78998bf7c6-ttp9g --namespace=test -o wide
+kubectl get -o template pod/web-pod-13je7 --template={{.status.phase}}
+ 
+# 列出该namespace中的所有pod包括未初始化的
+kubectl get pods,rc,services --include-uninitialized
+
+# 查看某个空间先 pod 的
+kubectl -n 命名空间 describe pod pod名称
+
+# 删除某个 pod
+kubectl delete pod PODNAME --force --grace-period=0 -n namespace
+
+~~~
+
+### kubekey集群维护
+
+~~~bash
+# 添加节点
+kk add nodes -f config-sample.yaml
+
+# 删除节点
+kk delete node <nodeName> -f config-sample.yaml
+
+# 删除集群
+kk delete cluster
+kk delete cluster -f config-sample.yaml
+
+# 集群升级
+kk upgrade [--with-kubernetes version] [--with-kubesphere version]
+kk upgrade [--with-kubernetes version] [--with-kubesphere version] [(-f | --file) path]
+~~~
+
+
+
+## 插件
+
+### 应用商店
+
+### 持久化存储卷
+
+### Devops
+
+#### 注意事项
+
+注意事项
+
+1. 起码的服务器配置 4核心 8G内存 8G硬盘，内存和硬盘可以通过配置减小，但是CPU核心数貌似不行
+2. kubesuphere 的jenkins需要使用分布式云存储，本地存储会存在问题
+3. glusterFS 貌似对于它的支持不太友好？
+
+#### 配置Maven
+
+1. 使用admin登录
+2. 进入集群管理
+3. 进入配置中心
+4. 找到ks-devops-agent配置项
+5. 点击修改配置项 produce
+6. 在mirrors中加入以下内容
+
+~~~xml
+<mirror>
+  <id>aliyunmaven</id>
+  <mirrorOf>*</mirrorOf>
+  <name>阿里云公共仓库</name>
+  <url>https://maven.aliyun.com/repository/public</url>
+</mirror>
+
+~~~
+
+#### 添加环境变量
+
+~~~bash
+# 镜像仓库地址
+REGISTRY
+
+# 命名空间
+DOCKERHUB_NAMESPACE
+
+# 应用名称
+APP_NAME
+~~~
+
+#### 流水线文件
+
+**创建DockerFile**
+
+~~~bash
+FROM java:8u92-jre-alpine
+WORKDIR /home
+COPY target/*.jar /home
+ENTRYPOINT java -jar *.jar --spring.cloud.nacos.discovery.server-addr=nacos.produce:8848
+~~~
+
+**创建Git仓库凭证**
+
+~~~bash
+gitee-ssh
+~~~
+
+**创建Docker仓库凭证**
+
+~~~
+aliyun-docker
+~~~
+
+**Jenkins file**
+
+~~~pipeline
+pipeline {
+  agent {
+    node {
+      label 'maven'
+    }
+
+  }
+  stages {
+    stage('拉取代码') {
+      agent none
+      steps {
+        git(url: 'git@gitee.com:krest202/consumer.git', credentialsId: 'gitee-ssh', branch: 'master', changelog: true, poll: false)
+        sh 'ls'
+      }
+    }
+
+    stage('构建Jar') {
+      agent none
+      steps {
+        container('maven') {
+          sh 'mvn -Dmaven.test.skip=true clean package'
+        }
+
+      }
+    }
+
+    stage('镜像操作') {
+      agent none
+      steps {
+        container('maven') {
+          sh '''docker build -f Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BUILD_NUMBER .
+'''
+          withCredentials([usernamePassword(credentialsId : 'aliyun-docker' ,passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,)]) {
+            sh '''echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin
+'''
+            sh '''docker push $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BUILD_NUMBER
+'''
+          }
+        }
+      }
+    }
+  }
+}
+~~~
+
+
+
+
 
 
 
