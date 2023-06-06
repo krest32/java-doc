@@ -47,10 +47,10 @@ sxl133
 
 ~~~bash
 vim /etc/hosts
-192.168.1.101  centos7
-192.168.160.152 k8s-1
-192.168.160.153 k8s-2
-192.168.160.154 k8s-3
+
+192.168.160.161 k8s-1
+192.168.160.162 k8s-2
+192.168.160.163 k8s-3
 ~~~
 
 这样局域网内就可以通过主机名互相访问了，当然局域网内的主机hosts文件都得添加映射关系
@@ -68,7 +68,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 配置，然后重新重启网路
 
 ~~~bash
-IPADDR=192.168.160.152
+IPADDR=192.168.160.161
 NETMASK=255.255.255.0
 GATEWAY=192.168.160.2
 DNS1=8.8.8.8
@@ -2467,11 +2467,19 @@ exportfs
 # 在客户端执行
 # 客户端不需要开启NFS服务，因为不共享目录。
 systemctl enable rpcbind
-systemctl start rpcbind 
+systemctl restart rpcbind 
 
-showmount -e 192.168.160.152
+showmount -e 192.168.160.161
 mkdir -p /nfs/data
-mount -t nfs 192.168.160.152:/nfs/data /nfs/data
+mount -t nfs 192.168.160.161:/nfs/data /nfs/data
+
+
+# 但当系统重启时候，挂载会消失。
+# 如果需要永久挂载，可以添加如下内容到 /etc/fstab 文件中，但是如此的话，只能在主节点写入文件, rw是读写模式，ro是只读模式
+vi /etc/fstab
+# device                                   mountpoint             fs-type     options      dump   fsckorder
+192.168.160.161:/nfs/data  /nfs/data    nfs          rw              0         0
+
 
 ~~~
 
@@ -3073,8 +3081,35 @@ docker run -d -e HEKETI_SERVER_URL="http://192.168.160.152:7080" -e HEKETI_SERVE
 ## 下载KK
 
 ~~~bash
+# 关闭SELinux
+# 1、临时关闭：输入命令 setenforce 0，重启系统后还会开启。
+# 2、永久关闭：输入命令 vim /etc/selinux/config，将 SELINUX=enforcing 改为 SELINUX=disabled，然后保存退出。
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+
+# 关闭 swap 分区
+# 临时关闭
+swapoff -a
+
+# 永久关闭  
+vim /etc/fstab 
+#注释下面这行,或使用 sed 命令注释 sed -ri 's/.*swap.*/#&/' /etc/fstab
+#/dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+# 查看是否关闭成功
+free -m
+# 若都显示 0 则表示关闭成功，需要重启服务器生效，可以使用 reboot 或 shutdown -r now 命令重启
+[root@node2 ~]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:           3770         305        3115          11         350        3242
+Swap:             0           0           0
+
+
+
+
 export KKZONE=cn
 curl -sfL https://get-kk.kubesphere.io | VERSION=v3.0.7 sh -
+# 如果下载不了，可以从github下载，然后同步到服务器当中
 
 tar -zxvf kubekey-v3.0.7-linux-amd64.tar.gz
 mv kk /usr/local/bin/
@@ -3140,9 +3175,9 @@ metadata:
   name: sample
 spec:
   hosts:
-  - {name: k8s-1, address: 192.168.160.152, internalAddress: 192.168.160.152, user: root, password: "123456"}
-  - {name: k8s-2, address: 192.168.160.153, internalAddress: 192.168.160.153, user: root, password: "123456"}
-  - {name: k8s-3, address: 192.168.160.154, internalAddress: 192.168.160.154, user: root, password: "123456"}
+  - {name: k8s-1, address: 192.168.160.161, internalAddress: 192.168.160.161, user: root, password: "123456"}
+  - {name: k8s-2, address: 192.168.160.162, internalAddress: 192.168.160.162, user: root, password: "123456"}
+  - {name: k8s-3, address: 192.168.160.163, internalAddress: 192.168.160.163, user: root, password: "123456"}
   roleGroups:
     etcd:
     - k8s-1
@@ -3177,6 +3212,27 @@ spec:
 # k8s kubesphere 一起安装
 kk create cluster -f config-sample.yaml --with-kubernetes v1.20.4 --with-kubesphere v3.1.0
 ~~~
+
+### 问题点
+
+kubectl get cs 显示 scheduler  显示不健康
+
+处理方案
+
+~~~bash
+查看contriller-manager和scheduler配置文件是否禁用非安全端口。文件路径在/etc/kubernetes/manifests
+将 --port=0 注释掉
+~~~
+
+![img](img/4551437c600a2b1939a62f21ee7ed5d5.png)
+
+然后重启
+
+~~~bash
+systemctl restart kubelet
+~~~
+
+
 
 ### 相关指令
 
