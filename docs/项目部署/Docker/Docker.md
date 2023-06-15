@@ -2,7 +2,7 @@
 
 ## 基本介绍
 
-### 什么是Docker？
+### 概念
 
 ​		Docker是一个容器化平台，它以容器的形式将你的应用程序及所有的依赖项打包在一起，以确保你的应用程序在任何环境中无缝运行。
 
@@ -142,7 +142,7 @@ $ docker --registry-mirror=https://registry.docker-cn.com daemon
 
 修改保存后重启 Docker 以使配置生效。　　　　　　　　
 
-### 3. Docker的镜像操作
+## Docker的镜像操作
 
 1. 使用前先拉取镜像
 
@@ -185,9 +185,9 @@ docker load -i 镜像名称
 docker tag 镜像标签 更改的名称：版本
 ~~~
 
+## 容器的操作
 
 
-### 4. 容器的操作
 
 1. 运行容器
 
