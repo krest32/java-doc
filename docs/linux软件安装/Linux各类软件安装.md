@@ -4,6 +4,27 @@
 
 + [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
+# Github 加速
+
+1. 打开网站 http://tool.chinaz.com/dns/，在A类型中填写`github.com`,再点击`监测按钮`
+2. 复制下面任意一个`ip`
+3. 打开电脑文件`C:\Windows\System32\drivers\etc`下的`host`文件
+4. 在`host`文件的最后一刚加入刚才复制的IP
+
+~~~bash
+20.205.243.166         github.com
+~~~
+
+5.  `win+R` 打开`cmd `命窗口，执行命令`ipconfig/flushdns`
+
+~~~bash
+ipconfig/flushdns
+~~~
+
+
+
+
+
 # 服务器选择
 
 + CPU：如果是计算密集型，那么就需要选择高频的CPU
