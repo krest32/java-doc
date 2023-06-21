@@ -2113,30 +2113,24 @@ format方法实现
 + Jdk1.0中包含了一个Java.util.Date类，但是大多数方法在JDK1.1，引入Calendar的时候已经被启用，而calendar也存在问题
 + 可变性：像日期和时间这两样的类应该是不可变的
 + 偏移性：Date的年份是从1900年开始的，而月份是从0开始的
-+ 格式化：格式化只对Date有用，Calendar则步行
++ 格式化：格式化只对Date有用，Calendar则不行
 + 此外，它们的线程不安全，不能处理闰秒等（每隔2天，多出1s）
 
 ## 日志
 
 ### 常用的日志框架
 
-` Java Logging API]（Oracle）`—— Java默认的日志框架
-
- `Log4j（Apache）`——开源日志框架
-
-`Logback`（`Logback` Project）——开源项目，被设计成`Log4j`版本1的后续版本
-
-`tinylog（tinylog）`——轻量级开源logger
++ ` Java Logging API]（Oracle）`—— Java默认的日志框架
++ `Log4j（Apache）`——开源日志框架
++ `Logback`（`Logback` Project）——开源项目，被设计成`Log4j`版本1的后续版本
++ `tinylog（tinylog）`——轻量级开源logger
 
 ### 日志输出级别
 
-ERROR 为严重错误 主要是程序的错误
-
-WARN 为一般警告，比如session丢失
-
-INFO 为一般要显示的信息，比如登录登出
-
-DEBUG 为程序的调试信息
++ ERROR 为严重错误 主要是程序的错误
++ WARN 为一般警告，比如session丢失
++ INFO 为一般要显示的信息，比如登录登出
++ DEBUG 为程序的调试信息
 
 
 
