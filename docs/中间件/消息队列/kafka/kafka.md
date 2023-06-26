@@ -662,8 +662,6 @@ Apache Kafka是由Apache开发的一种发布订阅消息系统，它是一个�
 
 ​		producer直接将数据发送到broker的leader(主节点)，不需要在多个节点进行分发，为了帮助producer做到这点，所有的Kafka节点都可以及时的告知:哪些节点是活动的，目标topic目标分区的leader在哪。这样producer就可以直接将消息发送到目的地了。
 
-
-
 ### Kafa consumer是否可以消费指定分区消息？
 
 ​		Kafa consumer消费消息时，向broker发出"fetch"请求去消费特定分区的消息，consumer指定消息在日志中的偏移量（offset），就可以消费从这个位置开始的消息，customer拥有了offset的控制权，可以向后回滚去重新消费之前的消息，这是很有意义的
@@ -674,15 +672,9 @@ Apache Kafka是由Apache开发的一种发布订阅消息系统，它是一个�
 
 ​		Kafka最初考虑的问题是，customer应该从brokes拉取消息还是brokers将消息推送到consumer，也就是pull还push。在这方面，Kafka遵循了一种大部分消息系统共同的传统的设计：**producer将消息推送到broker，consumer从broker拉取消息**，一些消息系统比如Scribe和Apache Flume采用了push模式，将消息推送到下游的consumer。这样做有好处也有坏处：由broker决定消息推送的速率，对于不同消费速率的consumer就不太好处理了。消息系统都致力于让consumer以最大的速率最快速的消费消息，但不幸的是，push模式下，当broker推送的速率远大于consumer消费的速率时，consumer恐怕就要崩溃了。最终Kafka还是选取了传统的pull模式 
 
-
-
 ​		Pull模式的另外一个好处是consumer可以自主决定是否批量的从broker拉取数据。Push模式必须在不知道下游consumer消费能力和消费策略的情况下决定是立即推送每条消息还是缓存之后批量推送。如果为了避免consumer崩溃而采用较低的推送速率，将可能导致一次只推送较少的消息而造成浪费。Pull模式下，consumer就可以根据自己的消费能力去决定这些策略 
 
-
-
 ​		Pull有个缺点是，如果broker没有可供消费的消息，将导致consumer不断在循环中轮询，直到新消息到t达。为了避免这点，Kafka有个参数可以让consumer阻塞知道新消息到达(当然也可以阻塞知道消息的数量达到某个特定的量这样就可以批量发
-
-
 
 ### Kafka存储在硬盘上的消息格式是什么？
 
@@ -693,14 +685,47 @@ Apache Kafka是由Apache开发的一种发布订阅消息系统，它是一个�
 + CRC校验码: 4 bytes
 + 具体的消息: n bytes
 
+### Kafka高效文件存储原理的理解？
 
+**概述：**
 
-### Kafka高效文件存储设计特点：
+1. Kafka把topic中一个parition大文件分成多个小文件段，
+   1. 分区：通过多个小文件段，就容易定期清除或删除已经消费完文件，减少磁盘占用。
+      1. 一个topic可以对应多个partition，也可以实现Topic的横向扩展，不同的Broker上存在不同的partition
 
-1. Kafka把topic中一个parition大文件分成多个小文件段，通过多个小文件段，就容易定期清除或删除已经消费完文件，减少磁盘占用。
+   2. 副本机制：
+      1. 为了提高分区的可靠性，然后加入了副本机制，可以指定副本数，其中这个数量需要小于等于broker的数量。
+      2. 在所有的副本中存在两个角色Leader和Follower
+      3. Leader 负责提供读写，Follower负责异步拉取数据
+
+   3. 分段：为了防止文件不断追加，导致文件过大，引入了分段文件，每个segment由三个文件组成，一个是索引文件（存储消费者的offset）、一个是timeindex文件（存储时间戳索引，记录offset和时间戳的关系）、一个是数据文件。
+   4. 索引文件：不会为每个消息建立索引，而是采用了稀疏索引，每隔一批消息建立一个索引，这种方式对于空间会比较友好，Kafka在查找数据的时候采用二分查找的方式，数据查找的效率也是比较高的
+
 2. 通过索引信息可以快速定位message和确定response的最大大小。
 3. 过index元数据全部映射到memory，可以避免segment file的IO磁盘操作。
 4. 通过索引文件稀疏存储，可以大幅降低index文件元数据占用空间大小。
+5. 零拷贝技术的使用。
+
+**详细：**
+
++ 在 Kafka 文件存储中，同一个 Topic 下有多个不同 partition，每个 partition 为一个目录。partition命名规则为Topic名称 + 有序序号。如果 partition 数量为 num，则第一个 partition 序号从 0 开始，序号最大值为 num - 1。
++ 每个 partition（即每个目录）相当于一个巨型文件被平均分配到多个**大小相等**的 **segment（段）**数据文件中，但每个 segment **消息数量不一定相等**。这种特性方便旧 segment 文件快速被删除，默认保留7天的数据。例如在 orderMq-0 目录下，由上可知，index 和 log 为后缀名的文件的合称，就是 segment 文件。每个 partition 只需要支持顺序读写就行了，segment 文件生命周期（什么时候创建，什么时候删除）由服务端配置参数决定。
+
+~~~bash
+[root@mini3 orderMq-0]# ll
+-rw-r--r--. 1 root root 10485760 11月 21 22:31 00000000000000000000.index
+-rw-r--r--. 1 root root      219 11月 22 05:22 00000000000000000000.log
+~~~
+
++ segment 文件：Segment 文件由两大部分组成，分别为**索引文件 (index file)** 和**数据文件 (data file)**，这两个文件一一对应。
+  + Segment 文件命名规则：partition 全局的第一个 segment 从 0 开始，后续每个 segment 文件名为上一个 segment 文件最后一条消息的 offset 值。数值最大为 64 位 long 大小，19 位数字字符长度，没有数字用 0 填充。
+  + 索引文件存储大量元数据，数据文件存储大量消息。索引文件中元数据指向对应数据文件中message的物理偏移地址
+  + ![索引与数据的对应关系](img/SouthEast.png)
+  + 上述图中 index 文件存储大量元数据，log 文件存储大量消息，index 文件中元数据指向对应 log 文件中消息的物理偏移地址。其中以 index 文件中元数据3, 497为例，依次在数据文件中表示第 3 个消息（当前 Segment 的第 3 个，全局 partition 表示第 368769 + 3 = 368772 个消息)，以及该消息在对应 log 文件中的物理偏移地址为 497。
+
+
+
+
 
 
 
@@ -778,4 +803,3 @@ request.required.acks有三个值 0 1 -1
 3. 将所有分区重新分配给每个消费者，每个消费者都会分到不同分区；
 4. 将分区对应的消费者所有关系写入ZK，记录分区的所有权信息；
 5. 重启消费者拉取线程管理器，管理每个分区的拉取线程。
-

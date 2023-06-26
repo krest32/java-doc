@@ -178,10 +178,6 @@ Redis主要有 9 种数据类型，基本类型包括**String，List，Set，Zse
 
 针对上述问题，Redis 采用了**渐进式 rehash**，主要的流程是：Redis 还是继续处理客户端的请求，每次处理一个请求的时候，就会将该位置所有的 entry 都拷贝到哈希表 B 中，当然也会存在某个位置一直没有被请求。Redis 也考虑了这个问题，通过设置一个定时任务进行 rehash，在一些键值对一直没有操作的时候，会周期性的搬移一些数据到哈希表 B 中，进而缩短 rehash 的过程。
 
-
-
-
-
 ### 什么是Redis持久化？
 
 ​		持久化就是把内存的数据写到磁盘中去，防止服务宕机了内存数据丢失。
@@ -287,14 +283,10 @@ AOF 重写的过程是通过主线程 fork 后台的 bgrewriteaof 子进程来�
 - 有很多用户都只使用AOF持久化，但并不推荐这种方式，因为定时生成RDB快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比AOF恢复的速度要快，除此之外，使用RDB还可以避免AOF程序的bug。
 - 如果你只希望你的数据在服务器运行的时候存在，你也可以不使用任何持久化方式。
 
-
-
 ### Redis持久化数据和缓存怎么做扩容？
 
 - 如果 Redis 被当做缓存使用，使用**一致性哈希**实现动态扩容缩容，也就是Redis Cluster。
 - 如果 Redis 被当做一个持久化存储使用，必须使用固定的 keys-to-nodes 映射关系，节点的数量一旦确定不能变化。否则的话（ 即Redis 节点需要动态变化的情况），必须使用可以在运行时进行数据再平衡的一套系统，而当前只有Redis集群可以做到这样。
-
-
 
 ### 混合使用 AOF 日志和 RDB 快照
 
@@ -462,10 +454,6 @@ redisTemplate.opsForValue().setIfAbsent("lock",1111,300, TimeUnit.HOURS)
 ~~~
 
 ​		所以最终解决方案：在Redis中加入Lua脚本，让Redis去删除锁
-
-
-
-
 
 ### 缓存预热
 
@@ -953,6 +941,140 @@ sentinel，中文名是哨兵。哨兵是 redis 集群机构中非常重要的�
 4. 所以我们不断地穿越内存限制的边界，通过不断达到边界然后不断地回收回到边界以下。
 
 如果一个命令的结果导致大量内存被使用（例如很大的集合的交集保存到一个新的键），不用多久内存限制就会被这个内存使用量超越。
+
+### Redis 突然变慢， 如何进行排查？
+
+不管什么工具，会使用永远只是第一步，第二步是当其出现某些问题时，拥有排查和修复问题的能力，而我们在使用Redis的过程中，`变慢`就是其中一个比较棘手的问题，因此本文就一起来看下，当遇到该类问题时应该如何排查。
+
+**真的变慢了吗？**
+
+这部分我们一起看下如何评判Redis是否变慢，比如说某命令的执行时间是1ms,就一定是变慢了吗？不一定，因为如果是对配置很差的机器，这可能是其最好的表现了，但是对于每秒能够处理10万请求的机器，这肯定就是慢了，但，这都是很主观的判断，并没有一个对比的指标，因此我们就需要这样的一个指标，在这里，这个指标就是基线性能，所谓基线性能就是在服务器没有任何压力，没有任何干扰的情况下性能。其实，从Redis2.8.7版本开始，Redis在redis-cli命令提供了--intrinsic-latency {测试秒数}参数，可以用来测试Redis基线性能，如下:
+~~~bash
+d:\program_files\Redis-x64-2.8.2402>.\redis-cli --intrinsic-latency 120
+Max latency so far: 1 microseconds.
+Max latency so far: 4 microseconds.
+Max latency so far: 5 microseconds.
+Max latency so far: 16 microseconds.
+Max latency so far: 33 microseconds.
+Max latency so far: 35 microseconds.
+Max latency so far: 41 microseconds.
+Max latency so far: 77 microseconds.
+Max latency so far: 93 microseconds.
+Max latency so far: 106 microseconds.
+Max latency so far: 118 microseconds.
+Max latency so far: 486 microseconds.
+Max latency so far: 4048 microseconds.
+
+3268568472 total runs (avg latency: 0.0367 microseconds / 367.13 nanoseconds per run).
+Worst run took 110260x longer than the average latency.
+~~~
+
+可以看到基线性能的数据延迟是`0.0367微妙`,如果是在实际运行过程中，这个时间变为`0.0367微妙*2=0.0634微妙`左右则肯定就是变慢了，现在我们确定Redis确实是变慢了，剩下的就是定位变慢的原因了。
+
+**变慢了该怎么办**
+
+首先可能是我们的使用方式有问题，其次是操作系统的配置问题，最后还有可能是文件系统的问题，我们也从这三个方便展开说明。
+
+**1. 使用方式变慢了**
+
+主要有两种情况，第一种是使用了时间复杂度较高的命令，即存在[慢查询](https://so.csdn.net/so/search?q=慢查询&spm=1001.2101.3001.7020)的情况，第二种是设置了大量的key在相同的时间过期。
+
+1. 慢查询
+2. 过期key删除
+
+**2. 文件系统**
+
+和文件系统相关的其实就是AOF 了，在了解AOF如何影响主线程的操作性能之前，我们需要看下AOF的工作方式，AOF将日志写到磁盘上是通过2个文件系统的调用来完成，一个是write，另一个是fsync，其中write用来将日志写到内核缓冲区，fsync用来将内核缓存区的内容写到磁盘，fsync因为要向磁盘写数据所以速度较慢。AOF可以设置的值有no,everysec,always。
+
+当我们将appendfsync设置为always时，因为每一个数据写入的命令，都要同步的等fsync执行完成，所以此时会阻塞主线程，进而影响Redis的性能，导致变慢。那么当我们设置为everysec时是不是就不会导致这个问题了呢？也是会的，因为主线程在第一次启动了一个子线程执行fsync后，还会监测其执行进度，如果是在第二次需要执行fsync时发现上次的子线程fsync还没有执行完毕的话，依然会阻塞主线程，导致Redis变慢，那么什么时候会出现这种情况呢，当磁盘IO压力很大的时候就可能出现了，在不考虑其他应用对IO资源占用的情况下，Redis本身也会导致IO压力变大，其中AOF重写 就是主要元凶，AOF重写用来减小AOF文件的大小，当数据较多时，其对IO的压力会比较大，对于这种情况，我们一般有如下的几种解决方案：
+
+~~~bash
+1：业务允许的话，将appendfsync改为no
+2：使用Redis集群，减少单个Redis实例的数据量，从而减少AOF重写对IO的压力
+3：更换IO性能更好的固态硬盘，但代价也更大，其速度是普通机械硬盘的10倍以上
+4：设置no-appendfsync-on-rewrite yes，代表在进行AOF重写时不要调用fsync，但这种方式如果发生了异常宕机，会导致数据丢失
+~~~
+
+以上方案要根据具体的业务场景进行分析，选择一种最适合自己的，个人感觉其中`1,4`可能是会被用到比较多。因为`2,3`不管是带来的工作量，还是成本都还是比较高的。
+
+
+
+**3. 操作系统**
+
+和操作系统相关的因素是内存，其中可能让Redis变慢的主要是2方面的原因，第一个是swap，第二个是内存大页，我们分别来看下。
+
+**swap**
+
+swap是操作系统在内存紧张时执行的一种机制，即将部分不常用的内存空间对应的数据写到磁盘，然后将该内存分配给程序使用，当需要用到该部分数据时再将数据从磁盘上读取出来，这里涉及到了磁盘的IO，所以速度会比较慢，这也是swap可能导致Redis变慢的原因。
+
+如何判断是否发生了swap呢，首先需要先确定Redis实例的进程号，如下：
+
+~~~bash
+[root@localhost 1300]# ./redis-cli info | grep process_id
+1366
+~~~
+
+然后通过如下命令查看是否发生了swap：
+
+~~~bash
+[root@localhost 1366]# cd /proc/1366
+[root@localhost 1366]# cat smaps | egrep '^(Swap|Size)'
+Size: 584 kB
+Swap: 0 kB
+Size: 4 kB
+Swap: 4 kB
+Size: 4 kB
+Swap: 0 kB
+Size: 462044 kB
+Swap: 462008 kB
+Size: 21392 kB
+Swap: 0 kB
+~~~
+
+其中的size代表的就是申请的内存块大小（可以看到是申请了多个内存块的，而不是一大块），紧跟着的swap就是该块内存发生了swap的大小，当大于0时就是代表发生了内存交换，当和size相等时就说明全部发生了内存交换swap。当出现了超过MB级别的内存交换swap时就有可能会导致Redis变慢了，说明Redis内存紧张了，针对这种情况有如下的方案可供参考：
+
+~~~bash
+1：如果是集群环境，则增加新节点，降低单节点的内存占用量
+2：增加机器内存
+~~~
+
+**大内存页**
+
+> 内存页是操作系统分配内存时的最小单位，一般是4kb，Linux 内核从 2.6.38版本开始支持2M的大内存页的分配。
+
+理论上大内存页应该是更好了才对，因为会减少内存分配的时长，但是我们需要考虑RBD 的场景，在执行RDB时，为了保证RDB生成快照的数据数据一致性（为同一时刻的数据），对于更新操作，Redis会使用cow机制，对对应的内存页拷贝一份，因此对于大内存页，即使是修改的只是几个字节的数据，也需要拷贝2M的数据，而这个过程是会阻塞主线程的，所以也会导致Redis变慢的问题，对于这个问题处理也比较简单，只需要关闭大内存页机制就可以了，如下可以查看是否打开了大内存页：
+
+~~~bash
+[root@localhost 1300]# cat /sys/kernel/mm/transparent_hugepage/enabled 
+[always] madvise never
+~~~
+
+
+可以看到其中包含always关键字，就说明打开了大内存页机制，可以通过如下命令关闭大内存页：
+
+~~~bash
+[root@localhost 1300]# echo never > /sys/kernel/mm/transparent_hugepage/enabled
+[root@localhost 1300]# cat /sys/kernel/mm/transparent_hugepage/enabled
+never
+~~~
+
+**4. 总结**
+
+下是遇到Redis变慢问题时的checklist：
+
+~~~bash
+1:获取Redis实例在当前环境下的基线性能。
+2:是否用了慢查询命令？如果是的话，就使用其他命令替代慢查询命令，或者把聚合计算命令放在客户端做。
+3:是否对过期key设置了相同的过期时间？对于批量删除的key，可以在每个key的过期时间上加一个随机数，避免同时删除。
+4:是否存在bigkey？对于bigkey的删除操作，如果你的Redis是4.0及以上的版本，可以直接利用异步线程机制减少主线程阻塞；如果是Redis4.0以前的版本，可以使用SCAN命令迭代删除；对于bigkey的集合查询和聚合操作，可以使用SCAN命令在客户端完成。
+5:RedisAOF配置级别是什么？业务层面是否的确需要这一可靠性级别？如果我们需要高性能，同时也允许数据丢失，可以将配置项no-appendfsync-on-rewrite设置为yes，避免AOF重写和fsync竞争磁盘IO资源，导致Redis延迟增加。当然，如果既需要高性能又需要高可靠性，最好使用高速固态盘作为AOF日志的写入盘。
+6:Redis实例的内存使用是否过大？发生swap了吗？如果是的话，就增加机器内存，或者是使用Redis集群，分摊单机Redis的键值对数量和内存压力。同时，要避免出现Redis和其他内存需求大的应用共享机器的情况。
+7:在Redis实例的运行环境中，是否启用了透明大页机制？如果是的话，直接关闭内存大页机制就行了。
+8:是否运行了Redis主从集群？如果是的话，把主库实例的数据量大小控制在2~4GB，以免主从复制时，从库因加载大的RDB文件而阻塞。
+9:是否使用了多核CPU或NUMA架构的机器运行Redis实例？使用多核CPU时，可以给Redis实例绑定物理核；使用NUMA架构时，注意把Redis实例和网络中断处理程序运行在同一个CPUSocket上。
+~~~
+
+
 
 ## Spring Boot 集成Redis
 
