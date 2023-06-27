@@ -1124,6 +1124,17 @@ limit
 
 先按长度排序，小的排在前面。如果长度相同，则按关键字从左到右进行排序，越靠左的越排在前面。
 
+另外一种用法
+
+~~~sql
+        select
+            *
+        from t_demand_info tdi
+        where locate('2321312', tdi.FOTHER_ITEM_PERSON ) > 0;
+~~~
+
+
+
 ### replace
 
 我们经常会有替换字符串中部分内容的需求，比如：将字符串中的字符A替换成B。
@@ -1308,3 +1319,17 @@ mysqldump命令的语法为： `mysqldump -h主机名 -P端口 -u用户名 -p密
 ```java
 mysqldump -h 192.22.25.226 -u root -p123456 dbname > backup.sql
 ```
+
+### find_in_set
+
+MySQL有提供一个字符串函数find_in_set(str1,str2)函数，用于返回str2中str1所在的位置索引，如果找到了，则返回true(1)，否则返回false(0)，其中str2必须以半角符号的逗号【,】分割开。
+
+select * from user where find_in_set('yanggb', hobby);
+
+匹配的字符串作为第一参数时，适用的场景是找到hobby中存在yanggb的记录(hobby为多个以逗号隔开的值)。
+
+~~~sql
+select * from user where find_in_set(hobby, 'yanggb1,yanggb2,yanggb3')
+~~~
+
+匹配的字符串作为第二参数时，适用的场景是找到hobby中有yanggb1、yanggb2和yanggb3其中一个的记录(hobby为单个值)。
