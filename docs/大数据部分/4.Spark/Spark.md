@@ -884,5 +884,97 @@ def main(args: Array[String]): Unit = {
 
 ~~~~
 
+## 面试汇总
 
+### RDD的核心组件有什么？
 
++ Master:Standalone模式中主控节点，负责接收Client提交的作业，管理Worker，并命令Worker启动分配Driver的资源和启动Executor的资源。
++ Worker：Standalone模式中slave节点上的守护进程，负责管理本节点的资源，定期向Master汇报心跳，接收Master的命令，启动Driver和Executor。
++ Driver：一个Spark作业运行时包括一个Driver进程，也是作业的主进程，负责作业的解析、生成Stage并调度Task到Executor上。包括DAGScheduler，TaskScheduler。
++ Executor：即真正执行作业的地方，一个集群一般包含多个Executor，每个Executor接收Driver的命令Launch Task，一个Executor可以执行一到多个Task。
+
+### RDD有哪些常见术语?
+
++ DAGScheduler：实现将Spark作业分解成一到多个Stage，每个Stage根据RDD的Partition个数决定Task的个数，然后生成相应的Task set放到TaskScheduler中。
++ TaskScheduler：实现Task分配到Executor上执行。
++ Task：运行在Executor上的工作单元。
++ Job：SparkContext提交的具体Action操作，常和Action对应。
++ Stage：每个Job会被拆分很多组任务(task)，每组任务被称为Stage，也称TaskSet。
++ RDD：Resilient Distributed Datasets的简称，弹性分布式数据集，是Spark最核心的模块和类。
++ Transformation/Action：SparkAPI的两种类型;Transformation返回值还是一个RDD，Action返回值不少一个RDD，而是一个Scala的集合;所有的Transformation都是采用的懒策略，如果只是将Transformation提交是不会执行计算的，计算只有在Action被提交时才会被触发。
+
+### RDD提供了哪些操作？
+
+RDD提供了两种类型的操作：transformation和action
+
+1. transformation是得到一个新的RDD，方式很多，比如从数据源生成一个新的RDD，从RDD生成一个新的RDD
+2. action是得到一个值，或者一个结果(直接将RDD cache到内存中)
+3. 所有的transformation都是采用的懒策略，就是如果只是将transformation提交是不会执行计算的，计算只有在action被提交的时候才被触发。
+4. DataFrame：带有Schema信息的RDD，主要是对结构化数据的高度抽象。
+5. DataSet：结合了DataFrame和RDD两者的优势，既允许用户很方便的操作领域对象，又具有SQL执行引擎的高效表现。
+
+### RDD中关于转换(transformation)与动作(action)有什么区别？
+
+transformation会生成新的RDD，而后者只是将RDD上某项操作的结果返回给程序，而不会生成新的RDD;无论执行了多少次transformation操作，RDD都不会真正执行运算(记录lineage)，只有当action操作被执行时，运算才会触发。
+
+### Shuffle数据块有多少种不同的存储方式？分别是什么
+
++ RDD数据块：用来存储所缓存的RDD数据。
++ Shuffle数据块：用来存储持久化的Shuffle数据。
++ 广播变量数据块：用来存储所存储的广播变量数据。
++ 任务返回结果数据块：用来存储在存储管理模块内部的任务返回结果。通常情况下任务返回结果随任务一起通过Akka返回到Driver端。但是当任务返回结果很大时，会引起Akka帧溢出，这时的另一种方案是将返回结果以块的形式放入存储管理模块，然后在Driver端获取该数据块即可，因为存储管理模块内部数据块的传输是通过Socket连接的，因此就不会出现Akka帧溢出了。
++ 流式数据块：只用在Spark Streaming中，用来存储所接收到的流式数据块
+
+### 哪些spark算子会有shuffle？
+
+1. 去重，distinct
+2. 排序，groupByKey，reduceByKey等
+3. 重分区，repartition，coalesce
+4. 集合或者表操作，interection，join
+
+### Spark cache一定能提升计算性能么？说明原因？
+
+不一定啊，cache是将数据缓存到内存里，当小数据量的时候是能提升效率，但数据大的时候内存放不下就会报溢出。
+
+### RDD优缺点？
+
+优点：
+
++ 自动进行内存和磁盘切换
++ 基于lineage的高效容错
++ task如果失败会特定次数的重试
++ stage如果失败会自动进行特定次数的重试，而且只会只计算失败的分片
++ checkpoint【每次对RDD操作都会产生新的RDD，如果链条比较长，计算比较笨重，就把数据放在硬盘中】和persist 【内存或磁盘中对数据进行复用】(检查点、持久化)
++ 数据调度弹性：DAG TASK 和资源管理无关
++ 数据分片的高度弹性repartion
+
+缺陷：
+
++ 惰性计算的缺陷也是明显的：中间数据默认不会保存，每次动作操作都会对数据重复计算，某些计算量比较大的操作可能会影响到系统的运算效率
+
+### RDD有多少种持久化方式？memory_only如果内存存储不了，会怎么操作？
+
+cache和persist
+
++ memory_and_disk，放一部分到磁盘
++ MEMORY_ONLY_SER:同MEMORY_ONLY，但是会使用Java序列化方式，将Java对象序列化后进行持久化。可以减少内存开销，但是需要进行反序列化，因此会加大CPU开销。
++ MEMORY_AND_DSK_SER:同MEMORY_AND_DSK。但是使用序列化方式持久化Java对象。
++ DISK_ONLY:使用非序列化Java对象的方式持久化，完全存储到磁盘上。
++ MEMORY_ONLY_2或者MEMORY_AND_DISK_2等：如果是尾部加了2的持久化级别，表示会将持久化数据复用一份，保存到其他节点，从而在数据丢失时，不需要再次计算，只需要使用备份数据即可。
+
+### spark作业执行流程
+
+1. 客户端提交作业
+2. Driver启动流程
+3. Driver申请资源并启动其余Executor(即Container)
+4. Executor启动流程
+5. 作业调度，生成stages与tasks。
+6. Task调度到Executor上，Executor启动线程执行Task逻辑
+7. Driver管理Task状态
+8. Task完成，Stage完成，作业完成
+
+### Spark相比MapReduce的计算模型有哪些区别？
+
+1. spark处理数据是基于内存的，而MapReduce是基于磁盘处理数据的。
+2. Spark在处理数据时构建了DAG有向无环图，减少了shuffle和数据落地磁盘的次数
+3. Spark是粗粒度资源申请，而MapReduce是细粒度资源申请

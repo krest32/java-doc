@@ -2047,30 +2047,49 @@ scavage 使用标记整理
 
 # 云原生
 
+## 概念
+
+1. 什么事云计算、云原生？
+2. 云服务的三种模式：Laas、Paas、Saas
+
 ## k8s
 
 ### 基本概念
 
-1. Master 的组件有哪些？
+1. 什么是K8s？
+2. K8s应用管理的生命周期？
+3. Master 的组件有哪些？
    1. API Server
    2. Scheduler
    3. Controller Manager
    4. Etcd
-2. Node 的组件有哪些？
+4. Node 的组件有哪些？
    1. Kubelet
    2. Kube-proxy
    3. Pod
+5. K8s基本概念？
+   1. Replication Controller
+   2. ReplicaSet
+   3. Deployment
+   4. Service
+   5. Label
+   6. Volume
+   7. Persistent Volume
+
 
 ### 使用实操
 
 1. 创建Pod的过程？
 2. 删除Pod的过程？
-3. Pod的重启策略有哪些？
-4. Pod的常见调度方式有哪些？
-5. Deployment的升级过程、升级策略？
-6. Service的四种类型？
-7. 数据持久化的方式有哪些？
-8. K8s的CSI模型？
+3. Kubernetes如何进行优雅的节点关机维护
+4. Pod的重启策略有哪些？
+5. Pod的常见调度方式有哪些？
+6. Deployment的升级过程、升级策略？
+7. Service的四种类型？
+8. Service分发后端的策略？
+9. 镜像的下载策略？
+10. 数据持久化的方式有哪些？
+11. K8s的CSI模型？
 
 ## Istio
 
@@ -2110,8 +2129,9 @@ scavage 使用标记整理
 1. 什么是Hadoop？
 2. Hadoop 解决了什么问题？
 3. Hadoop 的重要组成部分？
-4. Hadoop 与 Hadoop生态的概念？
-5. Hadoop 的三种运行模式？
+4. Hadoop 的优势是什么？
+5. Hadoop 与 Hadoop生态的概念？
+6. Hadoop 的三种运行模式？
 
 ### HDFS
 
@@ -2212,7 +2232,25 @@ scavage 使用标记整理
    2. Spark与Hadoop之间的关系？
    3. 为什么要使用Spark？
    4. Spark的核心模块有哪些？
+      1. spark core
+      2. Spark Sql
+      3. Spark Streaming
+      4. Sprak MLlib
+      5. Spark Graphx
 3. Spark的运行模式有哪些？
+4. RDD的核心组件有哪些？
+   1. Master
+   2. Worker
+   3. Driver
+   4. Executer
+
+5. RDD常见术语：DAG、TaskScheduler、Task、Job、Stage、RDD、Transformation/Action
+6. RDD的Transformation/Action有什么区别？
+7. Shuffle数据块的不同存储方式？
+8. 那些算子会有Shuffle？
+9. RDD的优缺点？
+10. Sprak作业提交流程？
+11. Spark对比MapReduce
 
 ### 核心理论
 
@@ -2400,7 +2438,9 @@ scavage 使用标记整理
 
 1. ER 图：实体——属性——关系 图
 
+## 技术选型
 
+1. 如何进行技术选型？
 
 #  前端部分
 

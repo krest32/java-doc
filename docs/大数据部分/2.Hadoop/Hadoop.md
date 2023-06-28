@@ -458,10 +458,6 @@ Reduce 阶段：计算结果的汇总
 3. 默认情况下，切片大小=BlockSize
 4. 切片时不考虑数据集整体，而是逐个针对每一个文件单独切片
 
-
-
-
-
 ### inputFormat
 
 #### TextInputFormat
