@@ -203,6 +203,11 @@ VM options：-javaagent:C:\skywalking-agent\skywalking-agent.jar -Dskywalking.ag
 
 -- 配置指向写入链路数据的服务器地址
 Environment viriables:-Dskywalking.collector.backend_service=192.168.160.151:11800
+
+-- 后台启动 java
+nohup java -javaagent:/usr/local/agent/skywalking-agent.jar -Dskywalking.agent.service_name=your_service-name -jar a.jar > a.log 2>&1 &
+
+java -javaagent:/usr/local/agent/skywalking-agent.jar -Dskywalking.agent.service_name=your_service-name -jar a.jar
 ~~~
 
 我这里配置了第一个即生效

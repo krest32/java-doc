@@ -836,7 +836,7 @@ systemctl disable mysqld.service
 /var/log/mysqld.log
 
 mysql -uroot -p
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'myW.MyyhTw147258';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Bob.123456';
 FLUSH PRIVILEGES;   
 ~~~
 
