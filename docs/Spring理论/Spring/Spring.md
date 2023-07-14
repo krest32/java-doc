@@ -284,10 +284,6 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 两种依赖方式都可以使用，构造器注入和Setter方法注入。最好的解决方案是用构造器**参数实现强制依赖，setter方法实现可选依赖**。
 
-
-
-
-
 ## Spring Beans
 
 ### 什么是 Spring beans？

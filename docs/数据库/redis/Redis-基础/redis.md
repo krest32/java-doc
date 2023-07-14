@@ -28,8 +28,6 @@
 8. **相关阅读**
    + [Redis6新特性详解](https://blog.csdn.net/b416055728/article/details/121759018?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-0-121759018-blog-113182479.pc_relevant_3mothn_strategy_and_data_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
 
-
-
 ### Redis有哪些优缺点
 
 优点
@@ -155,10 +153,6 @@ Redis主要有 9 种数据类型，基本类型包括**String，List，Set，Zse
 **其它**
 
 ​		Set 可以实现交集、并集等操作，从而实现共同好友等功能。ZSet 可以实现有序性操作，从而实现排行榜等功能。
-
-
-
-
 
 ## 持久化
 

@@ -51,7 +51,7 @@ Doc 3:new approach for treatment of schizophrenia
 
 其中：
 
-- DocID：出现某单词的文档ID
+- Doc ID：出现某单词的文档ID
 - TF(词频)：单词在该文档中出现的次数
 - POS：单词在文档中的位置
 
