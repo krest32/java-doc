@@ -524,8 +524,8 @@ nginx服务器是否已经安装ssl模块得支持；
             listen       443 ssl;
             server_name witerk.top;
     
-            ssl_certificate      ../cert/8276605_witerk.top.pem;
-            ssl_certificate_key  ../cert/8276605_witerk.top.key;
+            ssl_certificate      ../cert/witerk.top.pem;
+            ssl_certificate_key  ../cert/witerk.top.key;
     
             ssl_session_cache    shared:SSL:1m;
             ssl_session_timeout  5m;
