@@ -85,7 +85,7 @@ jmeter：是Apche公司使用Java平台开发的一款测试工具
 
 ## 安装与配置
 
-### 下载jdk——配置jdk环境变量
+### 配置jdk环境变量
 1.新建环境变量变量名:JAVA_HOME变量值：（即JDK的安装路径）
 
 2.编辑`Path%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin;`
