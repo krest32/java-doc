@@ -1,106 +1,25 @@
 # Krest-MQ（消息队列）
 
-## 必读：说明
+## 说明
 
 1. [Krest-MQ：项目GitHub地址](https://github.com/krest32/krest-mq)
-2. 请注意：本项目还在测试阶段
-3. 文档在持续更新中....
-4. 项目中有不完善的地方，欢迎批评和指正，[请点击联系方式](https://witerk.top/#/README)
+2. 框架为自研，且未在企业内部上线，
+3. 仓库代码为早期版本的实例代码
+4. 文档在持续更新中....
 
+## 概述
 
+### 编写目的
 
+1. 介绍产品的特性与功能
+2. 介绍产品的设计原理
+3. 产品的简单使用示例
 
+### 使用范围
 
-## 需求介绍
+1. Krest-Job 目前支持Java语言
 
-### [编写目的](http://localhost:3000/#/./docs/14.个人开源项目/docs/Krest-Job/1.Krest-Job?id=编写目的)
-
-1. 熟悉项目设计流程
-2. 熟悉消息队列的工作流程
-3. 作为框架最终验收的唯一标准
-4. 方便读者了解到这个系统的架构
-
-### [范围](http://localhost:3000/#/./docs/14.个人开源项目/docs/Krest-Job/1.Krest-Job?id=范围)
-
-1. Krest-Job 目前仅支持Java客户端
-
-## 架构图设计
-
-### 系统架构图
-
-![Krest-Mq.drawio](img/Krest-Mq.drawio.png)
-
-
-
-### 技术架构图
-
-![Krest-Mq-技术架构图.drawio](img/Krest-Mq-技术架构图.drawio.png)
-
-### 工作模式
-
-目前提供了3种工作模式
-
-![Krest-Mq-工作模式.drawio](img/Krest-Mq-工作模式.drawio.png)
-
-### 系统交互图
-
-![Krest-Mq-系统交互图.drawio](img/Krest-Mq-系统交互图.drawio.png)
-
-
-
-## 系统流程图
-
-### Server 启动流程
-
-![Krest-Mq-Server启动流程图.drawio](img/Krest-Mq-Server启动流程图.drawio.png)
-
-恢复缓存数据说明：
-
-1. Server 启动先会读取队列信息的持久化文件，获取得到队列的信息，包含
-   1. 消息队列名称
-   2. 消息队列类型
-   3. 消息偏移量
-2. 然后根据配置的缓存文件位置逐个读取缓存文件中的消息信息
-3. 每个消息会包含一个消息ID，这个消息ID逐渐递增，通过比较偏移量，得到需要恢复缓存消息的位置
-
-### Client启动流程
-
-![Krest-Mq-Client启动流程.drawio](img/Krest-Mq-Client启动流程.drawio-166174761822914.png)
-
-说明：
-
-1. MQ 集群只有在工作状态下才能够接入 Client
-2. Client 会不断重试，直到重新链接到 Server
-
-
-
-
-
-### Client链接Server流程
-
-![Krest-Mq-Client连接Server流程.drawio](img/Krest-Mq-Client连接Server流程.drawio.png)
-
-说明：
-
-1. 创建消息队列只能够由消费者来创建，一个消息队列，如果没有消费者，那么就没有存在的意义
-
-
-
-
-
-### 集群再平衡流程
-
-![Krest-Mq-Server再平衡流程.drawio](img/Krest-Mq-Server再平衡流程.drawio.png)
-
-说明：
-
-1. `Server`的再平衡分为两个阶段
-   1. 选举`Server`，同步集群内的信息：每个`Serve`都会存在一个`Kid`，`Server`会推荐`Kid`最大的`Server`作为`Leader`，但是如果集群内存在多个`Server`，而所有`Server`集体重启的时候，可能会存在脑裂现象，所以每个`Follower`都会保存一份`Leader`信息，一旦`Leader`信息不一致时，就会促发集群的重新选举
-   2. 同步集群内的`Message`数据：这个步骤需要在集群选举`Leader`之后，用户可以配置一个副本数量上限，然后选取`Message Id`最大的队列作为源数据，同步该队列到其他`Follower`上，当副本数量大于配置值，`Leader`会删除多余的副本
-
-
-
-## 特性
+### 功能特性
 
 1. 消费者与生产者对应关系
    1. 一对一
@@ -155,9 +74,71 @@
 
 
 
-## 待修复
+## 架构设计
 
-1. 消息队列的创建有消费者完成，如果生产者传递消息的队列不存在，会返回异常
+### 系统架构图
+
+![Krest-Mq.drawio](img/Krest-Mq.drawio.png)
+
+### 技术架构图
+
+![Krest-Mq-技术架构图.drawio](img/Krest-Mq-技术架构图.drawio.png)
+
+### 工作模式
+
+目前提供了3种工作模式
+
+![Krest-Mq-工作模式.drawio](img/Krest-Mq-工作模式.drawio.png)
+
+### 系统交互图
+
+![Krest-Mq-系统交互图.drawio](img/Krest-Mq-系统交互图.drawio.png)
 
 
+
+## 系统流程图
+
+### Server 启动流程
+
+![Krest-Mq-Server启动流程图.drawio](img/Krest-Mq-Server启动流程图.drawio.png)
+
+恢复缓存数据说明：
+
+1. Server 启动先会读取队列信息的持久化文件，获取得到队列的信息，包含
+   1. 消息队列名称
+   2. 消息队列类型
+   3. 消息偏移量
+2. 然后根据配置的缓存文件位置逐个读取缓存文件中的消息信息
+3. 每个消息会包含一个消息ID，这个消息ID逐渐递增，通过比较偏移量，得到需要恢复缓存消息的位置
+
+### Client启动流程
+
+![Krest-Mq-Client启动流程.drawio](img/Krest-Mq-Client启动流程.drawio-166174761822914.png)
+
+说明：
+
+1. MQ 集群只有在工作状态下才能够接入 Client
+2. Client 会不断重试，直到重新链接到 Server
+
+### Client链接Server流程
+
+![Krest-Mq-Client连接Server流程.drawio](img/Krest-Mq-Client连接Server流程.drawio.png)
+
+说明：
+
+1. 创建消息队列只能够由消费者来创建，一个消息队列，如果没有消费者，那么就没有存在的意义
+
+
+
+
+
+### 集群再平衡流程
+
+![Krest-Mq-Server再平衡流程.drawio](img/Krest-Mq-Server再平衡流程.drawio.png)
+
+说明：
+
+1. `Server`的再平衡分为两个阶段
+   1. 选举`Server`，同步集群内的信息：每个`Serve`都会存在一个`Kid`，`Server`会推荐`Kid`最大的`Server`作为`Leader`，但是如果集群内存在多个`Server`，而所有`Server`集体重启的时候，可能会存在脑裂现象，所以每个`Follower`都会保存一份`Leader`信息，一旦`Leader`信息不一致时，就会促发集群的重新选举
+   2. 同步集群内的`Message`数据：这个步骤需要在集群选举`Leader`之后，用户可以配置一个副本数量上限，然后选取`Message Id`最大的队列作为源数据，同步该队列到其他`Follower`上，当副本数量大于配置值，`Leader`会删除多余的副本
 
