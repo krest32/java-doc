@@ -1114,10 +1114,6 @@ never
 | allEntries       | 是否清空所有缓存，默认为 false。如果指定为 true，则方法调用后将立即清空所有的缓存 |
 | beforeInvocation | 是否在方法执行前就清空，默认为 false。如果指定为 true，则在方法执行前就会清空缓存 |
 
-## 相关资料
-
-+ [知乎-带你走进 Redis](https://zhuanlan.zhihu.com/p/567374196?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1558441907398909952&utm_source=wechat_session)
-
 
 
 ## 实操

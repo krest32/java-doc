@@ -301,8 +301,6 @@ create database xyz charset utf8mb4 collate utf8mb4_bin;
 4. 库名要和业务相关
 ~~~
 
-
-
 ### 修改库
 
 ```undefined
@@ -311,8 +309,6 @@ SHOW CREATE DATABASE school;
 ALTER DATABASE school  CHARSET utf8;
 注意：修改字符集，修改后的字符集一定是原字符集的严格超集
 ```
-
-
 
 ### 建表
 

@@ -730,8 +730,6 @@ order by
 
 窗口函数：对一个查询SQL，将其结果集按指定的规则进行分区，每个分区可以看作是一个窗口，分区内的每一行，根据其所属分区内的行数据进行函数计算，获取计算结果，作为该行的窗口函数结果值。
 
-
-
 ## 高级
 
 ### 递归
@@ -1163,6 +1161,16 @@ update brand set name=REPLACE(name,' ','') where name like '% ';
 
 使用该函数还能替换`json格式`的数据内容，真的非常有用。
 
+### convert
+
+转化字符的编码格式
+
+~~~sql
+select convert(id, using gbk) as id;
+~~~
+
+
+
 ### now
 
 时间是个好东西，用它可以快速缩小数据范围，我们经常有获取当前时间的需求。
@@ -1333,3 +1341,46 @@ select * from user where find_in_set(hobby, 'yanggb1,yanggb2,yanggb3')
 ~~~
 
 匹配的字符串作为第二参数时，适用的场景是找到hobby中有yanggb1、yanggb2和yanggb3其中一个的记录(hobby为单个值)。
+
+
+
+### 截取字符串
+
+#### left()函数
+
+含义：返回从字符串左边开始指定个数的字符
+语法格式：left(column,n)
+释义：从字段column的字符串内容的左面开始截取，总共截取 n 的位置。
+示例语句：SELECT office_name,LEFT(office_name,2) FROM database.table
+
+#### right()函数
+
+含义：返回从字符串右边开始指定个数的字符
+语法格式：right(column,n)
+释义：从字段column的字符串内容的右面开始截取，总共截取 n 的位置
+示例语句：SELECT office_name,right(office_name,1) FROM database.table
+
+#### substr()函数
+
+1. 从指定位置开始截取到字符串结束：substr(column,2)
+2. 从指定位置截取，并指定截取位数：substr(column,2,1)
+3. 从字符串倒数几位开始截取，指定个数的字符：substr(column,-2,1)
+
+#### substring_index() 函数
+
+**指定字符在字符串中从前往后数出现次数位置，截取该位置之前的所有字符**
+
+表达式：substring_index(column,str,count)
+释义：截取字符串column，str出现从前往后数第count次，之前的所有字符
+示例语句：SELECT substring_index(‘www.baidu.com’,‘.’,2)
+
+**指定字符在字符串中从后往前数出现次数位置，截取该位置之后的所有字符**
+
+表达式：substring_index(column,str,-count)
+释义：截取字符串column，str出现从后往前数第count次，之后的所有字符
+示例语句：SELECT substring_index(‘www.baidu.com’,‘.’,-2)
+
+**指定字符在字符串不存在**
+
+表达式：substring_index(column,str,count)
+示例语句：SELECT substring_index(‘www.baidu.com’,‘Goole’,2)
