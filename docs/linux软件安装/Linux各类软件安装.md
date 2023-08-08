@@ -638,6 +638,56 @@ export GOPROXY=https://goproxy.cn,direct
 
 
 
+# ProtoBuf
+
+~~~
+-- 生成 proto 实体类
+protoc.exe --java_out="D:\test"  --proto_path=. testService.proto
+
+--  生成rpc调用类
+protoc.exe --plugin=protoc-gen-grpc-java=D:/Temp/protoc-gen-grpc-java-1.26.0-windows-x86_64.exe --grpc-java_out="D:/Temp" --proto_path="D:/Temp"  helloworld.proto
+-- . 代表当前文件夹
+protoc.exe --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java.exe --grpc-java_out=. --proto_path=. helloworld.proto
+
+-- go 生成Grpc 
+protoc --go_out=plugins=grpc:. .\hello.proto
+~~~
+
+ 注意  需要和 protoc-gen-grpc-java 的 版本保存一致
+
+~~~xml
+<dependency>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-all</artifactId>
+    <version>1.54.1</version>
+</dependency>
+~~~
+
+~~~proto
+syntax = "proto3";
+package com.krest.grpc.proto;
+option java_multiple_files = true;
+option go_package="./"
+
+message GrpcRequest {
+  string msg=1;
+}
+
+message GrpcResponse {
+  string returninfo = 1;
+}
+
+service grpcService {
+  rpc greet(GrpcRequest) returns (GrpcResponse);
+}
+~~~
+
+
+
+
+
+
+
 # Node.js
 
 ## 安装
