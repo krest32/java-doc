@@ -665,8 +665,12 @@ protoc --go_out=plugins=grpc:. .\hello.proto
 
 ~~~proto
 syntax = "proto3";
-package com.krest.grpc.proto;
+
+
 option java_multiple_files = true;
+
+// 为了实现不同语言之间的远程调用，需要go和java的包路径也保持一致 
+package com.krest.grpc.proto;
 option go_package="./"
 
 message GrpcRequest {
