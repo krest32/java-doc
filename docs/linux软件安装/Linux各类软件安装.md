@@ -89,7 +89,7 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33
 配置，然后重新重启网路
 
 ~~~bash
-IPADDR=192.168.160.161
+IPADDR=192.168.160.171
 NETMASK=255.255.255.0
 GATEWAY=192.168.160.2
 DNS1=8.8.8.8
@@ -613,7 +613,7 @@ vim /usr/local/maven/apache-maven-3.3.9/conf/settings.xml
 下载 [网址](https://studygolang.com/dl)
 
 ~~~bash
-wget https://dl.google.com/go/go1.17.8.linux-amd64.tar.gz
+wget https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz
 ~~~
 
 解压
@@ -638,7 +638,9 @@ export GOPROXY=https://goproxy.cn,direct
 
 
 
-# ProtoBuf
+# GRPC
+
++ [官方文档](https://grpc.io/docs/languages/go/)
 
 ~~~
 -- 生成 proto 实体类
@@ -650,7 +652,9 @@ protoc.exe --plugin=protoc-gen-grpc-java=D:/Temp/protoc-gen-grpc-java-1.26.0-win
 protoc.exe --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java.exe --grpc-java_out=. --proto_path=. helloworld.proto
 
 -- go 生成Grpc 
-protoc --go_out=plugins=grpc:. .\hello.proto
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+protoc --go_out=. --go-grpc_out=.  .\hello.proto
 ~~~
 
  注意  需要和 protoc-gen-grpc-java 的 版本保存一致
@@ -667,7 +671,7 @@ protoc --go_out=plugins=grpc:. .\hello.proto
 syntax = "proto3";
 package com.krest.grpc.proto;
 option java_multiple_files = true;
-option go_package="./"
+option go_package="./";
 
 message GrpcRequest {
   string msg=1;
@@ -4152,7 +4156,172 @@ sysctl net.ipv4.ip_forward
 
 
 
+# Etcd
 
+## 单节点
+
+地址
+
+~~~bash
+https://github.com/etcd-io/etcd/releases/download/v3.4.3/etcd-v3.4.3-linux-amd64.tar.gz
+~~~
+
+解压
+
+~~~bash
+tar xzvf etcd-v3.4.3-linux-amd64.tar.gz
+~~~
+
+切换至etcd根目录，运行查看命令ls，里面会有一些文档和2个二进制文件etcd和etcdctl。etcd是server端，etcdctl是客户端 
+
+~~~bash
+cd etcd-v3.4.3-linux-amd64 && ls
+~~~
+
+.将etcd和etcdctl二进制文件复制到/usr/local/bin目录，why?这样系统中可以直接调用etcd/etcdctl这两个程序。
+
+~~~bash
+ cp etcd etcdctl /usr/local/bin
+~~~
+
+查看etcd版本。
+
+~~~bash
+ etcd --version
+~~~
+
+注：注意：etct3.4.3默认使用v3命令一下配置步骤可省略，之前版本此步骤不可少，例如：v3.3.10
+
+编辑环境变量。
+
+```cobol
+vi /etc/profile
+```
+
+
+最后一行指定etcdctl命令的版本为v3。
+
+```cobol
+export ETCDCTL_API=3
+```
+
+
+
+新环境变量。
+
+```cobol
+source /etc/profile
+```
+
+## 测试
+
+输入命令etcd，即可启动一个单节点的etcd服务,ctrl+c即可停止服务 。
+
+> Etcd服务启动成功后，控制台会输出很多信息，重要的几个参数说明如下：
+>      1.name表示节点名称，默认为default。
+>      2.data-dir 保存日志和快照的目录，默认为当前工作目录default.etcd/目录下。
+>      3.在http://localhost:2380和集群中其他节点通信。
+>      4.在http://localhost:2379提供客户端交互。
+>      5.heartbeat为100ms，该参数的作用是leader多久发送一次心跳到followers，默认值是          100ms。
+>      6.election为1000ms，该参数的作用是重新投票的超时时间，如果follow在该时间间隔没          有收到心跳包，会触发重新投票，默认为1000ms。
+>      7.snapshot count为10000，该参数的作用是指定有多少事务被提交时，触发截取快照保         存到磁盘。
+>      8.集群和每个节点都会生成一个uuid。
+>      9.启动的时候会运行raft，选举出leader
+>
+>   请注意，采用这种方式启动的etcd只是一个程序，如果启动etcd的窗口被关闭的话则etcd便会被关闭，所以如果要长期使用的话最好是为etcd开启一个服务，在后台运行。
+
+## 创建一个etcd服务
+
+ /etc目录是整个Linux系统的中心，其中包含所有系统管理和维护方面的配置文件，所以etcd的配置也放在这里。
+
+~~~bash
+ mkdir -p /var/lib/etcd/ && mkdir -p /etc/etcd/
+~~~
+
+创建etcd配置文件。
+
+~~~bash
+vim /etc/etcd/etcd.conf
+~~~
+
+~~~bash
+# 节点名称
+ETCD_NAME="etcd0"
+# 指定数据文件存放位置
+ETCD_DATA_DIR="/var/lib/etcd/"
+~~~
+
+创建systemd配置文件。
+
+~~~bash
+ vim /etc/systemd/system/etcd.service
+~~~
+
+~~~bash
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+ 
+[Service]
+User=root
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+## 根据实际情况修改EnvironmentFile和ExecStart这两个参数值
+## 1.EnvironmentFile即配置文件的位置，注意“-”不能少
+EnvironmentFile=-/etc/etcd/etcd.conf
+## 2.ExecStart即etcd启动程序位置
+ExecStart=/usr/local/bin/etcd
+Restart=on-failure
+LimitNOFILE=65536
+ 
+[Install]
+WantedBy=multi-user.target
+~~~
+
+启动/停止/查看etcd服务
+
+~~~bash
+重新加载systemd服务
+systemctl daemon-reload
+
+设置开机自启动
+systemctl enable etcd 
+
+.启动etcd
+systemctl start etcd
+
+查看etcd运行状态
+systemctl status etcd
+
+停止服务
+systemctl stop etcd
+~~~
+
+ 至此单机版etcd安装及测试成功成功，但如果启动失败，可通过如下两个命令查看原因 systemctl status etcd.service  
+详细查看命令：journalctl -xe
+
+## 基本使用
+
+~~~bash
+帮助命令
+etcdctl -h
+
+put：指定某个键的值。
+etcdctl put /testdir/testkey "Hello world"
+
+获取指定键的值。
+etcdctl get /testdir/testkey
+
+清空数据
+etcdctl del / --prefix
+  
+  
+删除所有/test前缀的节点
+etcdctl del /test --prefix      
+
+~~~
 
 
 
