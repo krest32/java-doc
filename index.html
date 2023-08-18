@@ -9,11 +9,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
     />
-    <link
-      rel="stylesheet"
-      href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
-    />
-    <style></style>
+
+   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css" title="light">
+   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/dark.css" title="dark" disabled>
+    
   </head>
 
   <body>
@@ -25,7 +24,12 @@
       "
     >
       <a href="#/README" style="color: white">HOME</a>
-    </nav>
+      <label for="light">明亮</label>
+      <input id="light" type="radio" name="theme" value="light" checked>
+
+      <label for="dark">暗黑</label>
+      <input id="dark" type="radio" name="theme" value="dark">
+      </nav>
     <div id="app"></div>
     <script>
       window.$docsify = {
@@ -67,5 +71,21 @@
     <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-php.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+    
+    <script>
+      var themes = document.querySelectorAll('link[title]');
+      var radios = document.querySelectorAll('[type="radio"]');
+
+      /* 现代化写法 */
+      Array.from(radios).forEach(radio => {
+        radio.addEventListener('click', () => {
+          Array.from(themes).forEach(function (theme) {
+            theme.disabled = theme.title !== radio.value;
+          })
+        })
+      });
+    
+    </script>
+    </script>
   </body>
 </html>
