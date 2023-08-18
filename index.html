@@ -12,6 +12,7 @@
 
    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/vue.css" title="light">
    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/dark.css" title="dark" disabled>
+   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
     <style>nav.a{
       text-decoration:none
     }</style>
@@ -22,7 +23,7 @@
       style="
         position: fixed;
         background-color: rgb(167, 170, 168);
-        border-radius: 35%;
+        border-radius: 25%;
       "
     >
       <a href="#/README" style="color: white" >HOME</a>
@@ -32,16 +33,15 @@
       <label for="dark">暗黑</label>
       <input id="dark" type="radio" name="theme" value="dark">
       </nav>
-    <div id="app"></div>
+    <div id="app">加载中</div>
     <script>
       window.$docsify = {
         maxAge: 1000,
         name: "Krest-Doc", //文档名
         repo: "krest32", //Github corner 挂件
         loadSidebar: true, //配置侧边栏
-        loadNavbar: true,
         auto2top: true,
-        subMaxLevel: 4, //配置目录副标题级数
+        subMaxLevel: 6, //配置目录副标题级数
         maxLevel: 2,
         coverpage: true,
         alias: {
@@ -73,6 +73,7 @@
     <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-php.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+    
     
     <script>
       var themes = document.querySelectorAll('link[title]');
