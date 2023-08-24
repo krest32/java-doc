@@ -153,6 +153,87 @@ Git忽略文件详解可参考[Git忽略文件.gitignore详解](https://blog.csd
 6. git push -u origin master # 把本地仓库的文件推送到远程仓库
 ```
 
+~~~bash
+
+查看所有本地分支：git branch
+查看所有远程分支：git branch -r
+查看所有本地和远程分支：git branch -a
+
+
+# 在本地当前分支的基础上，新建一个新分支
+
+# 如果觉得之前的分⽀名不合适，可以为新建的分⽀重命名，重命名分⽀名为 daily/0.0.1
+git branch -m daily/0.0.0 daily/0.0.1
+
+# 切换并新增分支
+git checkout -b 8.24
+
+
+# 切换分支。
+git checkout 9.1
+
+
+# 撤销工作区修改(尚未add，尚未commit)
+git checkout -- readme.txt
+
+# 删除本地分支
+git branch -d 分支名 
+
+撤销暂存区修改(已经add，尚未commit)
+git reset HEAD readme.txt, 再git checkout -- readme.txt
+
+# 添加分支
+# create a new repository on the command line
+git branch -M main
+git remote add origin https://github.com/krest32/git-flow.git
+git push -u origin main
+
+# 删除分支
+git branch -d <local_branch>
+
+# push an existing repository from the command line
+git remote add origin https://github.com/krest32/git-flow.git
+git branch -M main
+git push -u origin main
+
+
+# git pull时可以加上--rebase参数, 使之不产生Merge点, 保证了代码的整洁,
+git pull –rebase
+
+# git config
+git config user.name gafish
+git config user.email gafish@qqqq.com
+
+# 查看文件 本地仓库的文件 修改的文件 新增的文件
+git status 
+
+# 添加文件到本地仓库
+git add
+
+# “文件路径”，不删除物理文件，仅将该文件从缓存中删除；
+git rm --cached xxx
+# “文件路径”，不仅将该文件从缓存中删除，还会将物理文件删除（不会回收到垃圾桶）。
+git rm --f 
+
+
+# 存储代码
+git stash
+# 查看存储代码
+git stash list 
+# 使用存储
+git stash apply n
+
+
+# commit 回退
+git log --pretty=oneline
+# 回退并且删除改动代码
+git reset --hard 提交id
+# 回退但是不删除改动代码
+# HEAD^的意思是上一个版本，也可以写成HEAD~1
+# 如果你进行了2次commit，想都撤回，可以使用HEAD~2
+git reset --soft HEAD^
+~~~
+
 
 
 

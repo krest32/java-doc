@@ -619,7 +619,7 @@ wget https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz
 解压
 
 ~~~bash
-tar -xzf go1.18.10.linux-arm64.tar.gz
+tar -xzf go1.20.7.linux-amd64.tar.gz
 ~~~
 
 配置环境
@@ -634,6 +634,10 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH
 export GO111MODULE="on"
 # 安装 Go 模块时，国内代理服务器设置
 export GOPROXY=https://goproxy.cn,direct 
+
+
+
+source /etc/profile.d/my_env.sh
 ~~~
 
 
