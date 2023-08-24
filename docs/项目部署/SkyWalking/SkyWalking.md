@@ -233,5 +233,3 @@ java -javaagent:/usr/local/agent/skywalking-agent.jar -Dskywalking.agent.service
 ## 总结
 
 Skywalking 最然功能不少，但是最主要的还是被作为链路追踪来使用
-
-### 

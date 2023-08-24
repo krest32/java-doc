@@ -1,6 +1,6 @@
 # Tomcat
 
-## Tomcat是什么？
+## 概念
 
 ​		Tomcat 服务器Apache软件基金会项目中的一个核心项目，是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试的首选。
 
@@ -33,7 +33,7 @@ java -jar target/jakartaee-migration-0.0.2-shaded.jar E:/tmp/Web.war E:/tmp/migr
 
 
 
-## Tomcat的默认端口
+## 默认端口
 
 1. 找到Tomcat目录下的conf文件夹
 2. 进入conf文件夹里面找到server.xml文件
@@ -48,7 +48,7 @@ java -jar target/jakartaee-migration-0.0.2-shaded.jar E:/tmp/Web.war E:/tmp/migr
                redirectPort="8443" />
 ```
 
-## tomcat 有哪几种Connector 运行模式(优化)？
+## Connector 运行模式(优化)？
 
 下面，我们先大致了解Tomcat Connector的三种运行模式。
 
@@ -58,7 +58,7 @@ java -jar target/jakartaee-migration-0.0.2-shaded.jar E:/tmp/Web.war E:/tmp/migr
 
 
 
-## Tomcat有几种部署方式？
+## 部署方式
 
 1. 利用Tomcat的自动部署：把web应用拷贝到`webapps`目录。Tomcat在启动时会加载目录下的应用，并将编译后的结果放入work目录下。
 
@@ -71,14 +71,14 @@ java -jar target/jakartaee-migration-0.0.2-shaded.jar E:/tmp/Web.war E:/tmp/migr
 
 
 
-## tomcat容器是如何创建servlet类实例？用到了什么原理？
+## tomcat容器是如何创建servlet
 
 1. 当容器启动时，会读取在webapps目录下所有的web应用中的web.xml文件，然后对 **xml文件进行解析，并读取servlet注册信息**。然后，将每个应用中注册的servlet类都进行加载，并通过 **反射的方式实例化**。（有时候也是在第一次请求时实例化）
 2. 在servlet注册时加上1如果为正数，则在一开始就实例化，如果不写或为负数，则第一次请求实例化。
 
 
 
-## Tomcat工作模式
+## 工作模式
 
 Tomcat作为servlet容器，有三种工作模式：
 
@@ -94,7 +94,7 @@ Tomcat作为servlet容器，有三种工作模式：
 
 2. Tomcat作为独立服务器：请求来自于web浏览器；
 
-# Tomcat 架构
+# 架构
 
 ​		面试时问到Tomcat相关问题的几率并不高，正式因为如此，很多人忽略了对Tomcat相关技能的掌握，下面这一篇文章整理了Tomcat相关的系统架构，介绍了Server、Service、Connector、Container之间的关系，各个模块的功能，可以说把这几个掌握住了，Tomcat相关的面试题你就不会有任何问题了！
 

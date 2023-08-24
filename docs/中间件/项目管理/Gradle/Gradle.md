@@ -389,7 +389,7 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
 
 ![img](http://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xMzQyNDM1MC0yMjU3YmI4MmJlZmQ2OGZhLnBuZw?x-oss-process=image/format,png)
 
-### gradle使用本地maven仓库的jar包
+### 使用本地maven仓库的jar包
 
 1. 找到本地maven仓库
 

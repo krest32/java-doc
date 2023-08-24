@@ -1,6 +1,6 @@
-# Docker 基本操作
+# Docker
 
-## 基本介绍
+## 介绍
 
 ### 概念
 
@@ -52,7 +52,7 @@
 5. 方便持续集成，通过与代码进行关联使持续集成非常方便；
 6. 可以作为集群系统的轻量主机或节点，在IaaS平台上，已经出现了CaaS，通过容器替代原来的主机。
 
-### Docker容器有几种状态？
+### 容器的状态
 
 1. 运行、
 2. 已停止、
@@ -61,88 +61,14 @@
 
 
 
-### 一个完整的Docker由哪些部分组成?
+### 组成部分
 
 1. Docker Client客户端
 2. Docker Daemon守护进程
 3. Docker Image镜像
-4. Docker Container容器
+4. Docker Container容器　　　　
 
-
-
-
-
-
-
-## 安装docker
-
-安装包命令如下：
-
-第一步
-
-```bash
-yum install -y yum-utils device-mapper-persistent-data lvm2
-```
-
-![img](img/20210207123211.png)
-
-第二步：建议使用阿里云的地址，国外的地址，下载比较慢，而且很容易链接超时什么的，两个地址，我都贴出来了
-
-```
-官网地址
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-##阿里云地址
-yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-```
-
-![img](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210207123211.png)
-
-第三步，官网上标注为可选，就直接跳过
-
-### 正式安装docker
-
-```
-yum install docker-ce
-```
-
-![img](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210207123211.png)
-
-![img](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210207123211.png)
-
-中间需要输入y，确认就好了
-
-
-
-### 1. Docker的测试
-
-![image-20200811200325201](https://duxin2010.oss-cn-beijing.aliyuncs.com/20210206190825.png)
-
-### 2.Docker的仓库
-
-# Docker的中央仓库
-
-1. Docker官方的中央仓库：这个仓库的镜像最全，但是下载速度比较慢，服务器在国外
-2. 国内的镜像网站：网易蜂巢（需要登陆，比较麻烦）、DaoCloud（主要使用daocloud）【http://hub.daocloud.io/】
-3. 在公司内部会使用私服的方式拉去镜像
-4. 您可以配置 Docker 守护进程默认使用 Docker 官方镜像加速。这样您可以默认通过官方镜像加速拉取镜像，而无需在每次拉取时指定 registry.docker-cn.com。
-
-5. 您可以在 Docker 守护进程启动时传入 `--registry-mirror` 参数：
-
-~~~
-$ docker --registry-mirror=https://registry.docker-cn.com daemon
-~~~
-
-为了永久性保留更改，您可以修改 `/etc/docker/daemon.json` 文件并添加上 registry-mirrors 键值。
-
-~~~
-{
-  "registry-mirrors": ["https://v7hr8f7x.mirror.aliyuncs.com"]
-}
-~~~
-
-修改保存后重启 Docker 以使配置生效。　　　　　　　　
-
-## Docker的镜像操作
+## 镜像
 
 1. 使用前先拉取镜像
 
@@ -252,76 +178,6 @@ docker start 容器id
 docker rmi $(docker images | grep "<none>" | awk '{print $3}')
 ~~~
 
-# 防火墙设置
-
-【1】查看目前防火墙
-
-```
-firewall-cmd --list-all
-```
-
-![img](img/201907310956317.png)
-
-【2】开放3306端口
-
-```
-firewall-cmd --permanent --add-port=3306``/tcp
-```
-
-【3】重启防火墙
-
-```
-service firewalld restart
-```
-
-【4】查看3306端口是否开放
-
-```
-firewall-cmd --query-port=3306``/tcp
-```
-
-![img](img/201907310956328.png)
-
-【5】再次查看现在防火墙
-
-```
-firewall-cmd --list-all
-```
-
-![img](img/201907310956329.png)
-
-【6】其他
-
-~~~shell
-1.防火墙基本操作命令
-启动： systemctl start firewalld
-关闭： systemctl stop firewalld
-查看状态： systemctl status firewalld 
-开机禁用  ： systemctl disable firewalld
-开机启用  ： systemctl enable firewalld
-
-2.常用命令
-查看区域信息:  firewall-cmd --get-active-zo
-查看版本： firewall-cmd --version
-查看帮助： firewall-cmd --help
-显示状态： firewall-cmd --state
-
-3.防火墙打开步骤
-（1）查看所有打开的端口： firewall-cmd --zone=public --list-ports (主要是查看有哪些端口开放了，如果需要开放的端口已经打开了，那就没必要再操作了)
-（2）开放端口：以开放80端口为例。
-firewall-cmd --zone=public --add-port=80/tcp --permanent    （--permanent永久生效，没有此参数重启后失效）
-（3）*重要的一步，千万记得重载一下。
- firewall-cmd --reload
-
-4.防火墙关闭。基本操作同开放。
-firewall-cmd --zone=public --remove-port=80/tcp --permanent
-
-5.查看端口被哪个进程占用
-安装net-tools工具
-yum install net-tools
-netstat -lnp | grep 8080
-~~~
-
 # ElasticSearch 
 
 搜索镜像
@@ -341,8 +197,6 @@ docker search elasticsearch
 ~~~
 docker images
 ~~~
-
-![image-20210206163058971](img/20210206163059.png)
 
 
 
@@ -853,10 +707,6 @@ docker run --name rabbitmq -d -p 5672:5672 -p 15672:15672 -v /usr/local/java/doc
 如果对端口开放不太熟悉的请参考我的博客：https://blog.csdn.net/qq_35771266/article/details/91046567
 
 如果你的是云服务器，还需要在云服务器安全组放开一下这两个端口
-
-
-
-# Docker 源码
 
 
 
