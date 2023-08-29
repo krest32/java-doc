@@ -7,12 +7,12 @@
 目前微服务的开发框架，最常用的有以下几个：
 
 + Spring Cloud：http://projects.spring.io/spring-cloud（现在非常流行的微服务架构）
-+ Dubbo：http：//dubbo.io
++ Dubbo：http://dubbo.io
 + Dropwizard：http://www.dropwizard.io （关注单个微服务的开发）
 + Consul、etcd&etc.（微服务的模块）
 + K8s + istio （云原生+服务网格）
 
-总结：目前比较流行的微服务框架就是Spring Cloud、Dubbo、K8s+Istio，但是各有优点和缺点，Spring Cloud 背靠Spring Boot，整个框架大而全，Dubbo 基于RPC远程调用，性能会比Spring Cloud更好一些，K8s+istio的形式，减少了业务代码和微服务治理代码的耦合性
+总结：目前比较流行的微服务框架就是Spring Cloud、Dubbo、K8s+Istio，但是各有优点和缺点，Spring Cloud 背靠Spring Boot，整个框架大而全，Dubbo 基于RPC远程调用，性能会比Spring Cloud更好，K8s+istio的形式，减少了业务代码和微服务治理代码的耦合性
 
 目前最主流的应该就是Spring Cloud，但是随着业务发展，K8s+istio的形式应该会成为大型复杂系统构建的一个主流，不过大多数中小型公司来说，Spring Cloud仍然是一个主流，主要原因有如下：
 
@@ -39,7 +39,7 @@
 + 分布式配置——Spring Cloud Config  （Nacos）
 + 消息总线 —— Spring Cloud Bus （Nacos）
 
-### Spring Cloud的版本
+### Spring Cloud的版本说明
 
 Spring Cloud并没有熟悉的数字版本号，而是对应一个开发代号。
 
@@ -56,52 +56,50 @@ Spring Cloud并没有熟悉的数字版本号，而是对应一个开发代号�
 
 开发代号看似没有什么规律，但实际上首字母是有顺序的，比如：Dalston版本，我们可以简称 D 版本，对应的 Edgware 版本我们可以简称 E 版本。
 
-#### 小版本
+## Spring Cloud （一代）
 
-Spring Cloud 小版本分为:
+> Netflix是一家美国公司，在美国、加拿大提供互联网随选流媒体播放，定制DVD、蓝光光碟在线出租业务。该公司成立于1997年，总部位于加利福尼亚州洛斯盖图，1999年开始订阅服务。2009年，该公司可提供多达10万部DVD电影，并有1千万的订户。2007年2月25日，Netflix宣布已经售出第10亿份DVD。HIS一份报告中表示，2011年Netflix网络电影销量占据美国用户在线电影总销量的45%。
+> ❞
 
-SNAPSHOT： 快照版本，随时可能修改
+针对多种 Netflix 组件提供的开发工具包，其中包括 Eureka、Ribbon、Feign、Hystrix、Zuul、Archaius 等。
 
-M： MileStone，M1表示第1个里程碑版本，一般同时标注PRE，表示预览版版。
++ Netflix Eureka：一个基于 Rest 服务的服务治理组件，包括服务注册中心、服务注册与服务发现机制的* 实现，实现了云端负载均衡和中间层服务器的故障转移。
++ Netflix Ribbon：客户端负载均衡的服务调用组件。客户端负载均衡，特性有区域亲和、重试机制。
++ Netflix Hystrix：客户端容错保护，特性有服务降级、服务熔断、请求缓存、请求合并、依赖隔离。
++ Netflix Feign：基于 Ribbon 和 Hystrix 的声明式服务调用组件。声明式服务调用，本质上就是Ribbon+Hystrix
++ Netflix Zuul：微服务网关，提供动态路由，访问过滤等服务。
++ Netflix Archaius：配置管理 API，包含一系列配置管理 API，提供动态类型化属性、线程安全配置操作、轮询框架、回调机制等功能。
 
-SR： Service Release，SR1表示第1个正式版本，一般同时标注GA：(GenerallyAvailable),表示稳定版本。
+Spring Cloud Netflix 生态，到2020年，archaus/hystrix/ribbon/zuul/turbine等starter都会进入维护模式，进入维护模式意味着spring cloud团队不会再向这些模块中添加新的功能，但是仍然会修复安全问题和一些block级别的bug。只是没有新的功能迭代了，spring cloud netflix仍然可以继续使用。
 
-## Cloud组件代替
+进入维护模式的最根本原因还是Netflix对于zuul、ribbon等项目维护投入比较少、所以spring cloud 会在greenwich中把这些项目都进入到维护模式。
 
-### 1. 停更说明
+所以基本上现在如果构建新的微服务，基本都以springcloud alibaba为基准
 
-1. 停更不停用：被动更新，也就是偶尔的修复小bug
-2. 不在接受合并请求
-3. 不在发布新版本
+**独自启动不需要依赖其它组件，单枪匹马都能干。**
 
-### 2. cloud升级
++ Netflix Eureka，服务注册中心，特性有失效剔除、服务保护。
++ Dashboard，Hystrix仪表盘，监控集群模式和单点模式，其中集群模式需要收集器Turbine配合。
++ Netflix Zuul，API服务网关，功能有路由分发和过滤。
++ Config，分布式配置中心，支持本地仓库、SVN、Git、Jar包内配置等模式
 
-1. 服务注册中心
-   1. Eureka已经死掉（cloud原生）
-   2. Zookeeper（使用的人也不少）
-   3. Consul（使用GO语言）
-   4. Etcd （Go语言使用比较多）
-   5. **Nacos（中心，完美替换Eureka）**
-   
-2. 服务调用
-   1. Ribbon（原生，会被替换）
-   2. loadBalancer（项目比较新）
-   3. Feign（也进入维护，已经死翘翘的版本）
-   4. **Openfeign（推荐使用，使用上和Feign使用比较类似）**
-3. 服务降级
-   1. Hystrix （2020年也已经快要死掉，但是国内使用的人还比较多）
-   2. resilience4j（国外使用比较多
-   3. sebtienl（阿里巴巴，国内使用比较多）
-4. 服务网关
-   1. Zuul（已经死掉）
-   2. Zuul2（胎死腹中）
-   3. **gateway（重点推荐和使用）**
-5. 服务配置
-   1. config(性能不错)
-   2. **Nacos（整体比较好）**
-6. 服务总线
-   1. Bus
-   2. **Nacos（已经替换了Bus）**
+## SpringCloudAlibaba（二代）
+
+### 概述
+
+SpringCloudAlibaba是阿里开发的一套微服务架构，目前已经纳入spring中；同Spring Cloud 一样，Spring Cloud Alibaba 也是一套微服务解决方案，包含开发分布式应用微服务的必需组件，方便开发者通过 Spring Cloud 编程模型轻松使用这些组件来开发分布式应用服务。
+
+SpringCloudAlibaba主要阿里为了推广自家的商业服务而开发的一套微服务架构，再加上Netflix 停止了更新，所以现在更多的公司选择使用阿里系列的整体服务；
+
+依托 Spring Cloud Alibaba，您只需要添加一些注解和少量配置，就可以将 Spring Cloud 应用接入阿里微服务解决方案，通过阿里中间件来迅速搭建分布式应用系统。
+
+![image-20230829100712511](img/image-20230829100712511.png)
+
+
+
+
+
+
 
 
 
