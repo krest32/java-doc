@@ -119,11 +119,11 @@ SpringCloudAlibaba主要阿里为了推广自家的商业服务而开发的一�
 
 ![image-20230829101114526](img/image-20230829101114526.png)
 
+# Nacos
 
+## 简介
 
-## Nacos
-
-### 简介
+[官方网站](https://nacos.io/en-us/)
 
 用来代替SpringCloud中的三大组件的作用
 
@@ -132,9 +132,16 @@ SpringCloudAlibaba主要阿里为了推广自家的商业服务而开发的一�
 2. Config（配置中心）
 3. Bus（服务总线）
 
-重要是：**配置管理**和**服务发现**，用来管理分布式配置中心的一个实现方案，官方网站：https://nacos.io/en-us/
+重要是：**配置管理**和**服务发现**，用来管理分布式配置中心的一个实现方案，
 
-#### NACOS 配置中心
+### 服务发现
+
+服务发现：因为这个系统建设在微服务体系架构中，所以需要服务之间的远程调用，为了完成一次服务，所以需要知道对方的网络位置，我们的代码可以**通过读取配置文件的方式**读取对方的网络位置。
+
++ 主流的配置：Eureka、consul、Zookeeper
++ 其中`Nacos`支持的功能是最全面的。长远来看，还会支持`SpringCloud`+`K8s`的组合，而且计划实现`Service Mesh`
+
+### Nacos配置中心
 
 ​		它是阿里的一个开源产品，针对微服务架构进行管理，作为配置中心进行管理，**配置主要有以下特点**，所以配置如何统一管理就是一个难题。需要Nacos去解决。每个微服务都有自己的配置中心，因为集群的产生，所以修改配置如果进入到每个程序中会比较困难，所以想法是集成一个配置中心，这样子，方便修改。对配置进行统一的管理。
 
@@ -142,9 +149,8 @@ SpringCloudAlibaba主要阿里为了推广自家的商业服务而开发的一�
 + 配置伴随应用的整个生命周期
 + 配置可以有多种加载方式
 + 配置需要治理
-  + 同一个程序在不用的环境、不同的集群，经常需要有不同的配置。
 
-#### 主流的配置中心
+### 主流的配置中心
 
 config、Appollo（携程开源项目）、Nacos
 
@@ -164,19 +170,9 @@ Nacos特性
 
 
 
-### 服务发现
+# Feign
 
-服务发现：因为这个系统建设在微服务体系架构中，所以需要服务之间的远程调用，为了完成一次服务，所以需要知道对方的网络位置，我们的代码可以**通过读取配置文件的方式**读取对方的网络位置。
-
-主流的配置：Eureka、consul、Zookeeper
-
-其中`Nacos`支持的功能是最全面的。长远来看，还会支持`SpringCloud`+`K8s`的组合，而且计划实现`Service Mesh`
-
-
-
-## Feign
-
-### 基本概念
+## 基本概念
 
 - Feign是Netflix开发的声明式、模板化的HTTP客户端， Feign可以帮助我们更快捷、优雅地调用HTTP API。
 - Feign支持多种注解，例如Feign自带的注解或者JAX-RS注解等。
@@ -184,17 +180,15 @@ Nacos特性
 - Spring Cloud Feign是基于Netflix feign实现，整合了Spring Cloud Ribbon和Spring Cloud Hystrix，除了提供这两者的强大功能外，还提供了一种声明式的Web服务客户端定义的方式。
 - Spring Cloud Feign帮助我们定义和实现依赖服务接口的定义。在Spring Cloud feign的实现下，只需要创建一个接口并用注解方式配置它，即可完成服务提供方的接口绑定，简化了在使用Spring Cloud Ribbon时自行封装服务调用客户端的开发量。
 
-
-
-### 工作原理
+## 工作原理
 
 ![Feign的工作原理](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzExMTc3Ng==,size_16,color_FFFFFF,t_70.png)
 
-### 什么是 RPC?
+## RPC概念
 
 ​		RPC（Remote Procedure Call）—远程过程调用，它是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。比如两个不同的服务 A、B 部署在两台不同的机器上，那么服务 A 如果想要调用服务 B 中的某个方法该怎么办呢？使用 HTTP请求 当然可以，但是可能会比较慢而且一些优化做的并不好。 RPC 的出现就是为了解决这个问题。
 
-### [**RPC原理是什么？**](https://snailclimb.gitee.io/javaguide/#/docs/system-design/distributed-system/rpc/服务之间的调用为啥不直接用HTTP而用RPC?id=rpc原理是什么？)
+## RPC原理
 
 我这里这是简单的提一下，详细内容可以查看下面这篇文章：
 
@@ -214,13 +208,7 @@ Nacos特性
 
 ![RPC原理时序图](img/32527396.jpg)
 
-### [RPC 解决了什么问题？](https://snailclimb.gitee.io/javaguide/#/docs/system-design/distributed-system/rpc/服务之间的调用为啥不直接用HTTP而用RPC?id=rpc-解决了什么问题？)
-
-从上面对 RPC 介绍的内容中，概括来讲RPC 主要解决了：**让分布式或者微服务系统中不同服务之间的调用像本地调用一样简单。**
-
-
-
-### 常见的 RPC 框架总结?
+## 常见RPC框架
 
 - **RMI（JDK自带）：** JDK自带的RPC，有很多局限性，不推荐使用，而且现在已经被移除
 - **Dubbo:** Dubbo是 阿里巴巴公司开源的一个高性能优秀的服务框架，使得应用可通过高性能的 RPC 实现服务的输出和输入功能，可以和 Spring框架无缝集成。目前 Dubbo 已经成为 Spring Cloud Alibaba 中的官方组件。
@@ -228,29 +216,25 @@ Nacos特性
 - **Hessian：** Hessian是一个轻量级的remotingonhttp工具，使用简单的方法提供了RMI的功能。 相比WebService，Hessian更简单、快捷。采用的是二进制RPC协议，因为采用的是二进制协议，所以它很适合于发送二进制数据。
 - **Thrift：** Apache Thrift是Facebook开源的跨语言的RPC通信框架，目前已经捐献给Apache基金会管理，由于其跨语言特性和出色的性能，在很多互联网公司得到应用，有能力的公司甚至会基于thrift研发一套分布式服务框架，增加诸如服务注册、服务发现等功能。
 
-### 既有 HTTP ,为啥用 RPC 进行服务调用?
+## HTTP对比RPC
 
-​		RPC 只是一种概念、一种设计，就是为了解决 **不同服务之间的调用问题**, 它一般会包含有 **传输协议** 和 **序列化协议** 这两个。但是，HTTP 是一种协议，RPC框架可以使用 HTTP协议作为传输协议或者直接使用TCP作为传输协议，使用不同的协议一般也是为了适应不同的场景。
++ RPC 只是一种概念、一种设计，就是为了解决 **不同服务之间的调用问题**, 它一般会包含有 **传输协议** 和 **序列化协议** 这两个。但是，HTTP 是一种协议，RPC框架可以使用 HTTP协议作为传输协议或者直接使用TCP作为传输协议，使用不同的协议一般也是为了适应不同的场景。
++ RPC框架功能更齐全：成熟的 RPC框架还提供好了“服务自动注册与发现”、"智能负载均衡"、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！
 
-### RPC框架功能更齐全
+# Ribbon
 
-​	成熟的 RPC框架还提供好了“服务自动注册与发现”、"智能负载均衡"、“可视化的服务治理和运维”、“运行期流量调度”等等功能，这些也算是选择 RPC 进行服务注册和发现的一方面原因吧！
-
-## Ribbon
-
-### Ribbon 是什么
+## 基本概念
 
 ​		Spring Cloud Ribbon 是基于 Netflix Ribbon 实现的一套**客户端负载均衡的工具**。
 
 ​		简单的说，Ribbon 是Netflix 发布的开源项目，主要功能是提供**客户端的软件负载均衡算法和服务调用**。Ribbon 客户端组件提供一系列完善的配置项，如连接超时、重试等。简单的说就是在配置文件中列出 Load Balance（简称 LB）后面所有的机器，Ribbon 会自动地帮助你基于某种规则（如简单轮询、随机连接等）去连接这些机器。我们很容易使用 Ribbon 实现自定义的负载均衡算法。
 
-#### 官网资料
+## 官网资料
 
-​		详细资料参考官网资料：https://github.com/Netflix/ribbon/wiki/Getting-Started
++ [官网](https://github.com/Netflix/ribbon/wiki/Getting-Started)
++ 但不幸的是 Ribbon 目前也进入了维护模式，而提出了未来的替换方案 `SpringCloud loadBalancer`。
 
-​		但不幸的是 Ribbon 目前也进入了维护模式，而提出了未来的替换方案 `SpringCloud loadBalancer`。
-
-#### Ribbon 的作用
+## Ribbon 的作用
 
 ​		Ribbon 可以进行 LB（Load Balance，负载均衡）。所谓 负载均衡简单来说就是将用户的请求平摊地分配到过个服务上，从而达到系统的 HA（高可用）。**常见的负载均衡软件有：Nginx、LVS、硬件F5等。**
 
@@ -268,7 +252,7 @@ LB 由可以分为如下两种：
 
 一句话总结就是：Ribbon 可以实现负载均衡 + RestTemplate 调用。（更多关于 RestTemplate 用法可以参考[官网文档](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html)）
 
-### Ribbon 工作原理
+## Ribbon 工作原理
 
 + 拦截远程调用请求
 + 获取服务名称
@@ -276,9 +260,9 @@ LB 由可以分为如下两种：
 + IRule利用内置负载均衡规则，从列表中选择一个
 + 发起真实请求
 
-### Ribbon 核心组件 IRule
+## Ribbon 核心组件 IRule
 
-#### IRule 简介
+### IRule 简介
 
 IRule：根据特定算法从服务列表中选取一个要访问的服务，算法类型如下：
 
@@ -296,7 +280,7 @@ IRule：根据特定算法从服务列表中选取一个要访问的服务，算
 4. 哈希 (Hash)
 5. 加权（Weighted）
 
-#### 替换 IRule 算法
+### 替换 IRule 算法
 
 我们可以修改或指定 Ribbon 的 IRule 算法，具体步骤如下：
 
@@ -331,7 +315,7 @@ public class OrderMainApplication{
 
 ### Ribbon 负载均衡算法
 
-####　Ribbon 负载均衡算法的原理
+### Ribbon 负载均衡算法的原理
 
 我们以轮询算法为例，负载均衡算法为：实际调用服务器位置下表 = rest 接口的请求次数 % 服务器集群总数量，每次服务器重启后 rest 接口技术从 1 开始：
 
@@ -344,7 +328,7 @@ List<ServiceInstance> instances = discoveryClient.getInstances("CLOUD-PAYMENT-SE
     则获得服务地址为 127.0.0.1:8001当总请求数为2时： 2 % 2 = 0 对应下表位置为0，则获得服务地址为 127.0.0.1:8002以此类推......
 ```
 
-#### 手写一个本地负载均衡器
+### 手写本地负载均衡器
 
 LoadBalancer 接口：
 
@@ -399,11 +383,69 @@ public class ApplicationContextConfig{
 }
 ```
 
+# Hystrix 熔断
 
+5. 
 
-## Hystrix 熔断
+## 简介
 
-### 教程路径
+​		Netflix称，在分布式环境中，不可避免会造成一些服务的失败。Hystrix库旨在控制分布式服务中提供更大容限和服务失败之间的相互关系。Hystrix通过隔离访问远程系统、服务和第三方库的点，阻止级联故障，从而使复杂的分布式系统更具弹性。
+
+​		Hystrix源于Netflix API团队在去年启动的弹性工程项目，在此期间，Hystrix得到了不断发展，并逐渐成熟。现在，在Netflix网站中，每天有数十亿的独立线程和信号通过Hystrix进行调用，Hystrix的运行时间和弹性也得到了显著的改善。
+
+## 服务雪崩
+
+​		多个服务之间调用的时候，假设服务A调用服务B和服务C，服务B和服务C又调用其他的服务，这就是所谓的“扇出”。如果“扇出”的链路上某个服务调用响应时间过长或者不可用，对服务A的调用就会占用越来越多的系统资源，
+
+​		进而引起系统崩溃，所谓的 “ 雪崩效应 ”。
+
+​		对于高流量的应用来说，单一的后端依赖可能会导致所有服务器上的所有资源都在几秒钟内饱和。比失败更糟糕的是，这些应用程序还可能导致服务之间的延迟增加，备份队列，线程和其他系统资源紧张，导致整个系统发生更多的级联故障。这些都表示需要对故障和延迟进行隔离和管理，以便单个依赖关系的失败，不能取消整个应用程序或系统。
+
+## 服务降级
+
+1. 什么是服务降级？当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种简单的方式处理，从而释放服务器资源以保证核心交易正常运作或高效运作。
+
+2. 如果还是不理解，那么可以举个例子：假如目前有很多人想要给我付钱，但我的服务器除了正在运行支付的服务之外，还有一些其它的服务在运行，比如搜索、定时任务和详情等等。然而这些不重要的服务就占用了JVM的不少内存与CPU资源，为了能把钱都收下来（钱才是目标），我设计了一个动态开关，把这些不重要的服务直接在最外层拒掉，这样处理后的后端处理收钱的服务就有更多的资源来收钱了（收钱速度更快了），这就是一个简单的服务降级的使用场景。
+   1. 服务降级主要**作用在客户端**
+
+## 服务熔断与服务降级对比
+
++ 服务熔断
+  + 作用在服务端，正对服务突然崩掉的情况，但是保证服务器能够正常运行
++ 服务降级
+  + 作用在客户端，主动调整服务器，给顾客一个提示的信息，独立于服务器的作用
+  + 准备一个fallbackfactory，给用户一个反馈信息
+
+## Hystrix的工作流程
+
+我们先介绍下Hystrix的工作流程，
+
+1. 当我们调用出现问题的时候，Hystrix会开启一个默认10s的时间窗口，然后在这个窗口时间内，会统计调用次数是否达到了最小请求数，如果没有达到就会重制统计信息，
+2. 如果达到了，就会计算统计失败占所有请求的百分比，判断是否到达阈值，如果达到，就会跳闸，不再请求对应服务，
+3. 如果失败占所有请求的百分比未达到阈值，然后重置统计信息。
+4. 如果跳闸，则会开启一个活动窗口，默认是5s，每隔5s 会让一个请求通过，到达那个有问题的服务，看看是否还有问题，如果没问题就重置断路器，如果有问题，继续每5s通过一个请求来验证。
+
+## 常用的配置选项
+
+整个流程，有一些参数我们是可以根据业务来改动：
+
+1. 当出现错误的时候，会开启一个默认10s的窗口，这个10s我们是可以配置的
+2. 再就是这个最小请求数
+3. 再就是错误请求占比阈值
+4. 发生跳闸，然后每隔默认5s来放一个请求探测对方服务，其中这个5s的活动窗口我们是可以配置的。
+
+## 流量监控
+
+1. Netflix开源了Hystrix组件，实现了断路器模式，SpringCloud对这一组件进行了整合。
+2. 主要功能分为4大板块隔离、限流、熔断、降级。我们常用的是`请求熔断`和`服务降级`。
+3. 涉及注解`@EnableHystrix`和`@Hystrixcommand(fallbackMethod="xxx")`
+4. Feign默认集成了Hystrix。RestTemplate、springCloud GateWay在时候的时候都会考虑集成Hystrix。
+5. `服务熔断`，指的是服务故障，再让新的请求去访问根本没有意义，这个时候选择暂时断开请求。
+6. 服务熔断依靠hystrix的断路器，它有`全开`、`半开`、`关闭`3种状态。
+7. `服务降级`，指断路打开后，为了避免连锁故障，使用 fallback 方法返回当前不可用的友好提示。
+8. 总而言之，hystrix它是为了解决，由于单个服务故障，导致其他依赖服务不可用的`“雪崩”效应`。比如有服务A，假设A1·A100都依赖了A，假如A出现了问题，那A1·A100这100个服务也跟着出现了问题
+
+## 使用教程
 
 [hystrix 高级教程](https://blog.csdn.net/yuanshangshenghuo/article/details/107058274?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165382922716781818753690%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=165382922716781818753690&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-8-107058274-null-null.142^v11^pc_search_result_control_group,157^v12^new_style1&utm_term=hystrix%E4%BD%BF%E7%94%A8&spm=1018.2226.3001.4187)
 
@@ -421,83 +463,11 @@ Spring Cloud 在接口调用上，大致会经过如下几个组件配合：
 
 5. **HttpClient** ：Http客户端，真正执行Http调用根据上层`Ribbon`传递过来的请求，已经指定了服务地址，则HttpClient开始执行真正的Http请求
 
+# Gateway
 
+## 基本概念
 
-### 简介
-
-​		Netflix称，在分布式环境中，不可避免会造成一些服务的失败。Hystrix库旨在控制分布式服务中提供更大容限和服务失败之间的相互关系。Hystrix通过隔离访问远程系统、服务和第三方库的点，阻止级联故障，从而使复杂的分布式系统更具弹性。
-
-​		Hystrix源于Netflix API团队在去年启动的弹性工程项目，在此期间，Hystrix得到了不断发展，并逐渐成熟。现在，在Netflix网站中，每天有数十亿的独立线程和信号通过Hystrix进行调用，Hystrix的运行时间和弹性也得到了显著的改善。
-
-
-
-### 什么是服务雪崩
-
-​		多个服务之间调用的时候，假设服务A调用服务B和服务C，服务B和服务C又调用其他的服务，这就是所谓的“扇出”。如果“扇出”的链路上某个服务调用响应时间过长或者不可用，对服务A的调用就会占用越来越多的系统资源，
-
-​		进而引起系统崩溃，所谓的 “ 雪崩效应 ”。
-
-​		对于高流量的应用来说，单一的后端依赖可能会导致所有服务器上的所有资源都在几秒钟内饱和。比失败更糟糕的是，这些应用程序还可能导致服务之间的延迟增加，备份队列，线程和其他系统资源紧张，导致整个系统发生更多的级联故障。这些都表示需要对故障和延迟进行隔离和管理，以便单个依赖关系的失败，不能取消整个应用程序或系统。
-
-### 什么是服务降级？
-
-1. 什么是服务降级？当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种简单的方式处理，从而释放服务器资源以保证核心交易正常运作或高效运作。
-
-2. 如果还是不理解，那么可以举个例子：假如目前有很多人想要给我付钱，但我的服务器除了正在运行支付的服务之外，还有一些其它的服务在运行，比如搜索、定时任务和详情等等。然而这些不重要的服务就占用了JVM的不少内存与CPU资源，为了能把钱都收下来（钱才是目标），我设计了一个动态开关，把这些不重要的服务直接在最外层拒掉，这样处理后的后端处理收钱的服务就有更多的资源来收钱了（收钱速度更快了），这就是一个简单的服务降级的使用场景。
-   1. 服务降级主要**作用在客户端**
-
-
-
-### 服务熔断与服务降级对比
-
-+ 服务熔断
-  + 作用在服务端，正对服务突然崩掉的情况，但是保证服务器能够正常运行
-+ 服务降级
-  + 作用在客户端，主动调整服务器，给顾客一个提示的信息，独立于服务器的作用
-  + 准备一个fallbackfactory，给用户一个反馈信息
-
-
-
-### Hystrix的工作流程
-
-我们先介绍下Hystrix的工作流程，
-
-1. 当我们调用出现问题的时候，Hystrix会开启一个默认10s的时间窗口，然后在这个窗口时间内，会统计调用次数是否达到了最小请求数，如果没有达到就会重制统计信息，
-2. 如果达到了，就会计算统计失败占所有请求的百分比，判断是否到达阈值，如果达到，就会跳闸，不再请求对应服务，
-3. 如果失败占所有请求的百分比未达到阈值，然后重置统计信息。
-4. 如果跳闸，则会开启一个活动窗口，默认是5s，每隔5s 会让一个请求通过，到达那个有问题的服务，看看是否还有问题，如果没问题就重置断路器，如果有问题，继续每5s通过一个请求来验证。
-
-### Hystrix的常用的配置选项有哪些？
-
-整个流程，有一些参数我们是可以根据业务来改动：
-
-1. 当出现错误的时候，会开启一个默认10s的窗口，这个10s我们是可以配置的
-2. 再就是这个最小请求数
-3. 再就是错误请求占比阈值
-4. 发生跳闸，然后每隔默认5s来放一个请求探测对方服务，其中这个5s的活动窗口我们是可以配置的。
-
-
-
-### 流量监控
-
-1. Netflix开源了Hystrix组件，实现了断路器模式，SpringCloud对这一组件进行了整合。
-2. 主要功能分为4大板块隔离、限流、熔断、降级。我们常用的是`请求熔断`和`服务降级`。
-3. 涉及注解`@EnableHystrix`和`@Hystrixcommand(fallbackMethod="xxx")`
-4. Feign默认集成了Hystrix。RestTemplate、springCloud GateWay在时候的时候都会考虑集成Hystrix。
-5. `服务熔断`，指的是服务故障，再让新的请求去访问根本没有意义，这个时候选择暂时断开请求。
-6. 服务熔断依靠hystrix的断路器，它有`全开`、`半开`、`关闭`3种状态。
-7. `服务降级`，指断路打开后，为了避免连锁故障，使用 fallback 方法返回当前不可用的友好提示。
-8. 总而言之，hystrix它是为了解决，由于单个服务故障，导致其他依赖服务不可用的`“雪崩”效应`。比如有服务A，假设A1·A100都依赖了A，假如A出现了问题，那A1·A100这100个服务也跟着出现了问题
-
-
-
-
-
-## Gateway
-
-### 网关基本概念
-
-#### 网关介绍
+### 网关介绍
 
 API 网关出现的原因是微服务架构的出现，不同的微服务一般会有不同的网络地址，而外部客户端可能需要调用多个服务的接口才能完成一个业务需求，如果让客户端直接与各个微服务通信，会有以下的问题：
 
@@ -509,13 +479,11 @@ API 网关出现的原因是微服务架构的出现，不同的微服务一般�
 
 以上这些问题可以借助 API 网关解决。API 网关是介于客户端和服务器端之间的中间层，所有的外部请求都会先经过 API 网关这一层。也就是说，API 的实现方面更多的考虑业务逻辑，而安全、性能、监控可以交由 API 网关来做，这样既提高业务灵活性又不缺安全性
 
-#### Spring Cloud Gateway
+###  Gateway
 
 ​		**Spring cloud gateway**是spring官方基于Spring 5.0、Spring Boot2.0和Project Reactor等技术开发的网关，Spring Cloud Gateway旨在为微服务架构提供简单、有效和统一的API路由管理方式，Spring Cloud Gateway作为Spring Cloud生态系统中的网关，目标是替代Netflix Zuul，其不仅提供统一的路由方式，并且还基于Filer链的方式提供了网关基本的功能，例如：安全、监控/埋点、限流等。
 
-
-
-#### Gateway核心概念
+### 核心概念
 
 ​		网关提供API全托管服务，丰富的API管理功能，辅助企业管理大规模的API，以降低管理成本和安全风险，包括协议适配、协议转发、安全策略、防刷、流量、监控日志等贡呢。一般来说网关对外暴露的URL或者接口信息，我们统称为路由信息。如果研发过网关中间件或者使用过Zuul的人，会知道网关的核心是Filter以及Filter Chain（Filter责任链）。Sprig Cloud Gateway也具有路由和Filter的概念。下面介绍一下Spring Cloud Gateway中几个重要的概念。
 
@@ -559,15 +527,21 @@ API 网关出现的原因是微服务架构的出现，不同的微服务一般�
 
    
 
-## Sleuth + Zipkin
+# Sleuth + Zipkin
 
 链路追踪
 
-# Seata 是什么?
+# Seata
 
 [官网](https://seata.io/zh-cn/index.html)
 
 Seata 是一款开源的分布式事务解决方案，致力于提供高性能和简单易用的分布式事务服务。**Seata 将为用户提供了 AT、TCC、SAGA 和 XA 事务模式**，为用户打造一站式的分布式解决方案。实现了强一致性，现实中应用并不是很多
+
+```
+<property name="url" value="jdbc:mysql://121.196.111.229:3306/demo"/>
+<property name="username" value="root"/>
+<property name="password" value="Bob.123456"/>
+```
 
 ## AT 模式
 
@@ -752,18 +726,18 @@ Saga模式是SEATA提供的长事务解决方案，在Saga模式中，业务流�
 
 理论基础：Hector & Kenneth 发表论⽂ Sagas （1987）
 
-## 适用场景：
+## 适用场景
 
 - 业务流程长、业务流程多
 - 参与者包含其它公司或遗留系统服务，无法提供 TCC 模式要求的三个接口
 
-## 优势：
+## 优势
 
 - 一阶段提交本地事务，无锁，高性能
 - 事件驱动架构，参与者可异步执行，高吞吐
 - 补偿服务易于实现
 
-## 缺点：
+## 缺点
 
 - 不保证隔离性（应对方案见[用户文档](https://seata.io/zh-cn/docs/user/saga.html)）
 
@@ -771,7 +745,7 @@ Saga模式是SEATA提供的长事务解决方案，在Saga模式中，业务流�
 
 # Sentinel
 
-## Sentinel 是什么？
+## 概念
 
 随着微服务的流行，服务和服务之间的稳定性变得越来越重要。Sentinel 以流量为切入点，从流量控制、熔断降级、系统负载保护等多个维度保护服务的稳定性。
 
@@ -786,29 +760,26 @@ Sentinel 的主要特性：
 
 ![Sentinel-features-overview](img/50505538-2c484880-0aaf-11e9-9ffc-cbaaef20be2b.png)
 
-Sentinel 的开源生态：
 
-![Sentinel-opensource-eco](img/84338449-a9497e00-abce-11ea-8c6a-473fe477b9a1.png)
 
 Sentinel 分为两个部分:
 
 - 核心库（Java 客户端）不依赖任何框架/库，能够运行于所有 Java 运行时环境，同时对 Dubbo / Spring Cloud 等框架也有较好的支持。
 - 控制台（Dashboard）基于 Spring Boot 开发，打包后可以直接运行，不需要额外的 Tomcat 等应用容器。
-- 、
 
-### Sentinel 为什么可以对我们的业务进行限流，原理是什么
+### 工作原理
 
 ​		我们在访问web应用时，在web应用内部会有一个拦截器，这个拦截器会对请求的url进行拦截，拦截到请求以后，读取sentinel 控制台的流控规则，基于流控规则对流量进行限流操作。
 
 
 
-### Sentinel 和 hystix 区别？
+### 对比hystix
 
 1. hystix用线程池实现县城隔离，任何时刻大于线程池最大线程数的线程自然会被隔离，优点是支持异步、隔离性强（暂时不理解为啥隔离性强），缺点是一个service一个线程池，线程池相对更消耗资源，service多的话线程池也多扛不住啊;
 2. sentinel基于信号量（计数器），来个请求信号量减一，优点是相比线程池轻量级，性能好，service多也无妨，缺点是不能异步。
    
 
-## Quick Start
+## 快速开始
 
 ### 1.1 公网 Demo
 
@@ -872,42 +843,9 @@ Demo 运行之后，我们可以在日志 `~/logs/csp/${appName}-metrics.log.xxx
 
 ![dashboard-monitoring](img/50678855-aa6e9700-103b-11e9-83de-2a33e580325f.png)
 
-## 详细文档
-
-请移步 [Wiki](https://github.com/alibaba/Sentinel/wiki/主页)，查阅详细的文档、示例以及[使用说明](https://github.com/alibaba/Sentinel/wiki/如何使用)。若您希望从其它熔断降级组件（如 Hystrix）迁移或进行功能对比，可以参考 [迁移指南](https://github.com/alibaba/Sentinel/wiki/Guideline:-从-Hystrix-迁移到-Sentinel)。
-
-Please refer to [README](https://github.com/alibaba/Sentinel) for README in English。
-
-与 Sentinel 相关的生态（包括社区用户实现的扩展、整合、示例以及文章）可以参见 [Awesome Sentinel](https://github.com/alibaba/Sentinel/blob/master/doc/awesome-sentinel.md)，欢迎补充！
-
-如果您正在使用 Sentinel，欢迎在 [Wanted: Who is using Sentinel](https://github.com/alibaba/Sentinel/issues/18) 留言告诉我们您的使用场景，以便我们更好地去改进。
-
-## 交流与反馈
-
-您可以通过 [GitHub Issues](https://github.com/alibaba/Sentinel/issues) 反馈 bugs、提出建议或者参与讨论，也可以通过[公共邮箱](https://github.com/alibaba/Sentinel/wiki/sentinel@linux.alibaba.com)联系我们。
-
-也欢迎加钉钉群参与相关讨论：
-
-- Sentinel 开源讨论群（1群，已满）：21977771
-- Sentinel 开源讨论群（2群）：30150716
-
-## 贡献
-
-我们随时都欢迎开发者来贡献！详情请参考 [开源贡献指南](https://github.com/alibaba/Sentinel/wiki/开源贡献指南)。
-
-如果您是初次贡献，可以先从 [good first issue](https://github.com/alibaba/Sentinel/issues?q=is%3Aissue+is%3Aopen+label%3A"good+first+issue") 中认领一个比较简单的任务来快速参与社区贡献。
-
-## Who is using
-
-以下是部分使用 Sentinel 的企业列表。若您的公司也在使用 Sentinel，欢迎在 [这里](https://github.com/alibaba/Sentinel/issues/18) 进行登记，告诉我们您的使用场景，以便我们更好地去改进 :)
-
-![Alibaba Group](img/68747470733a2f2f646f63732e616c696261626167726f75702e636f6d2f617373657473322f696d616765732f656e2f676c6f62616c2f6c6f676f5f6865616465722e706e67) ![AntFin](img/90598732-30961c00-e226-11ea-8c86-0b1d7f7875c7.png) ![Taiping Renshou](img/687474703a2f2f7777772e636e74616970696e672e636f6d2f74706c7265736f757263652f636d732f7777772f74616970696e672f696d672f686f6d655f6e65772f74705f6c6f676f5f696d672e706e67) ![拼多多](img/687474703a2f2f63646e2e70696e64756f64756f2e636f6d2f6173736574732f696d672f7064645f6c6f676f5f76332e706e67) ![爱奇艺](img/90598445-a51c8b00-e225-11ea-9327-3543525f3f2a.png) ![Shunfeng Technology](img/48463502-2f48eb80-e817-11e8-984f-2f9b1b789e2d.png) ![Mandao](img/48463559-6cad7900-e817-11e8-87e4-42952b074837.png) ![二维火](img/49358468-bc43de00-f70d-11e8-97fe-0bf05865f29f.png) ![文轩在线](img/687474703a2f2f7374617469632e77696e7875616e63646e2e636f6d2f6373732f76322f696d616765732f6c6f676f2e706e67) ![客如云](img/68747470733a2f2f7777772e6b65727579756e2e636f6d2f7374617469632f6b72796e65772f696d616765732f6c6f676f2e706e67) ![亲宝宝](img/68747470733a2f2f73746c69622e716262362e636f6d2f77636c742f696d672f686f6d655f68642f76657273696f6e312f7469746c655f6c6f676f2e706e67) ![杭州光云科技](https://camo.githubusercontent.com/43d4c47036d327905319b7bdc171e2bd1ea6d768/68747470733a2f2f7777772e726179636c6f75642e636f6d2f696d616765732f6c6f676f2e706e67) ![金汇金融](img/68747470733a2f2f7265732e6a696e6875693336352e636f6d2f722f696d616765732f6c6f676f322e706e673f763d312e353237) ![闪电购](img/687474703a2f2f63646e2e35327368616e676f752e636f6d2f7368616e6469616e62616e672f6f6666696369616c2d736f757263652f332e312e312f6275696c642f696d616765732f6c6f676f2e706e67) ![VCFilm](img/687474703a2f2f7777772e766366696c6d2e636e2f696d672f636f6d6d6f6e2f6c6f676f2e706e67)
-
-
-
 # Stream
 
-### 简介
+## 简介
 
 Spring Cloud Stream 是一个用来为微服务应用构建消息驱动能力的框架。它可以基于 Spring Boot 来创建独立的、可用于生产的 Spring 应用程序。Spring Cloud Stream 为一些供应商的消息中间件产品提供了个性化的自动化配置实现，并引入了发布-订阅、消费组、分区这三个核心概念。通过使用 Spring Cloud Stream，可以有效简化开发人员对消息中间件的使用复杂度，让系统开发人员可以有更多的精力关注于核心业务逻辑的处理。但是目前 Spring Cloud Stream 只支持 RabbitMQ 和 Kafka 的自动化配置。
 
@@ -962,7 +900,22 @@ public interface StreamClient {    String INPUT = "myInput";   String OUTPUT = "
 创建启动类，在启动类添加一个接口，使用上面定义的消息通道绑定接口 StreamClient 向被监听的消息通道发送消息，具体如下：
 
 ```java
-@SpringBootApplication@RestControllerpublic class StreamApplication {    public static void main(String[] args) {        SpringApplication.run(StreamApplication.class,args);    }    @Autowired    private StreamClient streamClient;    @GetMapping("send")    public void send() {        streamClient.output().send(MessageBuilder.withPayload("Hello World...").build());    }}
+
+@SpringBootApplication
+@RestControllerpublic
+class StreamApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(StreamApplication.class, args);
+    }
+
+    @Autowired
+    private StreamClient streamClient;
+
+    @GetMapping("send")
+    public void send() {
+        streamClient.output().send(MessageBuilder.withPayload("Hello World...").build());
+    }
+}
 ```
 
 #### 2.6 验证
@@ -1008,7 +961,24 @@ Spring Cloud Stream 中的消息通信方式遵循了发布-订阅模式，当�
 在现实的业务场景中，每一个微服务应用为了实现高可用和负载均衡，都会集群部署，按照上面我们启动了两个应用的实例，消息被重复消费了两次。为解决这个问题，Spring Cloud Stream 中提供了消费组，通过配置 spring.cloud.stream.bindings.myInput.group 属性为应用指定一个组名，下面修改下配置文件，修改如下：
 
 ```yaml
-server:  port: 9898spring:  application:    name: spring-cloud-stream  rabbitmq:    host: 192.168.174.128    port: 5672    username: guest    password: guest  cloud:    stream:      bindings:        myInput:          #指定输入通道对应的主题名          destination: minestream          #指定该应用实例属于 stream 消费组          group: stream        myOutput:          destination: minestream
+server:  
+  port: 9898
+spring:  
+  application:    
+    name: spring-cloud-stream  
+  rabbitmq:    
+    host: 192.168.174.128    
+    port: 5672    
+    username: guest    
+    password: guest  
+  cloud:    
+    stream:      
+      bindings:        
+        myInput:          #指定输入通道对应的主题名          
+          destination: minestream          #指定该应用实例属于 stream 消费组         
+        group: stream        
+        myOutput:          
+          destination: minestream
 ```
 
 
@@ -1036,7 +1006,31 @@ server:  port: 9898spring:  application:    name: spring-cloud-stream  rabbitmq:
 Spring Cloud Stream 实现消息分区只需要在配置文件里进行相应的配置即可，修改 StreamApplication 的配置文件如下：
 
 ```yaml
-server:  port: 9898spring:  application:    name: spring-cloud-stream  rabbitmq:    host: 192.168.174.128    port: 5672    username: guest    password: guest  cloud:    stream:      bindings:        myInput:          #指定输入通道对应的主题名          destination: minestream          #指定该应用实例属于 stream 消费组          group: stream          consumer:            #通过该参数开启消费者分区功能            partitioned: true        myOutput:          #指定输出通道对应的主题名          destination: minestream          producer:            #通过该参数指定了分区键的表达式规则，可以根据实际的输出消息规则配置 SpEL 来生成合适的分区键            partitionKeyExpression: payload            partitionCount: 2      #该参数指定了当前消费者的总实例数量      instance-count: 2      #该参数设置了当前实例的索引号，从 0 开始，最大值为 spring.cloud.stream.instance-count 参数 - 1      instance-index: 0
+server:  
+  port: 9898
+spring:  
+  application:    
+    name: spring-cloud-stream  
+  rabbitmq:    
+    host: 192.168.174.128    
+    port: 5672    
+    username: guest    
+    password: guest  
+  cloud:    
+    stream:      
+      bindings:        
+      myInput:          #指定输入通道对应的主题名          
+        destination: minestream          #指定该应用实例属于 stream 消费组          
+      group: stream          
+      consumer:            #通过该参数开启消费者分区功能            
+      partitioned: true        
+      myOutput:          #指定输出通道对应的主题名          
+        destination: minestream          
+      producer:            #通过该参数指定了分区键的表达式规则，可以根据实际的输出消息规则配置 SpEL 来生成合适的分区键            
+      partitionKeyExpression: payload            
+      partitionCount: 2      #该参数指定了当前消费者的总实例数量      
+      instance-count: 2      #该参数设置了当前实例的索引号，从 0 开始，最大值为 spring.cloud.stream.instance-count 参数 - 1      
+      instance-index: 0
 ```
 
 每个参数的说明，上面注释的很详细，启动多个实例只需要修改端口号和 instance-index 的值即可，到这里消息分区配置就完成了，可以看到 RabbitMQ 的队列里已经生成了两个名为 minestream.stream-* 的队列
@@ -1054,489 +1048,6 @@ server:  port: 9898spring:  application:    name: spring-cloud-stream  rabbitmq:
 ![img](img/20180703230924911)
 
 可以看到发送的同一个消息，都被其中一个实例接收消费了，说明消息分区也已配置成功了。
-
-
-
-
-
-
-
-# SpringSecurity在单机环境下使用
-
-## 参考
-
-来源于黑马程序员： [手把手教你精通新版SpringSecurity](https://www.bilibili.com/video/BV1EE411u7YV?p=33)
-
-## 技术选型
-
-SpringBoot2.1.3，SpringSecurity，MySQL，mybatis，jsp
-
-## 初步整合认证第一版
-
-### 创建工程并导入jar包
-
-先只导入SpringBoot
-
-```xml
-<parent>   
-    <groupId>org.springframework.boot</groupId>   
-    <artifactId>spring-boot-starter-parent</artifactId>  
-    <version>2.1.3.RELEASE</version>    
-    <relativePath/>
-</parent>
-<dependencies> 
-    <dependency> 
-        <groupId>org.springframework.boot</groupId>  
-        <artifactId>spring-boot-starter-web</artifactId>  
-    </dependency>
-</dependencies>
-```
-
-### 提供处理器
-
-```java
-@Controller@RequestMapping("/product")
-public class ProductController {    
-    @RequestMapping   
-    @ResponseBody	
-    public String hello(){    
-        return "success";  
-    }
-}
-```
-
-### 编写启动类
-
-```java
-@SpringBootApplication
-public class SecurityApplication {  
-    public static void main(String[] args) {  
-        SpringApplication.run(SecurityApplication.class, args); 
-    }
-}
-```
-
-
-
-## 整合认证第三版【数据库认证】
-
-### 数据库环境准备
-
-依然使用security_authority数据库，sql语句在第一天资料里。
-
-### 导入数据库操作相关jar包
-
-```xml
-<!--MySQL驱动包--><dependency>    <groupId>mysql</groupId>    <artifactId>mysql-connector-java</artifactId>    <version>5.1.47</version></dependency><!--springboot启动类--><dependency>    <groupId>tk.mybatis</groupId>    <artifactId>mapper-spring-boot-starter</artifactId>    <version>2.1.5</version></dependency><!--导入通用Mapper--><dependency>    <groupId>tk.mybatis</groupId>    <artifactId>mapper-spring-boot-starter</artifactId>    <version>2.1.5</version></dependency>
-```
-
-### 在配置文件中添加数据库操作相关配置
-
-![image-20200920194644145](C:%5CUsers%5CKrest%5CDesktop%5CLearningNotes%5CSpringSecurity%5C3_SpringSecurity%E5%9C%A8%E5%8D%95%E6%9C%BA%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E4%BD%BF%E7%94%A8%5Cimages%5Cimage-20200920194644145.png)
-
-### 在启动类上添加扫描dao接口包注解
-
-![image-20200920194847462](C:%5CUsers%5CKrest%5CDesktop%5CLearningNotes%5CSpringSecurity%5C3_SpringSecurity%E5%9C%A8%E5%8D%95%E6%9C%BA%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E4%BD%BF%E7%94%A8%5Cimages%5Cimage-20200920194847462.png)
-
-### 创建用户pojo对象
-
-这里直接实现SpringSecurity的用户对象接口，并添加角色集合私有属性。注意接口属性都要标记不参与json的处理
-
-```java
-@Datapublic class SysRole implements GrantedAuthority {    private Integer id;    private String roleName;    private String roleDesc;}
-```
-
-
-
-### 创建角色pojo对象
-
-这里直接使用SpringSecurity的角色规范，我们实现UserDetails的类型
-
-```java
-@Datapublic class SysUser implements UserDetails {    private Integer id;    private String username;    private String password;    private Integer status;    private List<SysRole> roles;        @JsonIgnore    @Override    public Collection<? extends GrantedAuthority> getAuthorities() {        return roles;    }    @Override    public String getPassword() {        return password;    }    @Override    public String getUsername() {        return username;    }    @JsonIgnore    @Override    public boolean isAccountNonExpired() {        return true;    }    @JsonIgnore    @Override    public boolean isAccountNonLocked() {        return true;    }    @JsonIgnore    @Override    public boolean isCredentialsNonExpired() {        return true;    }    @JsonIgnore    @Override    public boolean isEnabled() {        return true;    }}
-```
-
-### 提供角色mapper接口
-
-```java
-public interface RoleMapper extends Mapper<SysRole> {    @Select("SELECT r.id, r.role_name roleName, r.role_desc roleDesc " +    "FROM sys_role r, sys_user_role ur " +    "WHERE r.id=ur.rid AND ur.uid=#{uid}")    public List<SysRole> findByUid(Integer uid);}
-```
-
-### 提供用户mapper接口
-
-这里就用到了Mybatis的一对多进行操作
-
-```java
-public interface UserMapper extends Mapper<SysUser> {    @Select("select * from sys_user where username = #{username}")    @Results({            @Result(id = true, property = "id", column = "id"),            @Result(property = "roles", column = "id", javaType = List.class,                many = @Many(select = "com.itheima.mapper.RoleMapper.findByUid"))    })    public SysUser findByName(String username);}
-```
-
-### 提供认证service接口
-
-```java
-@Service@Transactionalpublic class UserServiceImpl implements UserService {    @Autowired    private UserMapper userMapper;    @Override    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {    	return userMapper.findByUsername(s);    }}
-```
-
-### 在启动类中把加密对象放入IOC容器
-
-```java
-@SpringBootApplication@MapperScan("com.itheima.mapper")public class SecurityApplication {    public static void main(String[] args) {    	SpringApplication.run(SecurityApplication.class, args);    }    @Bean    public BCryptPasswordEncoder passwordEncoder(){    	return new BCryptPasswordEncoder();    }}
-```
-
-### 修改配置类
-
-```java
-@Configuration@EnableWebSecurity@EnableGlobalMethodSecurity(securedEnabled=true)public class WebSecurityConfig extends WebSecurityConfigurerAdapter {    @Autowired    private UserService userService;    @Bean    public BCryptPasswordEncoder passwordEncoder(){        return new BCryptPasswordEncoder();    }    //指定认证对象的来源    public void configure(AuthenticationManagerBuilder auth) throws Exception {        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());    }    //SpringSecurity配置信息    public void configure(HttpSecurity http) throws Exception {        http.authorizeRequests()                .antMatchers("/login.jsp", "failer.jsp", "/css/**", "/img/**", "/plugins/**").permitAll()                .antMatchers("/product").hasAnyRole("USER")                .anyRequest().authenticated()                .and()                .formLogin()                .loginPage("/login.jsp")                .loginProcessingUrl("/login")                .successForwardUrl("/index.jsp")                .failureForwardUrl("/failer.jsp")                .and()                .logout()                .logoutSuccessUrl("/logout")                .invalidateHttpSession(true)                .logoutSuccessUrl("/login.jsp")                .and()                .csrf()                .disable();    }}
-```
-
-大功告成尽管测试，注意还是用插件启动项目，使用数据库表中的用户名和密码。
-
-### 整合实现授权功能
-
-在启动类上添加开启方法级的授权注解
-
-
-
-### 在产品处理器类上添加注解
-
-要求产品列表功能必须具有ROLE_ADMIN角色才能访问！
-
-
-
-### 重启项目测试
-
-再次访问产品列表发现权限不足
-
-
-
-### 指定自定义异常页面
-
-编写异常处理器拦截403异常
-
-```java
-@ControllerAdvicepublic class HandleControllerException {    @ExceptionHandler(RuntimeException.class)    public String exceptionHandler(RuntimeException e){    	if(e instanceof AccessDeniedException){            //如果是权限不足异常，则跳转到权限不足页面！            return "redirect:/403.jsp";    	}        //其余的异常都到500页面！        return "redirect:/500.jsp";    }}
-```
-
-再次测试产品列表就可以到自定义异常页面了
-
-![image-20200920202215597](C:/Users/Krest/iCloudDrive/Java%2520%25E5%259F%25BA%25E7%25A1%2580/images/image-20200920202215597.png)
-
-# SpringSecurity在分布式环境下的使用
-
-## 参考
-
-来源于黑马程序员： [手把手教你精通新版SpringSecurity](https://www.bilibili.com/video/BV1EE411u7YV?p=43)
-
-## 分布式认证概念说明
-
-分布式认证，即我们常说的单点登录，简称SSO，指的是在多应用系统的项目中，用户只需要登录一次，就可以访
-问所有互相信任的应用系统。
-
-## 分布式认证流程图
-
-首先，我们要明确，在分布式项目中，每台服务器都有各自独立的session，而这些session之间是无法直接共享资
-源的，所以，session通常不能被作为单点登录的技术方案。最合理的单点登录方案流程如下图所示：
-
-
-
-**总结一下，单点登录的实现分两大环节：**
-
-- **用户认证：**这一环节主要是用户向认证服务器发起认证请求，认证服务器给用户返回一个成功的令牌token，
-  主要在认证服务器中完成，即图中的A系统，注意A系统只能有一个。
-- **身份校验：**这一环节是用户携带token去访问其他服务器时，在其他服务器中要对token的真伪进行检验，主
-  要在资源服务器中完成，即图中的B系统，这里B系统可以有很多个。
-
-## JWT介绍
-
-### 概念说明
-
-从分布式认证流程中，我们不难发现，这中间起最关键作用的就是token，token的安全与否，直接关系到系统的
-健壮性，这里我们选择使用JWT来实现token的生成和校验。
-JWT，全称JSON Web Token，官网地址https://jwt.io，是一款出色的分布式身份校验方案。可以生成token，也可以解析检验token。
-
-### JWT生成的token由三部分组成
-
-- **头部**：主要设置一些规范信息，签名部分的编码格式就在头部中声明。
-- **载荷**：token中存放有效信息的部分，比如用户名，用户角色，过期时间等，但是不要放密码，会泄露！
-- **签名**：将头部与载荷分别采用base64编码后，用“.”相连，再加入**盐**，最后使用头部声明的编码类型进行编
-  码，就得到了签名。【通过随机盐在进行加密】
-
-### JWT生成token的安全性分析
-
-从JWT生成的token组成上来看，要想避免token被伪造，主要就得看签名部分了，而签名部分又有三部分组成，其中头部和载荷的base64编码，几乎是透明的，毫无安全性可言，那么最终守护token安全的重担就落在了加入的盐上面了！
-
-试想：如果生成token所用的盐与解析token时加入的盐是一样的。岂不是类似于中国人民银行把人民币防伪技术
-公开了？大家可以用这个盐来解析token，就能用来伪造token。这时，我们就需要对盐采用非对称加密的方式进行加密，以达到生成token与校验token方所用的盐不一致的安全效果！
-
-## 非对称加密RSA介绍
-
-- **基本原理：**同时生成两把密钥：私钥和公钥，私钥隐秘保存，公钥可以下发给信任客户端
-- **私钥加密**，持有私钥或公钥才可以解密
-- **公钥加密**，持有私钥才可解密
-- **优点**：安全，难以破解
-- **缺点**：算法比较耗时，为了安全，可以接受
-- **历史**：三位数学家Rivest、Shamir 和 Adleman 设计了一种算法，可以实现非对称加密。这种算法用他们三
-  个人的名字缩写：RSA。
-
-【总结】：也就是说，我们加密信息的时候，使用的是公钥，而验证token真伪的时候，使用的是公钥
-
-## JWT相关工具类
-
-### jar包 
-
-```xml
-<dependency>    <groupId>io.jsonwebtoken</groupId>    <artifactId>jjwt-api</artifactId>    <version>0.10.7</version></dependency><dependency>    <groupId>io.jsonwebtoken</groupId>    <artifactId>jjwt-impl</artifactId>    <version>0.10.7</version>    <scope>runtime</scope></dependency><dependency>    <groupId>io.jsonwebtoken</groupId>    <artifactId>jjwt-jackson</artifactId>    <version>0.10.7</version>    <scope>runtime</scope></dependency>
-```
-
-### 载荷对象
-
-```java
-/*** 为了方便后期获取token中的用户信息，将token中载荷部分单独封装成一个对象*/@Datapublic class Payload<T> {}
-```
-
-### JWT工具类
-
-```java
-/** * 生成token以及校验token相关方法 */public class JwtUtils {    private static final String JWT_PAYLOAD_USER_KEY = "user";    /**     * 私钥加密token     *     * @param userInfo   载荷中的数据     * @param privateKey 私钥     * @param expire     过期时间，单位分钟     * @return JWT     */    public static String generateTokenExpireInMinutes(Object userInfo, PrivateKey privateKey, int expire) {        return Jwts.builder()                .claim(JWT_PAYLOAD_USER_KEY, JsonUtils.toString(userInfo))                .setId(createJTI())                .setExpiration(DateTime.now().plusMinutes(expire).toDate())                .signWith(privateKey, SignatureAlgorithm.RS256)                .compact();    }    /**     * 私钥加密token     *     * @param userInfo   载荷中的数据     * @param privateKey 私钥     * @param expire     过期时间，单位秒     * @return JWT     */    public static String generateTokenExpireInSeconds(Object userInfo, PrivateKey privateKey, int expire) {        return Jwts.builder()                .claim(JWT_PAYLOAD_USER_KEY, JsonUtils.toString(userInfo))                .setId(createJTI())                .setExpiration(DateTime.now().plusSeconds(expire).toDate())                .signWith(privateKey, SignatureAlgorithm.RS256)                .compact();    }    /**     * 公钥解析token     *     * @param token     用户请求中的token     * @param publicKey 公钥     * @return Jws<Claims>     */    private static Jws<Claims> parserToken(String token, PublicKey publicKey) {        return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(token);    }    private static String createJTI() {        return new String(Base64.getEncoder().encode(UUID.randomUUID().toString().getBytes()));    }    /**     * 获取token中的用户信息     *     * @param token     用户请求中的令牌     * @param publicKey 公钥     * @return 用户信息     */    public static <T> Payload<T> getInfoFromToken(String token, PublicKey publicKey, Class<T> userType) {        Jws<Claims> claimsJws = parserToken(token, publicKey);        Claims body = claimsJws.getBody();        Payload<T> claims = new Payload<>();        claims.setId(body.getId());        claims.setUserInfo(JsonUtils.toBean(body.get(JWT_PAYLOAD_USER_KEY).toString(), userType));        claims.setExpiration(body.getExpiration());        return claims;    }    /**     * 获取token中的载荷信息     *     * @param token     用户请求中的令牌     * @param publicKey 公钥     * @return 用户信息     */    public static <T> Payload<T> getInfoFromToken(String token, PublicKey publicKey) {        Jws<Claims> claimsJws = parserToken(token, publicKey);        Claims body = claimsJws.getBody();        Payload<T> claims = new Payload<>();        claims.setId(body.getId());        claims.setExpiration(body.getExpiration());        return claims;    }}
-```
-
-### RSA工具类
-
-非对称加密工具列
-
-```java
-public class RsaUtils {    private static final int DEFAULT_KEY_SIZE = 2048;    /**     * 从文件中读取公钥     *     * @param filename 公钥保存路径，相对于classpath     * @return 公钥对象     * @throws Exception     */    public static PublicKey getPublicKey(String filename) throws Exception {        byte[] bytes = readFile(filename);        return getPublicKey(bytes);    }    /**     * 从文件中读取密钥     *     * @param filename 私钥保存路径，相对于classpath     * @return 私钥对象     * @throws Exception     */    public static PrivateKey getPrivateKey(String filename) throws Exception {        byte[] bytes = readFile(filename);        return getPrivateKey(bytes);    }    /**     * 获取公钥     *     * @param bytes 公钥的字节形式     * @return     * @throws Exception     */    private static PublicKey getPublicKey(byte[] bytes) throws Exception {        bytes = Base64.getDecoder().decode(bytes);        X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);        KeyFactory factory = KeyFactory.getInstance("RSA");        return factory.generatePublic(spec);    }    /**     * 获取密钥     *     * @param bytes 私钥的字节形式     * @return     * @throws Exception     */    private static PrivateKey getPrivateKey(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException {        bytes = Base64.getDecoder().decode(bytes);        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);        KeyFactory factory = KeyFactory.getInstance("RSA");        return factory.generatePrivate(spec);    }    /**     * 根据密文，生存rsa公钥和私钥,并写入指定文件     *     * @param publicKeyFilename  公钥文件路径     * @param privateKeyFilename 私钥文件路径     * @param secret             生成密钥的密文     */    public static void generateKey(String publicKeyFilename, String privateKeyFilename, String secret, int keySize) throws Exception {        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");        SecureRandom secureRandom = new SecureRandom(secret.getBytes());        keyPairGenerator.initialize(Math.max(keySize, DEFAULT_KEY_SIZE), secureRandom);        KeyPair keyPair = keyPairGenerator.genKeyPair();        // 获取公钥并写出        byte[] publicKeyBytes = keyPair.getPublic().getEncoded();        publicKeyBytes = Base64.getEncoder().encode(publicKeyBytes);        writeFile(publicKeyFilename, publicKeyBytes);        // 获取私钥并写出        byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();        privateKeyBytes = Base64.getEncoder().encode(privateKeyBytes);        writeFile(privateKeyFilename, privateKeyBytes);    }    private static byte[] readFile(String fileName) throws Exception {        return Files.readAllBytes(new File(fileName).toPath());    }    private static void writeFile(String destPath, byte[] bytes) throws IOException {        File dest = new File(destPath);        if (!dest.exists()) {            dest.createNewFile();        }        Files.write(dest.toPath(), bytes);    }}
-```
-
-## SpringSecurity+JWT+RSA分布式认证思路分析
-
-SpringSecurity主要是通过过滤器来实现功能的！我们要找到SpringSecurity实现认证和校验身份的过滤器！
-回顾集中式认证流程
-
-### 用户认证
-
-使用UsernamePasswordAuthenticationFilter过滤器中attemptAuthentication方法实现认证功能，该过滤
-器父类中successfulAuthentication方法实现认证成功后的操作。
-
-### 身份校验
-
-使用BasicAuthenticationFilter过滤器中doFilterInternal方法验证是否登录，以决定能否进入后续过滤器。
-分析分布式认证流程
-
-### 用户认证
-
-由于，分布式项目，多数是前后端分离的架构设计，我们要满足可以接受异步post的认证请求参数，需要修
-改UsernamePasswordAuthenticationFilter过滤器中attemptAuthentication方法，让其能够接收请求体。
-
-另外，默认successfulAuthentication方法在认证通过后，是把用户信息直接放入session就完事了，现在我
-们需要修改这个方法，在认证通过后生成token并返回给用户。
-
-### 身份校验
-
-原来BasicAuthenticationFilter过滤器中doFilterInternal方法校验用户是否登录，就是看session中是否有用
-户信息，我们要修改为，验证用户携带的token是否合法，并解析出用户信息，交给SpringSecurity，以便于
-后续的授权功能可以正常使用。
-
-## SpringSecurity+JWT+RSA分布式认证实现
-
-### 创建父工程并导入jar包
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    <modelVersion>4.0.0</modelVersion>    <groupId>com.itheima</groupId>    <artifactId>springboot_security_jwt_rsa_parent</artifactId>    <packaging>pom</packaging>    <version>1.0-SNAPSHOT</version>    <modules>        <module>heima_common</module>        <module>heima_auth_server</module>        <module>heima_source_product</module>    </modules>    <parent>        <groupId>org.springframework.boot</groupId>        <artifactId>spring-boot-starter-parent</artifactId>        <version>2.1.3.RELEASE</version>        <relativePath/>    </parent></project>
-```
-
-## 通用模块
-
-创建通用子模块并导入JWT相关jar包
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    <parent>        <artifactId>springboot_security_jwt_rsa_parent</artifactId>        <groupId>com.itheima</groupId>        <version>1.0-SNAPSHOT</version>    </parent>    <modelVersion>4.0.0</modelVersion>    <artifactId>heima_common</artifactId>    <dependencies>        <dependency>            <groupId>io.jsonwebtoken</groupId>            <artifactId>jjwt-api</artifactId>            <version>0.10.7</version>        </dependency>        <dependency>            <groupId>io.jsonwebtoken</groupId>            <artifactId>jjwt-impl</artifactId>            <version>0.10.7</version>            <scope>runtime</scope>        </dependency>        <dependency>            <groupId>io.jsonwebtoken</groupId>            <artifactId>jjwt-jackson</artifactId>            <version>0.10.7</version>            <scope>runtime</scope>        </dependency>        <!--jackson包-->        <dependency>            <groupId>com.fasterxml.jackson.core</groupId>            <artifactId>jackson-databind</artifactId>            <version>2.9.9</version>        </dependency>        <!--日志包-->        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-logging</artifactId>        </dependency>        <dependency>            <groupId>joda-time</groupId>            <artifactId>joda-time</artifactId>        </dependency>        <dependency>            <groupId>org.projectlombok</groupId>            <artifactId>lombok</artifactId>        </dependency>        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-test</artifactId>        </dependency>    </dependencies></project>
-```
-
-### 导入工具类
-
-工具类如下
-
-![image-20200920210659250](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920210659250.png)
-
-### Payload.java
-
-```java
-/** * 为了方便后期获取token中的用户信息，将token中载荷部分单独封装成一个对象 */@Datapublic class Payload<T> {    private String id;    private T userInfo;    private Date expiration;}
-```
-
-### JsonUtil.java
-
-```java
-public class JsonUtils {    public static final ObjectMapper mapper = new ObjectMapper();    private static final Logger logger = LoggerFactory.getLogger(JsonUtils.class);    public static String toString(Object obj) {        if (obj == null) {            return null;        }        if (obj.getClass() == String.class) {            return (String) obj;        }        try {            return mapper.writeValueAsString(obj);        } catch (JsonProcessingException e) {            logger.error("json序列化出错：" + obj, e);            return null;        }    }    public static <T> T toBean(String json, Class<T> tClass) {        try {            return mapper.readValue(json, tClass);        } catch (IOException e) {            logger.error("json解析出错：" + json, e);            return null;        }    }    public static <E> List<E> toList(String json, Class<E> eClass) {        try {            return mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(List.class, eClass));        } catch (IOException e) {            logger.error("json解析出错：" + json, e);            return null;        }    }    public static <K, V> Map<K, V> toMap(String json, Class<K> kClass, Class<V> vClass) {        try {            return mapper.readValue(json, mapper.getTypeFactory().constructMapType(Map.class, kClass, vClass));        } catch (IOException e) {            logger.error("json解析出错：" + json, e);            return null;        }    }    public static <T> T nativeRead(String json, TypeReference<T> type) {        try {            return mapper.readValue(json, type);        } catch (IOException e) {            logger.error("json解析出错：" + json, e);            return null;        }    }}
-```
-
-### jwtUitls.java
-
-```java
-public class JwtUtils {    private static final String JWT_PAYLOAD_USER_KEY = "user";    /**     * 私钥加密token     *     * @param userInfo   载荷中的数据     * @param privateKey 私钥     * @param expire     过期时间，单位分钟     * @return JWT     */    public static String generateTokenExpireInMinutes(Object userInfo, PrivateKey privateKey, int expire) {        return Jwts.builder()                .claim(JWT_PAYLOAD_USER_KEY, JsonUtils.toString(userInfo))                .setId(createJTI())                .setExpiration(DateTime.now().plusMinutes(expire).toDate())                .signWith(privateKey, SignatureAlgorithm.RS256)                .compact();    }    /**     * 私钥加密token     *     * @param userInfo   载荷中的数据     * @param privateKey 私钥     * @param expire     过期时间，单位秒     * @return JWT     */    public static String generateTokenExpireInSeconds(Object userInfo, PrivateKey privateKey, int expire) {        return Jwts.builder()                .claim(JWT_PAYLOAD_USER_KEY, JsonUtils.toString(userInfo))                .setId(createJTI())                .setExpiration(DateTime.now().plusSeconds(expire).toDate())                .signWith(privateKey, SignatureAlgorithm.RS256)                .compact();    }    /**     * 公钥解析token     *     * @param token     用户请求中的token     * @param publicKey 公钥     * @return Jws<Claims>     */    private static Jws<Claims> parserToken(String token, PublicKey publicKey) {        return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(token);    }    private static String createJTI() {        return new String(Base64.getEncoder().encode(UUID.randomUUID().toString().getBytes()));    }    /**     * 获取token中的用户信息     *     * @param token     用户请求中的令牌     * @param publicKey 公钥     * @return 用户信息     */    public static <T> Payload<T> getInfoFromToken(String token, PublicKey publicKey, Class<T> userType) {        Jws<Claims> claimsJws = parserToken(token, publicKey);        Claims body = claimsJws.getBody();        Payload<T> claims = new Payload<>();        claims.setId(body.getId());        claims.setUserInfo(JsonUtils.toBean(body.get(JWT_PAYLOAD_USER_KEY).toString(), userType));        claims.setExpiration(body.getExpiration());        return claims;    }    /**     * 获取token中的载荷信息     *     * @param token     用户请求中的令牌     * @param publicKey 公钥     * @return 用户信息     */    public static <T> Payload<T> getInfoFromToken(String token, PublicKey publicKey) {        Jws<Claims> claimsJws = parserToken(token, publicKey);        Claims body = claimsJws.getBody();        Payload<T> claims = new Payload<>();        claims.setId(body.getId());        claims.setExpiration(body.getExpiration());        return claims;    }}
-```
-
-### RsaUtils.java
-
-```java
-public class RsaUtils {    private static final int DEFAULT_KEY_SIZE = 2048;    /**     * 从文件中读取公钥     *     * @param filename 公钥保存路径，相对于classpath     * @return 公钥对象     * @throws Exception     */    public static PublicKey getPublicKey(String filename) throws Exception {        byte[] bytes = readFile(filename);        return getPublicKey(bytes);    }    /**     * 从文件中读取密钥     *     * @param filename 私钥保存路径，相对于classpath     * @return 私钥对象     * @throws Exception     */    public static PrivateKey getPrivateKey(String filename) throws Exception {        byte[] bytes = readFile(filename);        return getPrivateKey(bytes);    }    /**     * 获取公钥     *     * @param bytes 公钥的字节形式     * @return     * @throws Exception     */    private static PublicKey getPublicKey(byte[] bytes) throws Exception {        bytes = Base64.getDecoder().decode(bytes);        X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);        KeyFactory factory = KeyFactory.getInstance("RSA");        return factory.generatePublic(spec);    }    /**     * 获取密钥     *     * @param bytes 私钥的字节形式     * @return     * @throws Exception     */    private static PrivateKey getPrivateKey(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException {        bytes = Base64.getDecoder().decode(bytes);        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);        KeyFactory factory = KeyFactory.getInstance("RSA");        return factory.generatePrivate(spec);    }    /**     * 根据密文，生存rsa公钥和私钥,并写入指定文件     *     * @param publicKeyFilename  公钥文件路径     * @param privateKeyFilename 私钥文件路径     * @param secret             生成密钥的密文     */    public static void generateKey(String publicKeyFilename, String privateKeyFilename, String secret, int keySize) throws Exception {        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");        SecureRandom secureRandom = new SecureRandom(secret.getBytes());        keyPairGenerator.initialize(Math.max(keySize, DEFAULT_KEY_SIZE), secureRandom);        KeyPair keyPair = keyPairGenerator.genKeyPair();        // 获取公钥并写出        byte[] publicKeyBytes = keyPair.getPublic().getEncoded();        publicKeyBytes = Base64.getEncoder().encode(publicKeyBytes);        writeFile(publicKeyFilename, publicKeyBytes);        // 获取私钥并写出        byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();        privateKeyBytes = Base64.getEncoder().encode(privateKeyBytes);        writeFile(privateKeyFilename, privateKeyBytes);    }    private static byte[] readFile(String fileName) throws Exception {        return Files.readAllBytes(new File(fileName).toPath());    }    private static void writeFile(String destPath, byte[] bytes) throws IOException {        File dest = new File(destPath);        if (!dest.exists()) {            dest.createNewFile();        }        Files.write(dest.toPath(), bytes);    }}
-```
-
-### 在通用子模块中编写测试类生成rsa公钥和私钥
-
-```java
-public class RsaUtilsTest {    private String publicFile = "D:\\auth_key\\rsa_key.pub";    private String privateFile = "D:\\auth_key\\rsa_key";    @Test    public void generateKey() throws Exception {    	RsaUtils.generateKey(publicFile, privateFile, "heima", 2048);    }}
-```
-
-执行后查看D:\auth_key目录发现私钥和公钥文件生成成功
-
-![image-20200920211051749](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920211051749.png)
-
-## 认证服务
-
-创建认证服务工程并导入jar包
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    <parent>        <artifactId>springboot_security_jwt_rsa_parent</artifactId>        <groupId>com.itheima</groupId>        <version>1.0-SNAPSHOT</version>    </parent>    <modelVersion>4.0.0</modelVersion>    <artifactId>heima_auth_server</artifactId>    <dependencies>        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-web</artifactId>        </dependency>        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-security</artifactId>        </dependency>        <dependency>            <groupId>com.itheima</groupId>            <artifactId>heima_common</artifactId>            <version>1.0-SNAPSHOT</version>        </dependency>        <dependency>            <groupId>mysql</groupId>            <artifactId>mysql-connector-java</artifactId>            <version>5.1.47</version>        </dependency>        <dependency>            <groupId>org.mybatis.spring.boot</groupId>            <artifactId>mybatis-spring-boot-starter</artifactId>            <version>2.1.0</version>        </dependency>    </dependencies></project>
-```
-
-### 创建认证服务配置文件
-
-```yaml
-server:  port: 9001spring:  datasource:    driver-class-name: com.mysql.jdbc.Driver    url: jdbc:mysql:///security_authority    username: root    password: rootmybatis:  type-aliases-package: com.itheima.domain  configuration:    map-underscore-to-camel-case: truelogging:  level:    com.itheima: debugrsa:  key:    pubKeyFile: D:\auth_key\id_key_rsa.pub    priKeyFile: D:\auth_key\id_key_rsa
-```
-
-### 提供解析公钥和私钥的配置类
-
-```java
-@Data@ConfigurationProperties(prefix = "heima.key")public class RsaKeyProperties {    private String pubKeyPath;    private String priKeyPath;    private PublicKey publicKey;    private PrivateKey privateKey;    @PostConstruct    public void loadKey() throws Exception {        publicKey = RsaUtils.getPublicKey(pubKeyPath);        privateKey = RsaUtils.getPrivateKey(priKeyPath);    }}
-```
-
-### 创建认证服务启动类
-
-```java
-@SpringBootApplication@MapperScan("com.itheima.mapper")@EnableConfigurationProperties(RsaKeyProperties.class)public class AuthApplication {    public static void main(String[] args) {    	SpringApplication.run(AuthApplication.class, args);    }}
-```
-
-### 将上面集中式案例中数据库认证相关代码复制到认证服务中
-
-需要复制的代码如果所示：
-
-![image-20200920211547261](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920211547261.png)
-
-注意这里要去掉mapper中继承的通用mapper接口，处理器类上换成@RestController，这里前后端绝对分离，不能再跳转页面了，要返回数据。
-
-```java
-public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {    private AuthenticationManager authenticationManager;    private RsaKeyProperties prop;    public JwtLoginFilter(AuthenticationManager authenticationManager, RsaKeyProperties prop) {        this.authenticationManager = authenticationManager;        this.prop = prop;    }    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {        try {            SysUser sysUser = new ObjectMapper().readValue(request.getInputStream(), SysUser.class);            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(sysUser.getUsername(), sysUser.getPassword());            return authenticationManager.authenticate(authRequest);        }catch (Exception e){            try {                response.setContentType("application/json;charset=utf-8");                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);                PrintWriter out = response.getWriter();                Map resultMap = new HashMap();                resultMap.put("code", HttpServletResponse.SC_UNAUTHORIZED);                resultMap.put("msg", "用户名或密码错误！");                out.write(new ObjectMapper().writeValueAsString(resultMap));                out.flush();                out.close();            }catch (Exception outEx){                outEx.printStackTrace();            }            throw new RuntimeException(e);        }    }    public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {        SysUser user = new SysUser();        user.setUsername(authResult.getName());        user.setRoles((List<SysRole>) authResult.getAuthorities());        String token = JwtUtils.generateTokenExpireInMinutes(user, prop.getPrivateKey(), 24 * 60);        response.addHeader("Authorization", "Bearer "+token);        try {            response.setContentType("application/json;charset=utf-8");            response.setStatus(HttpServletResponse.SC_OK);            PrintWriter out = response.getWriter();            Map resultMap = new HashMap();            resultMap.put("code", HttpServletResponse.SC_OK);            resultMap.put("msg", "认证通过！");            out.write(new ObjectMapper().writeValueAsString(resultMap));            out.flush();            out.close();        }catch (Exception outEx){            outEx.printStackTrace();        }    }}
-```
-
-### 编写检验token过滤器
-
-```java
-public class JwtVerifyFilter extends BasicAuthenticationFilter {    private RsaKeyProperties prop;    public JwtVerifyFilter(AuthenticationManager authenticationManager, RsaKeyProperties prop) {        super(authenticationManager);        this.prop = prop;    }    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {        String header = request.getHeader("Authorization");        if (header == null || !header.startsWith("Bearer ")) {            //如果携带错误的token，则给用户提示请登录！            chain.doFilter(request, response);            response.setContentType("application/json;charset=utf-8");            response.setStatus(HttpServletResponse.SC_FORBIDDEN);            PrintWriter out = response.getWriter();            Map resultMap = new HashMap();            resultMap.put("code", HttpServletResponse.SC_FORBIDDEN);            resultMap.put("msg", "请登录！");            out.write(new ObjectMapper().writeValueAsString(resultMap));            out.flush();            out.close();        } else {            //如果携带了正确格式的token要先得到token            String token = header.replace("Bearer ", "");            //验证tken是否正确            Payload<SysUser> payload = JwtUtils.getInfoFromToken(token, prop.getPublicKey(), SysUser.class);            SysUser user = payload.getUserInfo();            if(user!=null){                UsernamePasswordAuthenticationToken authResult = new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());                SecurityContextHolder.getContext().setAuthentication(authResult);                chain.doFilter(request, response);            }        }    }}
-```
-
-### 编写SpringSecurity配置类
-
-```java
-@Configuration@EnableWebSecurity@EnableGlobalMethodSecurity(securedEnabled=true)public class WebSecurityConfig extends WebSecurityConfigurerAdapter {    @Autowired    private UserService userService;    @Autowired    private RsaKeyProperties prop;    @Bean    public BCryptPasswordEncoder passwordEncoder(){        return new BCryptPasswordEncoder();    }    //指定认证对象的来源    public void configure(AuthenticationManagerBuilder auth) throws Exception {        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());    }    //SpringSecurity配置信息    public void configure(HttpSecurity http) throws Exception {        http.csrf()            .disable()            .authorizeRequests()            .antMatchers("/product").hasAnyRole("USER")            .anyRequest()            .authenticated()            .and()            .addFilter(new JwtLoginFilter(super.authenticationManager(), prop))            .addFilter(new JwtVerifyFilter(super.authenticationManager(), prop))            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);    }}
-```
-
-### 启动测试认证服务
-
-认证请求
-
-![image-20200920213350978](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920213350978.png)
-
-认证通过结果
-
-![image-20200920213403708](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920213403708.png)
-
-token在Headers中：
-
-![image-20200920213423316](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920213423316.png)
-
-验证认证请求
-
-![image-20200920213442797](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920213442797.png)
-
-## 资源服务
-
-### 说明
-
-资源服务可以有很多个，这里只拿产品服务为例，记住，资源服务中只能通过公钥验证认证。不能签发token！
-
-### 创建产品服务并导入jar包
-
-根据实际业务导包即可，咱们就暂时和认证服务一样了。
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">    <parent>        <artifactId>springboot_security_jwt_rsa_parent</artifactId>        <groupId>com.itheima</groupId>        <version>1.0-SNAPSHOT</version>    </parent>    <modelVersion>4.0.0</modelVersion>    <artifactId>heima_source_product</artifactId>    <dependencies>        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-web</artifactId>        </dependency>        <dependency>            <groupId>org.springframework.boot</groupId>            <artifactId>spring-boot-starter-security</artifactId>        </dependency>        <dependency>            <groupId>com.itheima</groupId>            <artifactId>heima_common</artifactId>            <version>1.0-SNAPSHOT</version>        </dependency>        <dependency>            <groupId>mysql</groupId>            <artifactId>mysql-connector-java</artifactId>            <version>5.1.47</version>        </dependency>        <dependency>            <groupId>org.mybatis.spring.boot</groupId>            <artifactId>mybatis-spring-boot-starter</artifactId>            <version>2.1.0</version>        </dependency>    </dependencies></project>
-```
-
-### 编写产品服务配置文件
-
-切记这里只能有公钥地址！
-
-```yaml
-server:  port: 9002spring:  datasource:    driver-class-name: com.mysql.jdbc.Driver    url: jdbc:mysql:///security_authority    username: root    password: rootmybatis:  type-aliases-package: com.itheima.domain  configuration:    map-underscore-to-camel-case: truelogging:  level:    com.itheima: debugrsa:  key:    pubKeyFile: D:\auth_key\id_key_rsa.pub
-```
-
-### 编写读取公钥的配置类
-
-```java
-@ConfigurationProperties("rsa.key")public class RsaKeyProperties {    private String pubKeyFile;    private PublicKey publicKey;    @PostConstruct    public void createRsaKey() throws Exception {        publicKey = RsaUtils.getPublicKey(pubKeyFile);    }    public String getPubKeyFile() {        return pubKeyFile;    }    public void setPubKeyFile(String pubKeyFile) {        this.pubKeyFile = pubKeyFile;    }    public PublicKey getPublicKey() {        return publicKey;    }    public void setPublicKey(PublicKey publicKey) {        this.publicKey = publicKey;    }}
-```
-
-### 编写启动类
-
-```java
-@SpringBootApplication@MapperScan("com.itheima.mapper")@EnableConfigurationProperties(RsaKeyProperties.class)public class AuthSourceApplication {    public static void main(String[] args) {        SpringApplication.run(AuthSourceApplication.class, args);    }}
-```
-
-### 复制认证服务中，用户对象，角色对象和校验认证的接口
-
-这时目录结构如图：
-
-![image-20200920214004611](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920214004611.png)
-
-复制认证服务中SpringSecurity配置类做修改，去掉“增加自定义认证过滤器”即可！
-
-```java
-@Configuration@EnableWebSecurity@EnableGlobalMethodSecurity(securedEnabled=true)public class WebSecurityConfig extends WebSecurityConfigurerAdapter {    @Autowired    private RsaKeyProperties prop;    //SpringSecurity配置信息    public void configure(HttpSecurity http) throws Exception {        http.csrf()            .disable()            .authorizeRequests()            .antMatchers("/product").hasAnyRole("USER")            .anyRequest()            .authenticated()            .and()            .addFilter(new JwtVerifyFilter(super.authenticationManager(), prop))            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);    }}
-```
-
-### 编写产品处理器
-
-```java
-@RestController@RequestMapping("/product")public class ProductController {    @GetMapping    public String findAll(){    	return "产品测试成功！";    }}
-```
-
-### 启动产品服务做测试
-
-携带token
-
-![image-20200920214127083](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920214127083.png)
-
-在产品处理器上添加访问需要ADMIN角色
-
-```java
-@RestController@RequestMapping("/product")public class ProductController {    @Secured("ROLE_ADMIN")    @GetMapping    public String findAll(){    	return "产品测试成功！";    }}
-```
-
-重启测试权限不足
-
-![image-20200920214208492](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920214208492.png)
-
-在数据库中手动给用户添加ADMIN角色
-
-![image-20200920214220620](C:/Users/Krest/Desktop/LearningNotes/SpringSecurity/4_SpringSecurity在分布式环境下的使用/images/image-20200920214220620.png)
-
-重新认证获取新token再测试OK了！
-
-![image-20200920214234884](C:/Users/Krest/iCloudDrive/Java%2520%25E5%259F%25BA%25E7%25A1%2580/images/image-20200920214234884.png)
-
-
 
 
 
@@ -1677,11 +1188,7 @@ Feign 的第一个目标是将约束分母的复杂性统一到 http apis，而�
 
 （2）获取服务实例，然后获取基本 URL。
 
-（3）利用 REST 模板来使用服务。 前面的代码如下
-
-```java
-@Controllerpublic class ConsumerControllerClient {@Autowiredprivate LoadBalancerClient loadBalancer;public void getEmployee() throws RestClientException, IOException {	ServiceInstance serviceInstance=loadBalancer.choose("employee-producer");	System.out.println(serviceInstance.getUri());	String baseUrl=serviceInstance.getUri().toString();	baseUrl=baseUrl+"/employee";	RestTemplate restTemplate = new RestTemplate();	ResponseEntity<String> response=null;	try{		response=restTemplate.exchange(baseUrl,					HttpMethod.GET, getHeaders(),String.class);	}	catch (Exception ex)		{		System.out.println(ex);	}	System.out.println(response.getBody());}
-```
+（3）利用 REST 模板来使用服务
 
 之前的代码，有像 NullPointer 这样的例外的机会，并不是最优的。我们将看到如何使用 Netflix Feign 使呼叫变得更加轻松和清洁。如果 Netflix Ribbon 依赖关系也在类路径中，那么 Feign 默认也会负责负载平衡。
 
