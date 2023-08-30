@@ -1220,3 +1220,166 @@ redis-cli -h 127.0.0.1 -p 7001 –-bigkeys -i 0.1
 **优化配置：**
 
 ![image-20230416104304847](img/image-20230416104304847.png)
+
+## 常用指令
+
+### 性能测试
+
+~~~
+#性能测试，模拟一百个腾雾， 100个客户端请求
+redis-benchmark -n 10000  -c 100
+~~~
+
+### 数据库操作
+
+~~~
+#redis默认16个数据库，从0-15 
+
+#选择数据库 1 
+select 1
+
+#查看数据库大小
+dbsize
+
+#清空当前数据库
+flush
+
+#清空所有数据库
+flushall
+~~~
+
+### Key-value
+
+~~~
+==========简单的键值对==================
+#设置key value
+SET runoobkey redis
+
+#删除key valuse
+del runoobkey
+
+#得到所有的key
+keys *
+
+
+============对象存储HUSH==================
+#存储键为runoobkey的key-value映射表
+HMSET runoobkey name "redis tutorial" description "redis basic commands for caching" likes 20 visitors 23000
+
+#测试1
+HMSET 1234567 name "杜鑫" age "30" description "大帅哥"
+##注意：中文会显示16进制
+
+
+#得到对象的值
+HGETALL runoobkey
+
+#得到对象的对应key的值
+HMGET runoobkey name
+
+#得到对象的多个对应的key值
+HMGET runoobkey name age
+
+################列表Lst###########################
+是一个简单的字符串集合
+redis 127.0.0.1:6379> LPUSH runoobkey redis
+(integer) 1
+redis 127.0.0.1:6379> LPUSH runoobkey mongodb
+(integer) 2
+redis 127.0.0.1:6379> LPUSH runoobkey mysql
+(integer) 3
+redis 127.0.0.1:6379> LRANGE runoobkey 0 10
+
+1) "mysql"
+2) "mongodb"
+3) "redis"
+
+##################集合Set##########################
+# 集合成员是唯一的，这就意味着集合中不能出现重复的数据。
+redis 127.0.0.1:6379> SADD runoobkey redis
+(integer) 1
+redis 127.0.0.1:6379> SADD runoobkey mongodb
+(integer) 1
+redis 127.0.0.1:6379> SADD runoobkey mysql
+(integer) 1
+redis 127.0.0.1:6379> SADD runoobkey mysql
+(integer) 0
+redis 127.0.0.1:6379> SMEMBERS runoobkey
+# 结果
+1) "mysql"
+2) "mongodb"
+3) "redis"
+
+
+##############有序集合Sorted Set##########################
+每个元素都会关联一个 double 类型的分数。redis 正是通过分数来为集合中的成员进行从小到大的排序。有序集合的成员是唯一的,但分数(score)却可以重复。
+redis 127.0.0.1:6379> ZADD runoobkey 1 redis
+(integer) 1
+redis 127.0.0.1:6379> ZADD runoobkey 2 mongodb
+(integer) 1
+redis 127.0.0.1:6379> ZADD runoobkey 3 mysql
+(integer) 1
+redis 127.0.0.1:6379> ZADD runoobkey 3 mysql
+(integer) 0
+redis 127.0.0.1:6379> ZADD runoobkey 4 mysql
+(integer) 0
+redis 127.0.0.1:6379> ZRANGE runoobkey 0 10 WITHSCORES
+
+1) "redis"
+2) "1"
+3) "mongodb"
+4) "2"
+5) "mysql"
+6) "4"
+
+~~~
+
+### 查看Redis信息指令
+
+~~~
+#查看所有的Redis信息
+info
+
+#查看部分
+info  [section]
+#查看应用信息
+info replication
+#统计key的信息
+info keyspace
+~~~
+
+### Redis Stream
+
+~~~
+Redis Stream 是 Redis 5.0 版本新增加的数据结构。
+Redis Stream 主要用于消息队列（MQ，Message Queue），Redis 本身是有一个 Redis 发布订阅 (pub/sub) 来实现消息队列的功能，但它有个缺点就是消息无法持久化，如果出现网络断开、Redis 宕机等，消息就会被丢弃。
+简单来说发布订阅 (pub/sub) 可以分发消息，但无法记录历史消息。
+而 Redis Stream 提供了消息的持久化和主备复制功能，可以让任何客户端访问任何时刻的数据，并且能记住每一个客户端的访问位置，还能保证消息不丢失。
+
+
+#Stream的消费模型借鉴了kafka的消费分组的概念，它弥补了Redis Pub/Sub不能持久化消息的缺陷。但是它又不同于kafka，kafka的消息可以分partition，而Stream不行。如果非要分parition的话，得在客户端做，
+
+~~~
+
+### 最大连接数
+
+~~~
+# 在 Redis2.4 中，最大连接数是被直接硬编码在代码里面的，而在2.6版本中这个值变成可配置的。maxclients 的默认值是 10000，你也可以在 redis.conf 中对这个值进行修改。
+
+config get maxclients
+1) "maxclients"
+2) "10000"
+~~~
+
+### 安全验证
+
+~~~
+#通过以下命令查看是否设置了密码验证：
+127.0.0.1:6379> CONFIG get requirepass
+1) "requirepass"
+2) ""
+
+~~~
+
+
+

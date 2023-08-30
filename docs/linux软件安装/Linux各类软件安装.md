@@ -23,8 +23,6 @@ ipconfig/flushdns
 
 
 
-
-
 # 服务器选择
 
 + CPU：如果是计算密集型，那么就需要选择高频的CPU
@@ -160,6 +158,90 @@ yum clean all
 + 查看安装的文件夹：rpm -qal | grep postgres
 + 逐个删除自带软件：rpm -e --nodeps  软件名称
 + 查找存在的文件夹 如： find / -name mysql 然后逐个删除
+
+# Linux常用操作
+
+1. 在Linux中，有三种用户：
+
+   - Root 用户：也称为超级用户，对系统拥有完全的控制权限。超级用户可以不受限制的运行任何命令。Root 用户可以看做是系统管理员。
+
+   - 系统用户：系统用户是Linux运行某些程序所必须的用户，例如 mail 用户、sshd 用户等。系统用户通常为系统功能所必须的，不建议修改这些用户。
+
+   - 普通用户：一般用户都是普通用户，这些用户对系统文件的访问受限，不能执行全部Linux命令。
+
+2. CentOS 版本
+   + [CentOS7与CentOS8的区别（参照redhat）]( https://www.cnblogs.com/iwalkman/p/11781234.html)
+   + CentOS已经发行了很多个版本，最新的一版du是基于x86_64 平台的 CentOS 8.0.1905。
+     + 如果是公司的生产环境，还是以大环境为好，因为有一定的经验积累，推荐CentOS 6.5或者6.8。
+     + 有要安装宝塔Linux6.0版本的用户，因为宝塔是基于centos7开发的，建议使用centos7.x 系统。
+     + 如果需要使用docker镜像，那么最好使用CentOS7以上的版本
+
+~~~bash
+# 查看linux 信息
+lsb_release -a
+
+# 查看当前用户
+whoami
+
+# 查看当前在线用户
+users
+
+# 信息比users更加详细
+who
+
+# 信息显示会比who更加详细
+w
+
+# 退出登录
+logout
+
+# 查看文件
+ls -l
+
+# 查看隐藏文件需要使用 **ls** 命令的 **-a** 选项：
+ls -a
+
+# 查看文件内容
+cat filename
+
+# 可以通过 **cat** 命令的 **-b** 选项来显示行号
+cat -b filename
+
+# 统计文件内容
+wc filename
+2  19 103 filename
+#每一列的含义如下：
+#- 第一列：文件的总行数
+#- 第二列：单词数目
+#- 第三列：文件的字节数，即文件的大小
+#- 第四列：文件名
+
+
+# 查看当前进程
+# -f full的缩写，显示所有的进程
+ps -f
+UID        PID  PPID  C STIME TTY          TIME CMD
+root      1020  1016  0 13:15 pts/0    00:00:00 -bash
+root      3355  1020  0 13:22 pts/0    00:00:00 ps -f
+
+
+| UID   | 进程所属用户的ID，即哪个用户创建了该进程。 |
+| ----- | ------------------------------------------ |
+| PID   | 进程ID。                                   |
+| PPID  | 父进程ID，创建该进程的进程称为父进程。     |
+| C     | CPU使用率。                                |
+| STIME | 进程被创建的时间。                         |
+| TTY   | 与进程有关的终端类型。                     |
+| TIME  | 进程所使用的CPU时间。                      |
+| CMD   | 创建该进程的命令。                         |
+
+# 终止进程
+kill 6738
+~~~
+
+
+
+
 
 # xsync分发脚本
 
@@ -431,7 +513,201 @@ sudo ./bin/xsync /etc/profile.d/my_env.sh
 [atguigu@hadoop104 opt]$ source /etc/profile
 ~~~
 
+# 端口占用
 
+一般这样用:
+
+~~~bash
+[root@VM_39_230_centos bin] lsof -i:9990
+COMMAND  PID  USER  FD  TYPE  DEVICE SIZE/OFF NODE NAME
+     java   27773 appusr  43u  IPv4 28814431       0t0  TCP *:osm-appsrvr (LISTEN)
+~~~
+
+或者
+
+~~~
+[root@VM_39_230_centos bin]# netstat -ntulp | grep 5601
+tcp     0    0 0.0.0.0:9990         0.0.0.0:*          LISTEN    27773/java 
+~~~
+
+
+
+
+
+**找到pid  然后** 
+
+~~~
+[root@VM_39_230_centos bin]# **ps -aux | grep 27773**
+appusr   744  0.0  0.0 103312  876 pts/9   S+  17:39  0:00 grep 27773
+appusr  27773  0.2  2.9 4505632 241276 ?    Sl   2018 182:08 java -jar pic-api-1.0.0-SNAPSHOT.jar
+~~~
+
+杀死该进程
+
+~~~
+kill -9 27773
+~~~
+
+# 内存拓展
+
+## 创建使用SWAP的方法：
+
+一、创建文件
+
+```bash
+dd if=/dev/zero of=/etc/swapfile bs=1024 count=4096000
+```
+
+> SSH执行以上命令，创建一个名为vpppscom的4G 空文件（写0占用磁盘）。
+
+二、制作为Swap文件
+
+```bash
+ mkswap /etc/swapfile
+```
+
+> SSH执行以上命令，将生成的vpppscom制作为SWAP文件，若没有制作SWAP文件，执行下一步可能会出现：“swapon: vpppscom: read swap header failed: Invalid argument”错误。
+
+三、让Swap文件生效
+
+```bash
+ swapon /etc/swapfile
+```
+
+> SSH执行以上命令，使“vpppscom”这个Swap文件生效，并叠加进当前sawp空间中。
+
+四、查看当前SWAP
+
+```bash
+swapon -s
+```
+
+> SSH执行以上命令，查看当前swap的情况。
+
+五、自动挂载
+1）编辑/etc/fstab
+
+```bash
+vi /etc/fstab
+```
+
+2）按格式填入
+
+```bash
+/etc/swapfile swap    swap    defaults      0    0
+```
+
+按格式填入以上信息：
+
+```bash
+/dev/vda1 / ext3 noatime,acl,user_xattr 1 1
+proc /proc proc defaults 0 0
+sysfs /sys sysfs noauto 0 0
+debugfs /sys/kernel/debug debugfs noauto 0 0
+devpts /dev/pts devpts mode=0620,gid=5 0 0
+/etc/swapfile swap swap defaults 0 0
+```
+
+至此未出现任何错误，那么SWAP就创建好了，使用free -m命令就可以看到了。
+
+## 销毁停用SWAP的方法：
+
+1、先停止swap分区
+
+```bash
+/sbin/swapoff /etc/swapfile
+```
+
+2、删除swap分区文件
+
+```bash
+rm -rf /etc/swapfile
+```
+
+3、修改/etc/fstab文件，把
+
+```bash
+/etc/swapfile swap swap defaults 0 0
+```
+
+这行删除。
+这样就能把手动增加的分区删除了。
+
+> PS：
+>
+> 1、增加删除swap的操作只能使用root用户来操作。
+>
+> 2、装系统时分配的swap分区貌似删除不了。
+>
+> 3、swap分区一般为内存的2倍，但最大不超过2G
+
+然SWAP只是缓兵之计，实际使用中当然没能比的上真实的内存，所以要想得到更好的体验还是购买更大的内存吧！
+
+# SSH
+
+## SSH辅助（方式一）
+
+1. 生成SSH
+
+~~~
+ssh-keygen
+~~~
+
+2. 拷贝公钥
+
+方便Jenkins做生产部署
+
+~~~
+#cd /root/.shh/
+#可以查看是否有公钥,如果没有就复制
+ssh-copy-id 192.168.66.103
+#给予文件可执行权限
+chmod +x authorized_keys 
+~~~
+
+## SSH辅助（方式二）
+
+这两天在学习ansible，想要用ssh连接另一台linux服务器
+
+```shell
+#生成ssh，输入以下指令然后一直回车，在 .ssh/下会有公钥和私钥
+ssh-keygen 
+
+#发送公钥至目标主机，目标主机的.ssh/下会有authorized_keys，里面存放了公钥
+ssh-copy-id root@xxx.xxx.xxx.xxx
+```
+
+刚开始我是用这个方法去向目标主机发送公钥，然后我打算用ansible去ping这个主机的时候
+
+```shell
+#ping主机的命令
+ansible all -m ping
+```
+
+却报错
+**sh: .ssh/authorized_keys: Permission denied**
+我查了好多资料，后面是解决了，接下来写出我的解决过程（把之前的.ssh下面的文件都删了，重新再来生成一边，把目标主机authorized_keys也删了）
+
+```shell
+#生成ssh
+ssh-keygen 
+#将公钥的内容写入authorized_keys中
+cat id_rsa.pub >> authorized_keys
+
+#将公钥发送给目标主机
+scp id_rsa.pub xxx.xxx.xxx.xxx:/root/.ssh
+
+#-----------------接下来是目标主机的操作----------
+#刚开始删除的时候报Operation not permitted，用这个指令就可以了
+chattr -i authorized_keys  
+#删除原来的authorized_keys文件
+rm -rf authorized_keys
+cat id_rsa.pub >> authorized_keys
+```
+
+然后我再ping的时候就成功了
+![在这里插入图片描述](img/20210201230105.png)
+在我刚毕业的时候也接触了ansible，可是那时候我没有linux基础，那时候也遇到了这个问题，可是解决不了。现在熟悉了linux操作后，才发现这个问题解决的那么简单。学习的路还有很长啊！
 
 
 
@@ -4056,7 +4332,77 @@ Sep 20 11:34:38 localhost Keepalived_healthcheckers[10496]: Netlink reflector re
 
 
 
+# Gitlab
 
+##　1. 安装
+
+1. 安装相关依赖
+
+~~~
+yum -y install policycoreutils openssh-server openssh-clients postfix
+~~~
+
+2 . 启动ssh服务&设置为开机启动
+
+~~~ 
+systemctl enable sshd && sudo systemctl start sshd
+~~~
+
+
+
+3 . 设置postfix开机自启，并启动，postfix支持gitlab发信功能
+
+~~~
+systemctl enable postfix && systemctl start postfix
+~~~
+
+
+
+4 . 开放ssh以及http服务，然后重新加载防火墙列表
+
+~~~
+firewall-cmd --add-service=ssh --permanent
+firewall-cmd --add-service=http --permanent
+firewall-cmd --reload
+~~~
+
+如果关闭防火墙就不需要做以上配置
+
+5 . 下载gitlab包，并且安装
+
+~~~
+在线下载安装包：
+wget  https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el6/gitlab-ce-12.4.2-ce.0.el6.x86_64.rpm
+
+安装：
+rpm -i gitlab-ce-12.4.2-ce.0.el6.x86_64.rpm
+~~~
+
+6 . 修改gitlab配置
+
+~~~
+vi /etc/gitlab/gitlab.rb
+修改gitlab访问地址和端口，默认为80，我们改为82
+external_url ' http://192.168.66.100:82'
+nginx['listen_port'] = 82
+~~~
+
+7 . 重载配置及启动gitlab
+
+~~~
+gitlab-ctl reconfigure
+gitlab-ctl restart
+~~~
+
+8 . 把端口添加到防火墙
+
+~~~
+firewall-cmd --zone=public --add-port=82/tcp --permanent
+firewall-cmd --reload
+~~~
+
+
+启动成功后，看到以下修改管理员root密码的页面，修改密码后，然后登录即可
 
 
 
@@ -4142,6 +4488,19 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 ~~~
 
+镜像操作
+
+~~~bash
+# 进入到容器内部进行操作
+docker  exec  -it 容器id bash
+
+
+# 删除容器前需要先停止容器
+docker rm 容器id
+# 删除所有容器
+docker rm $(docker ps -qa)
+~~~
+
 
 
 ## 异常
@@ -4162,6 +4521,30 @@ systemctl restart network && systemctl restart docker
 # 验证 返回net.ipv4.ip_forward = 1，就是成功
 sysctl net.ipv4.ip_forward
 ~~~
+
+# Docker Componse
+
+### 目的
+
+> 之前运行一个镜像，需要添加大量的参数，但是我们可以通过Docker-componse编写这些参数，他可以帮助我们批量管理容器，只要通过一个docker-componse.yml文件即可
+
+### 2. 安装Docker Componse
+
+~~~sh
+安装
+curl -L https://get.daocloud.io/docker/compose/releases/download/1.25.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+
+配置权限
+chmod +x /usr/local/bin/docker-compose
+
+给docker-compose添加执行权限
+sudo chmod +x /usr/local/bin/docker-compose
+
+查看版本
+docker-compose -version
+~~~
+
+### 3. 快速运行
 
 
 
