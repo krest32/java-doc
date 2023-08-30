@@ -1,6 +1,6 @@
 
 
-# 文件下载地址
+# 文件下 地址
 
 + [北京理工大学开源软件镜像服务](https://mirror.bit.edu.cn/web/)
 
@@ -4524,27 +4524,52 @@ sysctl net.ipv4.ip_forward
 
 # Docker Componse
 
-### 目的
+## 目的
 
-> 之前运行一个镜像，需要添加大量的参数，但是我们可以通过Docker-componse编写这些参数，他可以帮助我们批量管理容器，只要通过一个docker-componse.yml文件即可
+之前运行一个镜像，需要添加大量的参数，但是我们可以通过Docker-componse编写这些参数，他可以帮助我们批量管理容器，只要通过一个docker-componse.yml文件即可
 
-### 2. 安装Docker Componse
+## 安装
 
 ~~~sh
-安装
-curl -L https://get.daocloud.io/docker/compose/releases/download/1.25.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-
-配置权限
-chmod +x /usr/local/bin/docker-compose
-
-给docker-compose添加执行权限
-sudo chmod +x /usr/local/bin/docker-compose
-
-查看版本
-docker-compose -version
+yum update
+yum install docker-compose-plugin
+docker compose version
+Docker Compose version vN.N.N
 ~~~
 
-### 3. 快速运行
+## 使用教程
+
+[docker-compose教程（安装，使用, 快速入门）](https://blog.csdn.net/pushiqiang/article/details/78682323?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522169341130016800186543345%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=169341130016800186543345&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-78682323-null-null.142^v93^chatgptT3_2&utm_term=docker-compose&spm=1018.2226.3001.4187)
+
+## 示例 nacos
+
+nacos.yml
+
+~~~basl
+version: '3.9'
+services:
+  nacos:
+    image: nacos/nacos-server:2.0.3
+    environment:
+      MODE: standalone
+      JVM_XMS: 200m
+      JVM_XMX: 200m
+      JVM_XMN: 150m
+    ports:
+      - "8848:8848"
+    restart: always
+~~~
+
+~~~bash
+#  //-f调用文件。-d:开启守护进程
+docker compose -f nacos.yml up -d 
+~~~
+
+
+
+
+
+
 
 
 
