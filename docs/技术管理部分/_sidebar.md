@@ -1,7 +1,6 @@
 * [技术管理导读](./docs/技术管理部分/README.md)
 * [敏捷开发](./docs/技术管理部分/docs/1.敏捷开发.md)
 * [OKR](./docs/技术管理部分/docs/2.OKR.md)
-* [Devops](./docs/技术管理部分/docs/3.Devops.md)
 * [技术管理](./docs/技术管理部分/docs/4.技术管理.md)
 * [UML](./docs/技术管理部分/docs/5.UML.md)
 * [技术文档](./docs/技术管理部分/docs/6.技术文档.md)

@@ -23,4 +23,3 @@
 * [Netty](./docs/阅读源码/docs/20.Netty.md)
 * [XXL-JOB](./docs/阅读源码/docs/23.XXL-JOB.md)
 * [Nacos](./docs/阅读源码/docs/21.Nacos.md)
-* [RocketMQ](./docs/阅读源码/docs/25.RecoketMQ.md)
