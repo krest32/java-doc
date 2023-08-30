@@ -83,7 +83,9 @@ Spring Cloud Netflix 生态，到2020年，archaus/hystrix/ribbon/zuul/turbine�
 + Netflix Zuul，API服务网关，功能有路由分发和过滤。
 + Config，分布式配置中心，支持本地仓库、SVN、Git、Jar包内配置等模式
 
-## SpringCloudAlibaba（二代）
+## SpringCloud（二代）
+
+SpringCloudAlibaba
 
 ### 概述
 
@@ -95,11 +97,27 @@ SpringCloudAlibaba主要阿里为了推广自家的商业服务而开发的一�
 
 ![image-20230829100712511](img/image-20230829100712511.png)
 
+### 常用组件
 
++ Nacos：一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。
++ Gateway：API网关（webflux编程模式）
++ Sentinel：把流量作为切入点，从流量控制、熔断降级、系统负载保护等多个维保护服务的稳定性。
++ RocketMQ：开源的分布式消息系统，基于高可用分布式集群技术，提供低延时的、高可靠的消息发布与订阅服务。
++ Dubbo：这个就不用多说了，在国内应用非常广泛的一款高性能 Java RPC 框架。
++ Seata：阿里巴巴开源产品，一个易于使用的高性能微服务分布式事务解决方案。
++ Arthas：开源的Java动态追踪工具，基于字节码增强技术，功能非常强大。
 
+### 商业化组件
 
+作为一家商业公司，阿里巴巴推出 Spring Cloud Alibaba，很大程度上市希望通过抢占开发者生态，来帮助推广自家的云产品。所以在开源社区，夹带了不少私货
 
++ Alibaba Cloud ACM：一款在分布式架构环境中对应用配置进行集中管理和推送的应用配置中心产品。
++ Alibaba Cloud OSS：阿里云对象存储服务（Object Storage Service，简称 OSS），是阿里云提供的云存储服务。
++ Alibaba Cloud SchedulerX：阿里中间件团队开发的一款分布式任务调度产品，提供秒级、精准的定时（基于 Cron 表达式）任务调度服务。
 
+## 对比
+
+![image-20230829101114526](img/image-20230829101114526.png)
 
 
 
@@ -546,6 +564,8 @@ API 网关出现的原因是微服务架构的出现，不同的微服务一般�
 链路追踪
 
 # Seata 是什么?
+
+[官网](https://seata.io/zh-cn/index.html)
 
 Seata 是一款开源的分布式事务解决方案，致力于提供高性能和简单易用的分布式事务服务。**Seata 将为用户提供了 AT、TCC、SAGA 和 XA 事务模式**，为用户打造一站式的分布式解决方案。实现了强一致性，现实中应用并不是很多
 
