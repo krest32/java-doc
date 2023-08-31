@@ -211,6 +211,48 @@ git reset --hard 提交id
 # HEAD^的意思是上一个版本，也可以写成HEAD~1
 # 如果你进行了2次commit，想都撤回，可以使用HEAD~2
 git reset --soft HEAD^
+
+
+# git log的使用
+当commit（提交）比较多，git log 的内容在一页显示不完整，满屏放不下的时候，就会显示冒号。
+回车（往下滚一行）、空格（往下滚一页）可以继续查看剩余内容。
+退出：英文状态下 按 q 可以退出git log 状态。
+
+
+# rebase 使用
+pick：保留该commit（缩写:p）
+reword：保留该commit，但我需要修改该commit的注释（缩写:r）
+edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）， 切换到了其他分支
+squash：将该commit和前一个commit合并（缩写:s）
+fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
+exec：执行shell命令（缩写:x）
+drop：我要丢弃该commit（缩写:d）
+
+
+# 1. rebase 移除多次连续commit中的其中一次
+# 移除其中的一个提交 找到提交 id， 然后进入到 vim 页面，将我们选择的要移除的commit
+# 从pick 改为 DROP
+# 然后ctrl+c， :wq
+# 最后使用 git push -f
+git rebase -i b154ef7d3c9516c4e4a0838928f3478392da562e 
+# 如果报错
+git reset --merge
+
+
+# 2. 将连续多次提交合并为一个提交
+# 移除其中的一个提交 找到提交 id， 然后进入到 vim 页面，将我们选择的要移除的commit
+# 从pick 改为 DROP
+# 然后ctrl+c， :wq
+# 最后使用 git push -f
+git rebase -i b154ef7d3c9516c4e4a0838928f3478392da562e 
+# 然后将最后两次的pick修改为squash即可，如下，表示将后面两次的提交合并到前一次提交
+# 保存后弹出如下窗口,此时需要设置合并后的提交信息，默认的是把三次提交的信息合并在一起，这里可以编辑，以
+# 开头的是注释，不是以#开头的即为提交信息
+
+
+# git revert
+# 使用 git revert 命令可以撤销指定提交的更改，并创建一个新的提交来保留已撤销的更改的历史记录。
+git revert -n 版本号”反做，并使用“git commit -m 版本名”提交：
 ~~~
 
 
