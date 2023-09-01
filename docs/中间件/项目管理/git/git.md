@@ -121,6 +121,8 @@ Git忽略文件详解可参考[Git忽略文件.gitignore详解](https://blog.csd
 
 ## 常用Git命令
 
+### 提交指令
+
 经常使用 Git ，但是很多命令还是记不住。但要熟练掌握，恐怕要记住40~60个命令，所以整理了一份常用Git命令清单。可以参考[常用Git命令](https://blog.csdn.net/ThinkWon/article/details/101450420)
 
 ```
@@ -147,10 +149,11 @@ git branch -m daily/0.0.0 daily/0.0.1
 # 切换并新增分支
 git checkout -b 8.24
 
+# git拉取远程所有分支：
+git fetch
 
 # 切换分支。
 git checkout 9.1
-
 
 # 撤销工作区修改(尚未add，尚未commit)
 git checkout -- readme.txt
@@ -201,6 +204,8 @@ git stash
 git stash list 
 # 使用存储
 git stash apply n
+# 删除存储
+git stash drop <某一个数据>
 
 
 # commit 回退
@@ -255,9 +260,99 @@ git rebase -i b154ef7d3c9516c4e4a0838928f3478392da562e
 git revert -n 版本号”反做，并使用“git commit -m 版本名”提交：
 ~~~
 
+### tag指令
+
+#### 概念
+
+tag 中文我们可以称它为 标签。
+
+简单的理解，tag 就是 对某次 commit 的一个标识，相当于起了一个别名。
+例如，在项目发布某个版本的时候，针对最后一次commit 起一个 v1.0.100 这样的标签来标识里程碑的意义。
+
+#### 类型
+
+有两种类型的标签 ： 轻量标签（lightweight）、附注标签(annotated
+
++ 【轻量标签 】： 只是某个commit 的引用，可以理解为是一个commit的别名；
++ 【附注标签】 ：是存储在git仓库中的一个完整对象，包含打标签者的名字、电子邮件地址、日期时间 以及其他的标签信息。  它是可以被校验的，可以使用 GNU Privacy Guard (GPG) 签名并验证。
+
+指令
+
+~~~bash
+git tag : 直接列出所有的标签
+git tag -l xxxx : 可以根据 xxxx 进行标签的筛选
 
 
+# 轻量标签
+git tag 标签名
+or 
+git tag 标签名 提交版本
 
+# 创建附注标签
+git tag -a 标签名称 -m 附注信息
+or
+git tag -a 标签名称 提交版本号 -m 附注信息
+
+# 查看标签的提交信息
+git show 标签名
+
+# 删除标签
+git tag -d 标签名称
+
+
+# 推送到远程仓库
+# 单个推送
+git push origin 标签名称
+# 多个推送
+git push origin --tags
+
+# 删除远程仓库的标签
+$ git push origin  :regs/tags/标签名称
+
+#  删除之前的标签
+git push origin --delete 标签名称
+~~~
+
+### 检出标签
+
+#### 概念
+
+1. 检出标签的理解 ： 我想在这个标签的基础上进行其他的开发或操作。
+2. 检出标签的操作实质 ： 就是以标签指定的版本为基础版本，新建一个分支，继续其他的操作。
+3. 因此 ，就是 新建分支的操作了。
+
+~~~bash
+$ git checkout -b 分支名称 标签名称
+~~~
+
+## Git Flow 
+
+### 概念
+
+GitFlow工作流定义了一个围绕项目发布的严格分支模型，它为不同的分支分配了明确的角色，并定义分支之间何时以及如何进行交互
+
++ master分支：存储正式发布的产品，master分支上的产品要求随时处于可部署状态。master分支只能通过与其他分支合并来更新内容，禁止直接在master分支进行修改。
++ develop分支：汇总开发者完成的工作成果，develop分支上的产品可以是缺失功能模块的半成品，但是已有的功能模块不能是半成品。develop分支只能通过与其他分支合并来更新内容，禁止直接在develop分支进行修改。
++ feature分支：当要开发新功能或者试验新功能时，从develop分支创建一个新的feature分支，并在feature分支上进行开发。开发完成后，需要将该feature分支合并到develop分支，最后删除该feature分支。
++ release分支：当develop分支上的项目准备发布时，从develop分支上创建一个新的release分支，新建的release分支只能进行质量测试、bug修复、文档生成等面向发布的任务，不能再添加功能。这一系列发布任务完成后，需要将release分支合并到master分支上，并根据版本号为master分支添加tag，然后将release分支创建以来的修改合并回develop分支，最后删除release分支。
++ hotfix分支：当master分支中的产品出现需要立即修复的bug时，从master分支上创建一个新的hotfix分支，并在hotfix分支上进行bug修复。修复完成后，需要将hotfix分支合并到master分支和develop分支，并为master分支添加新的版本号tag，最后删除hotfix分支。
+
+### 具体使用细节：
+
++ 当我们新建git仓库之后，默认会创建一个主分支也就是master分支，由于master分支是用于发布生产环境，所有必须保证master上代码的稳定性，所以我们不能直接在master分支上修改提交。我们要基于master分支创建一个develop分支，develop分支用于保存开发好的相对稳定的功能，master分支和develop分支是仓库的常驻分支，一直会保留在仓库中
++ 当新的开发任务来了之后，就要编写代码了，我们尽量不要在develop分支上写代码，要保证develop分支的相对稳定，所以这时我要就要基于develop 分支创建一个临时的开发分支，然后在开发分支上编写代码，等功能开发完之后我们再把开发分支合并到develop上
++ 我们把代码发布到了生产环境，用户在使用的时候给我们反馈了一个bug，这时我们需要基于master分支创建一个hotfix 分支，用于修复bug，bug修好之后，把hotfix 分支分别合并到master分支和develop分支
+
+### 注意事项
+
++ 开始工作前一定要保证选择了正确的分支。
++ 开始工作前定义好要做的事情，这将有助于确定从哪个分支开始工作和确定新分支的名称。
++ 工单需要包含的内容：
+  + 问题：大致描述要解决的问题
+  + 原因：为什么要这样做
+  + 测试：如何验证问题已得到解决
++ Git应该是一个用于记录结果而不是保存工作的工具。这意味着，应该在完成了一个功能模块时才进行提交，而不是每做一点改动就立即提交。过于密集的提交将会使重要的信息分散在大量无意义的信息中，增加管理的难度。
+  
 
 # 对比SVN
 

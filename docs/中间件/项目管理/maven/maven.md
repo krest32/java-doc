@@ -174,6 +174,8 @@ Maven依赖规则和怎么解决依赖冲突问题可以参考[Maven依赖冲突
     <version>2.1.6.RELEASE</version>
     <!-- 不可以向下传递依赖 -->
     <optional>true</optional>
+     <!-- 不可以向下传递依赖 -->
+ 	<scope>provided</scope>
 </dependency>
 ```
 
@@ -182,6 +184,8 @@ Maven依赖规则和怎么解决依赖冲突问题可以参考[Maven依赖冲突
 false：可以向下传递（默认值）
 
 true：不可以向下传递
+
+optional 与 scope的效果是一样的
 
 #### 排除依赖
 
@@ -408,6 +412,68 @@ Maven有三套相互独立的生命周期，请注意这里说的是“三套”
 ```
 
 这段配置会被应用到所有子模块的compiler插件中，因为Maven内置了compiler插件与生命周期的绑定，因此子模块不需要任何`maven-compiler-plugin`的配置了。
+
+
+
+### 常用标签说明
+
+#### Scope
+
++ compile（编译范围）：
+
+  + 默认就是compile，什么都不配置也就是意味着compile。compile表示被依赖项目需要参与当前项目的编译，当然后续的测试，运行周期也参与其中，是一个比较强的依赖。打包的时候通常需要包含进去。
+
++ test（测试范围）：
+
+  + scope为test表示依赖项目仅仅参与测试相关的工作，包括测试代码的编译，执行。比较典型的如junit。
+  + PS: test表示只能在src下的test文件夹下面才可以使用，你如果在a项目中引入了这个依赖，在b项目引入了a项目作为依赖，在b项目中这个注解不会生效，因为scope为test时无法传递依赖。
+
++ runntime（运行时范围）
+
+  + runntime表示被依赖项目无需参与项目的编译，不过后期的测试和运行周期需要其参与。与compile相比，跳过编译而已，
+  + 说实话在终端的项目（非开源，企业内部系统）中，和compile区别不是很大。比较常见的如JSR×××的实现，对应的API jar是compile的，
+  + 具体实现是runtime的，compile只需要知道接口就足够了。Oracle jdbc驱动架包就是一个很好的例子，一般scope为runntime。
+  + 另外runntime的依赖通常和optional搭配使用，optional为true。我可以用A实现，也可以用B实现。
+
++ provided（已提供范围）
+
+  + provided意味着打包的时候可以不用包进去，别的设施(Web Container)会提供。事实上该依赖理论上可以参与编译，测试，运行等周期。相当于compile，但是在打包阶段做了exclude的动作。
+  + 例如， 如果你开发了一个web 应用，你可能在编译 classpath 中需要可用的Servlet API 来编译一个servlet，但是你不会想要在打包好的WAR 中包含这个Servlet API；
+  + 这个Servlet API JAR 由你的应用服务器或者servlet 容器提供。已提供范围的依赖在编译classpath （不是运行时）可用。它们不是传递性的，也不会被打包。
+
++ system（系统范围）
+
+  + system范围依赖与provided 类似，但是你必须显式的提供一个对于本地系统中JAR 文件的路径。这么做是为了允许基于本地对象编译，
+  + 而这些对象是系统类库的一部分。这样的构件应该是一直可用的，Maven 也不会在仓库中去寻找它。如果你将一个依赖范围设置成系统范围，
+  + 你必须同时提供一个 systemPath 元素。注意该范围是不推荐使用的（你应该一直尽量去从公共或定制的 Maven 仓库中引用依赖）。
+
++ import
+
+  + **Maven** 父子项目结构和 **Java** 继承一样，都是**单继承**，一个子项目只能制定一个父 **pom** ，很多时候，我们需要打破这种单继承。
+  +  但是如果项目中已经有了其他父 **pom** ，又想用 **spring-boot** 怎么办？这个时候就需要使用 **scope import** ，还需要指定 **type pom** ，如下图所示：
+  + 需要主意的是：**scope import 只能在 <dependencyManagement> 模块中使用**。
+  + 要用到<scope>import</scope>这个必须要声明<type>pom</type>。
+  + 如果 dependence 的 type 属性设置为 "pom"，则意味着你依赖的是另一个项目的 pom 文件，而不是实际的项目的编译后的代码或者二进制文件。
+
+  ~~~xml
+  <dependencyManagement>
+      <dependencies>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-parent</artifactId>
+              <version>2.1.4.RELEASE</version>
+              <scope>import</scope>
+              <type>pom</type>
+          </dependency>
+      </dependencies>
+  </dependencyManagement>
+  ~~~
+
+  
+
+
+
+
 
 ## 常用命令
 
