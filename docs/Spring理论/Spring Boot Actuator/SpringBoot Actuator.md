@@ -17,3 +17,17 @@
 3. 会增加 CPU 消耗。
 
 ​		针对以上三个情况，我们可以移除 `@SpringBootApplication` 和 `@ComponentScan` 两个注解来禁用组件自动扫描，然后在我们需要的 bean 上进行显式配置：
+
+~~~java
+// 移除 @SpringBootApplication and @ComponentScan, 用 @EnableAutoConfiguration 来替代
+ 
+//@SpringBootApplication
+@Configuration
+@EnableAutoConfiguration
+public class App01 {
+public static void main(String[] args) {
+    SpringApplication.run(App01.class, args);
+  }
+}
+~~~
+

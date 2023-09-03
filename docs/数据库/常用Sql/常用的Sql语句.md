@@ -1018,33 +1018,12 @@ with as 语法需要 MySql 8.0以上版本，它的作用主要是提取子查�
 如果一整句查询中**多个子查询都需要使用同一个子查询**的结果，那么就可以用with as，将共用的子查询提取出来，加个别名。后面查询语句可以直接用，对于大量复杂的SQL语句起到了很好的优化作用。这里继续用 order_diy 表举例，这里使用with as给出sql 如下：
 
 ~~~sql
-with t1 as (
-    SELECT
-        *
-    from
-        order_diy
-    where
-        money > 30
-),
-t2 as (
-    SELECT
-        *
-    from
-        order_diy
-    where
-        money > 60
-)
-SELECT
-    *
-from
-    t1
+with t1 as ( SELECT * from order_diy where money > 30 ),
+	 t2 as (  SELECT *  from order_diy where money > 60 )
+SELECT *
+from  t1 
 where
-    t1.id not in (
-        SELECT
-            id
-        from
-            t2
-    )
+    t1.id not in (SELECT id from t2 )
     and t1.name = '周伯通';
 ~~~
 
@@ -1076,19 +1055,40 @@ on duplicate key update news_title = '新闻4';
 
 on duplicate key update高并发场景下游死锁的风险
 
+### 自连接
+
+在许多现实生活中，数据存储在一个大型表中而不是许多较小的表中。在这种情况下，可能需要自我连接来解决独特的问题。
+
+示例问题：给定下面的员工表，写出一个SQL查询，了解员工的工资，这些员工比其管理人员工资更多。对于上表来说，Joe是唯一一个比他的经理工资更多的员工
+
+~~~bash
++----+-------+--------+-----------+  
+| Id | Name  | Salary | ManagerId |  
++----+-------+--------+-----------+  
+| 1  | Joe   | 70000  | 3         |  
+| 2  | Henry | 80000  | 4         |  
+| 3  | Sam   | 60000  | NULL      |  
+| 4  | Max   | 90000  | NULL      |  
++----+-------+--------+-----------+Answer:  
+SELECT  
+    a.Name as Employee  
+FROM  
+    Employee as a  
+JOIN Employee as b on a.ManagerID = b.Id  
+WHERE a.Salary > b.Salary
+~~~
+
+
+
 ### char_length
 
 有时候我们需要获取字符的`长度`，然后根据字符的长度进行`排序`。MYSQL给我们提供了一些有用的函数，比如：`char_length`。通过该函数就能获取字符长度。获取字符长度并且排序的sql如下：
 
 ~~~sql
-select
-    *
-from
-    brand
-where
-    name like '%苏三%'
-order by
-    char_length(name) asc
+select * 
+from brand
+where name like '%苏三%'
+order by char_length(name) asc
 limit 5;
 ~~~
 
@@ -1105,17 +1105,11 @@ name字段使用关键字`模糊查询`之后，再使用`char_length`函数获�
 使用locate函数改造之后sql如下：
 
 ~~~sql
-select
-    *
-from
-    brand
-where
-    name like '%苏三%'
-order by
-    char_length(name) asc,
-    locate('苏三', name) asc
-limit
-    5, 5;
+select *
+from brand
+where name like '%苏三%'
+order by char_length(name) asc, locate('苏三', name) asc
+limit 5, 5;
 ~~~
 
 ![image-20230401103518581](img/image-20230401103518581.png)
@@ -1125,10 +1119,9 @@ limit
 另外一种用法
 
 ~~~sql
-        select
-            *
-        from t_demand_info tdi
-        where locate('2321312', tdi.FOTHER_ITEM_PERSON ) > 0;
+select *
+from t_demand_info tdi
+ where locate('2321312', tdi.FOTHER_ITEM_PERSON ) > 0;
 ~~~
 
 
@@ -1142,12 +1135,9 @@ limit
 例如：
 
 ~~~sql
-update
-    brand
-set
-    name = REPLACE(name, 'A', 'B')
-where
-    id = 1;
+update brand
+set  name = REPLACE(name, 'A', 'B')
+where id = 1;
 ~~~
 
 这样就能轻松实现字符替换功能。
@@ -1214,14 +1204,9 @@ VALUES
 INSERT INTO
     `brand`(`id`, `code`, `name`, `edit_date`)
 select
-    null,
-    code,
-    name,
-    now(3)
-from
-    `order`
-where
-    code in ('004', '005');
+    null, code, name,  now(3)
+from `order`
+where code in ('004', '005');
 ```
 
 这样就能将order表中的部分数据，非常轻松插入到brand表中。
@@ -1236,18 +1221,10 @@ where
 INSERT INTO
     `brand`(`id`, `code`, `name`, `edit_date`)
 select
-    null,
-    '108',
-    '苏三',
-    now(3)
-from
-    dual
-where
-    not exists (
-        select  *
-        from `brand`
-        where name = '苏三'
-    );
+    null, '108', '苏三', now(3)
+from  dual
+where `id` not exists 
+    ( select  * from `brand` where name = '苏三' );
 ~~~
 
 这条sql确实能够满足要求，但是总觉得有些麻烦。那么，有没有更简单的做法呢？

@@ -8,7 +8,7 @@
 
 ## 版本问题
 
-### Tomcat 10 
+### Tomcat 10（不推荐）
 
 ​		从Tomcat的官方文档可以看到，Tomcat 10有一个大的变动：jar包从 `javax.*` 变成了 `jakarta.*`，这就要求从Tomcat 9 等 迁移到Tomcat 10的时候，要么做一些代码改动，要么借助Tomcat官网提供的[迁移工具](https://github.com/apache/tomcat-jakartaee-migration)将编译好的war变更成用`jakarta`的。
 
@@ -235,6 +235,19 @@ Pipeline的处理流程图如下（图D）：
 ## 总结
 
 ​		至此，我们已经对Tomcat的整体架构有了大致的了解，从图A、B、C、D可以看出来每一个组件的基本要素和作用。我们在脑海里应该有一个大概的轮廓了！如果你面试的时候，让你简单的聊一下Tomcat，上面的内容你能脱口而出吗？当你能够脱口而出的时候，面试官一定会对你刮目相看的！
+
+# undertow
+
+## 概念
+
+1. undertow是springboot默认支持的三种servlet容器之一。
+   1. tomcat、jetty、undertow
+2. undertow是RedHat（红帽公司）的开源产品，采用java开发，是一款灵活、高性能的web服务器，提供了基于NIO的阻塞/非阻塞式APIs，也是WildFly（原名JBoss AS - JBoss Application Server）的默认web容器。
+
+## 其他
+
++ [Undertow介绍](https://blog.csdn.net/longlyboyhe/article/details/121540309?ops_request_misc=&request_id=&biz_id=102&utm_term=undertow&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-121540309.142^v93^chatgptT3_2&spm=1018.2226.3001.4187)
++ [SpringBoot:Tomcat与Undertow容器性能对比分析](https://blog.csdn.net/weixin_43970743/article/details/130204354?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522169375059416800184182556%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=169375059416800184182556&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-130204354-null-null.142^v93^chatgptT3_2&utm_term=undertow%20tomcat&spm=1018.2226.3001.4187)
 
 
 

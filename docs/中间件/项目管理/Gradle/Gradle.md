@@ -20,9 +20,22 @@
 
 也许是因为我上面说的原因，也许有其他原因，不得不承认的一件事情就是gradle作为一个新兴的工具已经有了广泛的应用。spring等项目已经从Maven切换到了gradle。开发安卓程序也只支持gradle了。因此不管是否现在需要将项目从maven切换到gradle，但是至少学习gradle是一件必要的事情。
 
-
-
 Gradle是继Maven之后的新一代构建工具，它采用基于groovy的DSL语言作为脚本，相比传统构建工具通过XML来配置而言，最直观上的感受就是脚本更加的简洁、优雅。如果你之前对Maven有所了解，那么可以很轻易的转换到Gradle，它采用了同Maven一致的目录结构，可以与Maven一样使用Maven中央仓库以及各类仓库的资源，并且Gradle默认也内置了脚本转换命令可以方便的将POM转换为gradle.build。
+
+### 优点
+
+1. 兼具了Ant的构建速度快、Maven的配置简单的特点
+2. 灵活，多变，可以快速的实现自定义
+3. 构建大型项目，速度的优势十分明显
+4. 而且现在很多开源项目也是用了Gradle进行项目的构建，所以如果要学习源码，学习Gradle也是一个有必要的操作
+
+### 缺点
+
+1. Gradle 的学习成本相对于Maven来说会比较高
+2. 市面上的资料相对来说比较少
+3. 不同版本之间的Gradle会存在一些差异，导致不兼容的现象
+
+
 
 ### 标准结构
 
@@ -350,6 +363,10 @@ gradle的配置文件是一个groovy脚本文件，在其中我们可以以编�
 
 
 ## 基本使用
+
+### 教程
+
++ [graadle使用](https://blog.csdn.net/love_study1314/article/details/128217459?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522169375182616800227411650%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=169375182616800227411650&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-16-128217459-null-null.142^v93^chatgptT3_2&utm_term=gradle%20java%20%E4%BE%9D%E8%B5%96%E7%89%88%E6%9C%AC%E5%8F%B7&spm=1018.2226.3001.4187)
 
 ### 历程
 
