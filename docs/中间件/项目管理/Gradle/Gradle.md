@@ -7,7 +7,7 @@
 
 ## 介绍
 
-### 为什么使用gradle
+### 概念
 
 如果你Maven已经非常熟悉了，可能不太愿意使用gradle，因为貌似没有必要。但是既然gradle出现了，就说明有很多人对Maven还是有一定的意见。因此在这里我来总结一下gradle相比maven的优势。
 
@@ -401,7 +401,7 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
 
    我的电脑 -> 右键 -> 属性 -> 高级系统设置 -> 环境变量
 
-   新建环境变量 CRADLE_USER_HOME 值是复制的本地资源仓库的路径（注意：环境变量名是固定的，必须这样写）![img](https://img-blog.csdnimg.cn/20190529213056992.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjQyNTk3MA==,size_16,color_FFFFFF,t_70)
+   新建环境变量 GRADLE_USER_HOME 值是复制的本地资源仓库的路径（注意：环境变量名是固定的，必须这样写）![img](https://img-blog.csdnimg.cn/20190529213056992.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjQyNTk3MA==,size_16,color_FFFFFF,t_70)
 
    
 
