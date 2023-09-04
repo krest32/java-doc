@@ -131,17 +131,6 @@ gradle依赖的粒度控制相较于Maven也更加精细，maven只有compile、
 
 
 
-#### 采用变量统一控制版本号
-
-```groovy
-dependencies {
-    def bootVersion = "1.3.5.RELEASE"
-    compile     "org.springframework.boot:spring-boot-starter-web:${bootVersion}",  
-                "org.springframework.boot:spring-boot-starter-data-jpa:${bootVersion}",
-                "org.springframework.boot:spring-boot-starter-tomcat:${bootVersion}"
-}
-```
-
 #### 自动获取最新版本依赖
 
 如果你想某个库每次构建时都检查是否有新版本，那么可以采用+来让Gradle在每次构建时都检查并应用最新版本的依赖。当然也可以采用1.x,2.x的方式来获取某个大版本下的最新版本。
@@ -150,16 +139,6 @@ dependencies {
 dependencies {
     compile     "org.springframework.boot:spring-boot-starter-web:+"
 }
-```
-
-#### 依赖的坐标
-
-> 仓库中构件（jar包）的坐标是由configurationName "group:name:version:classifier@extension"组成的字符串构成，如同Maven中的GAV坐标，Gradle可借由此来定位你想搜寻的jar包。
-
-在gradle中可以通过以下方式来声明依赖:
-
-```groovy
-testCompile group: 'junit', name: 'junit', version: '4.0'
 ```
 
 ### 依赖的分类
@@ -171,21 +150,37 @@ testCompile group: 'junit', name: 'junit', version: '4.0'
 可以通过如下方式声明外部依赖，Gradle支持通过map方式或者`g:a:v`的简写方式传入依赖描述，这些声明依赖会去配置的`repository`查找。
 
 ```groovy
-dependencies {
- // 采用map方式传入单个
-  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
- // 采用map方式传入多个
-  compile(
-      [group: 'org.springframework', name: 'spring-core', version: '2.5'],
-      [group: 'org.springframework', name: 'spring-aop', version: '2.5']
-  )
-  // 采用简写方式声明
-  compile 'org.projectlombok:lombok:1.16.10' 
-  // 采用简写方式传入多个 
-  compile 'org.springframework:spring-core:2.5',
-          'org.springframework:spring-aop:2.5'
-
+buildscript {
+    ext {
+        // 设置依赖版本
+        lombok_version = "1.18.20"
+        springboot_version = "2.7.11"
+        log4j_version = "1.2.17"
+        mysql_driver_version = "8.0.30"
+        mybatis_plus_version = '3.5.3'
+        fastjson_version = "1.2.75"
+    }
 }
+
+dependencies {
+    // 导入本地项目依赖 方式一：使用 implementation 不会进行依赖传递
+    implementation project(':base-common')
+    // 导入本地项目依赖 方式二：依赖打包到本地镜像，然后进行导入
+    // implementation("org.gradle.base:base-common:1.0-SNAPSHOT")
+
+    // 倒入其他依赖
+    implementation("org.springframework.boot:spring-boot-starter-web:$springboot_version") {
+        // 进行依赖排除
+        exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat')
+    }
+    //使用　undertow 代替 tomcat
+    implementation "org.springframework.boot:spring-boot-starter-undertow:$springboot_version"
+    // 全量写法
+    implementation(group: 'mysql', name: 'mysql-connector-java', version: "$mysql_driver_version")
+    implementation "com.baomidou:mybatis-plus-boot-starter:$mybatis_plus_version"
+    implementation "com.alibaba:fastjson:$fastjson_version"
+}
+
 ```
 
 #### 项目依赖
@@ -194,40 +189,6 @@ dependencies {
 
 ```groovy
  compile project(':project-foo')
-```
-
-#### 文件依赖
-
-依赖存在于本地文件系统中，举个栗子，如oracle的OJDBC驱动，中央仓库中没有又没有自建私服此时需要放到项目lib下进行手工加载那么便可采用此种方式，可以通过`FileCollection`接口及其子接口提供的方法加载这些依赖(支持文件通配符)
-
-```groovy
-dependencies {
-   // 指定多个依赖
-   compile files('hibernate.jar', 'libs/spring.jar')
-
-   // 读取lib文件夹下的全部文件作为项目依赖
-   compile fileTree('libs')
-
-   // 根据指定基准目录\包含\排除条件加载依赖
-   compile fileTree(dir:'libs',include:'spring*.jar',exclude:'hibernate*.jar')
- }
-```
-
-#### 内置依赖
-
-跟随Gradle发行包或者基于Gradle API的一些依赖，通常在插件开发时使用，当前提供了如下三种
-
-```groovy
- dependencies {
-   // 加载Gradle自带的groovy作为依赖
-   compile localGroovy()
-
-   // 使用Gradle API作为依赖
-   compile gradleApi()
-
-   /使用 Gradle test-kit API 作为依赖
-   testCompile gradleTestKit()
- }
 ```
 
 #### 子模块依赖
@@ -257,30 +218,6 @@ dependencies {
 
 
 
-### 传递依赖
-
-传递依赖特性可以轻松地通过transitive参数进行开启或关闭，上面的示例中如果要忽略[com.android.support-v4](https://links.jianshu.com/go?to=http%3A%2F%2Fcom.android.support-v4)的传递性依赖可以采用指定 transitive = false 的方式来关闭依赖传递特性，也可以采用添加@jar的方式忽略该依赖的所有传递性依赖。
-
-```groovy
- compile('com.android.support:support-v4:23.1.1'){
-        transitive = false
- }
-```
-
-```groovy
- compile 'com.android.support:support-v4:23.1.1'@jar
-```
-
-当然,你也可以全局性的关闭依赖的传递特性。
-
-```groovy
- configurations.all {
-   transitive = false
-}
-```
-
-
-
 ### 排除依赖
 
 有些时候你可能需要排除一些传递性依赖中的某个模块，此时便不能靠单纯的关闭依赖传递特性来解决了。这时exclude就该登场了，如果说@jar彻底的解决了传递问题，那么exclude则是部分解决了传递问题。然而实际上exclude肯能还会用的频率更更频繁一些，比如下面几种情况。
@@ -290,54 +227,23 @@ dependencies {
 exclude可以接收group和module两个参数，这两个参数可以单独使用也可以搭配使用，具体理解如下:
 
 ```groovy
-compile('com.github.nanchen2251:CompressHelper:1.0.5'){
-        //com.android.support:appcompat-v7:23.1.1
-        exclude group: 'com.android.support'//排除组织依赖
-        exclude module: 'appcompat-v7'//排除模块依赖
- }
-```
-
-### 强制使用版本
-
-当然，有时候你可能仅仅是需要强制使用某个统一的依赖版本，而不是排除他们，那么此时force就该登场了。指定force = true属性可以冲突时优先使用该版本进行解决。
-
-```groovy
-compile('com.github.nanchen2251:CompressHelper:1.0.5'){
-        force = true
- }
-```
-
-全局配置强制使用某个版本的依赖来解决依赖冲突中出现的依赖
-
-```groovy
-configurations.all {
-   resolutionStrategy {
-       force 'com.github.nanchen2251:CompressHelper:1.0.5'
-   }
-}
-```
-
-另一个例子
-
-```groovy
-//解决冲突 同一版本
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        def requested = details.requested
-        if (requested.group == 'com.android.support') {
-            if (requested.name.startsWith("support-")||
-                    requested.name.startsWith("animated")||
-                    requested.name.startsWith("cardview")||
-                    requested.name.startsWith("design")||
-                    requested.name.startsWith("gridlayout")||
-                    requested.name.startsWith("recyclerview")||
-                    requested.name.startsWith("transition")||
-                    requested.name.startsWith("appcompat")) {
-                details.useVersion '25.0.0'
-            }
-        }
+buildscript {
+    ext {
+        // 设置依赖版本
+        springboot_version = "2.7.11"
     }
 }
+project('test-service1') {
+    dependencies {
+        implementation("org.springframework.boot:spring-boot-starter-web:$springboot_version") {
+            // 进行依赖排除
+            exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat')
+        }
+        //使用　undertow 代替 tomcat
+        implementation "org.springframework.boot:spring-boot-starter-undertow:$springboot_version"
+    }
+}
+
 ```
 
 
@@ -351,8 +257,6 @@ gradle的配置文件是一个groovy脚本文件，在其中我们可以以编�
 虽然gradle可以非常灵活的编写自定义脚本任务，但是其实一般情况下我们不需要编写构建脚本，利用现有的插件和任务即可完成相关功能。在IDEA里，也可以轻松的查看当前gradle项目中有多少任务，基本任务如build、test等Maven和Gradle都是相通的。
 
 ![img](img/2c2f8644634a7c289e6fc2f77a0664a5.png)
-
-
 
 
 
@@ -394,11 +298,13 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
 
 环境变量
 
-![img](http://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xMzQyNDM1MC01NDc1YzViZTYwMDI5ZWQ3LnBuZw?x-oss-process=image/format,png)
+![image-20230904133310007](img/image-20230904133310007.png)
 
-![img](http://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xMzQyNDM1MC02YjliYzY0MDJlMjkzZTBiLnBuZw?x-oss-process=image/format,png)
+如果要使用 mavenLocal()，那么就需要配置 M2_HOME， 同时在setings.xml中配置localRepository
 
+![image-20230904133627564](img/image-20230904133627564.png)
 
+![image-20230904133342650](img/image-20230904133342650.png)
 
 
 
@@ -406,21 +312,19 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
 
 ![img](http://imgconvert.csdnimg.cn/aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xMzQyNDM1MC0yMjU3YmI4MmJlZmQ2OGZhLnBuZw?x-oss-process=image/format,png)
 
-### 使用本地maven仓库的jar包
+### 使用本地仓库的jar包
 
 1. 找到本地maven仓库
 
    根据实际情况，复制自己的本地maven仓库地址
 
-   ![img](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjQyNTk3MA==,size_16,color_FFFFFF,t_70.png)
+   
 
 2. 配置环境变量
 
    我的电脑 -> 右键 -> 属性 -> 高级系统设置 -> 环境变量
 
-   新建环境变量 GRADLE_USER_HOME 值是复制的本地资源仓库的路径（注意：环境变量名是固定的，必须这样写）![img](https://img-blog.csdnimg.cn/20190529213056992.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjQyNTk3MA==,size_16,color_FFFFFF,t_70)
-
-   
+   新建环境变量 GRADLE_USER_HOME 值是复制的本地资源仓库的路径（注意：环境变量名是固定的，必须这样写）
 
    
 
@@ -438,7 +342,7 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
    }
 ~~~
 
-   
+  
 
 ### 配置镜像
 
@@ -446,47 +350,22 @@ Gradle的特点是抛弃了Xml的各种繁琐配置，面向Java应用为主，�
 
 ~~~groovy
 allprojects {
-   repositories {
-       maven {
-           url "https://maven.aliyun.com/repository/public"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/jcenter"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/spring"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/spring-plugin"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/gradle-plugin"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/google"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/grails-core"
-       }
-       maven {
-           url "https://maven.aliyun.com/repository/apache-snapshots"
-       }
-   }
+    repositories {
+   	    mavenLocal()
+        maven { name "Alibaba" ; url "https://maven.aliyun.com/repository/public" } 
+        maven { name "Bstek" ; url "https://nexus.bsdn.org/content/groups/public/" } 
+        mavenCentral()
+    }
+    
+    buildscript {
+        repositories {
+            maven { name "Alibaba" ; url 'https://maven.aliyun.com/repository/public' } 
+            maven { name "Bstek" ; url 'https://nexus.bsdn.org/content/groups/public/' } 
+            maven { name "M2" ; url 'https://plugins.gradle.org/m2/' }
+        }
+    }
 }
-~~~
 
-当然，如果你有代理的话，其实我推荐你直接为gradle设置全局代理。因为gradle脚本实在是太灵活了，有些脚本中可能依赖了github或者其他地方的远程脚本。这时候上面设置的下载镜像源就不管用了。
-
-所以有条件还是干脆直接使用全局代理比较好。设置方式很简单，在.gradle文件夹中新建gradle.properties文件，内容如下。中间几行即是设置代理的配置项。当然其他几行我也建议你设置一下，把gradle运行时的文件编码设置为UTF8，增加跨平台兼容性。
-
-~~~groovy
-org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-systemProp.http.proxyHost=127.0.0.1
-systemProp.http.proxyPort=10800
-systemProp.https.proxyHost=127.0.0.1
-systemProp.https.proxyPort=10800
-systemProp.file.encoding=UTF-8
-org.gradle.warning.mode=all
 ~~~
 
 
@@ -519,99 +398,119 @@ org.gradle.warning.mode=all
 5. 配置文件（因为版本的不同，所以Gradle的配置会有一些差异）
 
 ~~~groovy
-   plugins {
-       id 'java'
-   }
-   
-   sourceCompatibility = 1.8
-   
-   group 'org.example'
-   version '1.0-SNAPSHOT'
-   
-   /**
-    * 指定仓库的路径
-    */
-   repositories {
-       /**
-        * 表示使用中央仓库，mavenCentral()表示从中央仓库中下载到本地
-        */
-       mavenLocal()
-       mavenCentral()
-   }
-   
-   /**
-    * 所有的jar包坐标，都在如下中进行配置
-    * 每个坐标包含三个元素：group、name、version
-    * testImplementation 在测试的时候起作用，相当于是作用域
-    */
-   dependencies {
-       testImplementation group: 'junit', name: 'junit', version: '4.12'
-       implementation group: 'org.springframework', name: 'spring-context', version: '5.3.15'
-       implementation group: 'org.wso2.identity.apps', name: 'org.wso2.identity.apps.common.server.feature', version: '1.2.786', ext: 'pom'
-   }
-   
-~~~
-
-   
-
-
-
-## 基本语法
-
-### 简单使用
-
-~~~
-println "hello"  打印
-
-def i=19
-println i
-
-def list = ['a','b']
-list<<'c'
-println list.get(2)
-
-
-def map = ['key1':'value1']
-map.key2 = 'value2'
-println map.get('key2')
-~~~
-
-
-
-### 闭包
-
-闭包就是一段代码块，主要是包闭包当成参数来使用
-
-如一：
-
-~~~groovy
- def b1 = {
-    println "hello bi"
+buildscript {
+    ext {
+        // 设置依赖版本
+        lombok_version = "1.18.20"
+        springboot_version = "2.7.11"
+        log4j_version = "1.2.17"
+        mysql_driver_version = "8.0.30"
+        mybatis_plus_version = '3.5.3'
+        fastjson_version = "1.2.75"
+    }
 }
 
-def method (Closure closure){
-    closure()
+plugins {
+    id 'java'
+
 }
 
-method(b1)
-~~~
+group = 'org.example'
+version = '1.0-SNAPSHOT'
 
-如二：
-
-~~~groovy
-def b2 = {
-    v ->
-        println "hello ${v}"
-}
-
-def method(Closure closure){
-    closure("xiao");
+// 避免编译乱码
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 
-method(b2)
+// 编译跳过测试
+gradle.taskGraph.whenReady {
+    tasks.each { task ->
+        if (task.name.contains("test")) {
+            task.enabled = false
+        }
+    }
+}
+
+
+// 子项目统一管理
+subprojects {
+    // 基本J插件
+    apply plugin: 'java'
+    // maven 打包插件
+    apply plugin: 'maven-publish'
+    // 基本JDK配置
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    //指定编辑器
+    apply plugin: 'idea'
+
+    compileJava.options.encoding "UTF-8"
+    compileTestJava.options.encoding "UTF-8"
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+    }
+
+    group = 'org.gradle.base'
+    version = '1.0-SNAPSHOT'
+
+    // 设置 maven 仓库信息， 设置完之后，子工程的 build.gradle 文件就可以不用写了
+    repositories {
+        mavenLocal()
+        maven { name "Alibaba"; url "https://maven.aliyun.com/repository/public" }
+        maven { name "Bstek"; url "https://nexus.bsdn.org/content/groups/public/" }
+        mavenCentral()
+    }
+
+    // 可以用来设置子工程的通用依赖
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.9.1')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        implementation "log4j:log4j:$log4j_version"
+        // 双引号方式使用变量，在 ext 中声明或 def 关键字声明变量 lombok_version=具体版本
+        implementation "org.projectlombok:lombok:$lombok_version"
+        annotationProcessor "org.projectlombok:lombok:$lombok_version"
+    }
+    test {
+        useJUnitPlatform()
+    }
+}
+
+
+project('base-common') {
+    dependencies {
+        // 新的版本会覆盖
+        implementation 'org.projectlombok:lombok:1.18.22'
+        annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    }
+}
+
+project('test-service1') {
+    dependencies {
+        // 导入本地项目依赖 方式一：使用 implementation 不会进行依赖传递
+        implementation project(':base-common')
+        // 导入本地项目依赖 方式二：依赖打包到本地镜像，然后进行导入
+        // implementation("org.gradle.base:base-common:1.0-SNAPSHOT")
+
+        // 倒入其他依赖
+        implementation("org.springframework.boot:spring-boot-starter-web:$springboot_version") {
+            // 进行依赖排除
+            exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat')
+        }
+        //使用　undertow 代替 tomcat
+        implementation "org.springframework.boot:spring-boot-starter-undertow:$springboot_version"
+        // 全量写法
+        implementation(group: 'mysql', name: 'mysql-connector-java', version: "$mysql_driver_version")
+        implementation "com.baomidou:mybatis-plus-boot-starter:$mybatis_plus_version"
+        implementation "com.alibaba:fastjson:$fastjson_version"
+    }
+}
+
+
+
 
 ~~~
-
-
 
