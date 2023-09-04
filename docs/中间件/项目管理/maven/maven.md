@@ -1297,6 +1297,20 @@ nexus-3.25.1-04：用于实现 nexus 功能
 sonatype-work：用于存储数据
 ~~~
 
+### 修改配置
+
+![目标文件](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dkMjAxNDYxMA==,size_16,color_FFFFFF,t_70.png)
+
+~~~
+-Xms128M
+-Xmx128M
+-XX:MaxDirectMemorySize=256M
+~~~
+
+
+
+
+
 ### 启动
 
 nexus-3.25.1-04/bin 目录，可以看见 **nexus 文件**，这就是 Nexus 服务的脚本文件:
@@ -1326,6 +1340,18 @@ nexus-3.25.1-04/bin 目录，可以看见 **nexus 文件**，这就是 Nexus 服
 
 **开放端口：**
 最后一步，也是非常重要的一步，就是开放 linux 系统的防火墙端口，这里我使用了 Nexus 服务的 默认端口 8081，所以开放的就是 8081 端口：
+
+
+
+点击上图右上角 Sign in 按钮，即可登录进行管理，登录需要输入账号和密码：
+
+账号默认为：admin
+
+密码默认安装后会随机生成一个，可以通过如下命令获取：
+
+```cobol
+cat /user/local/software/sonatype-work/nexus3/admin.password
+```
 
 ### 使用
 
