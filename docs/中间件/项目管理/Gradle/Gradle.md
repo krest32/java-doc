@@ -514,3 +514,87 @@ project('test-service1') {
 
 ~~~
 
+### Mavne私服配置
+
+init.gradle
+
+~~~gradle
+allprojects {
+    repositories {
+        mavenLocal()
+        maven { 
+			allowInsecureProtocol = true
+			name "nexus" 
+			url "http://witerk.top:8081/repository/maven-public" 
+			credentials{
+                username 'admin'
+                password 'xxxx'
+            }
+		} 
+    }
+    
+    buildscript {
+        repositories {
+            maven { 
+				allowInsecureProtocol = true
+				name "nexus" 
+				url 'http://witerk.top:8081/repository/maven-public' 
+				credentials{
+					username 'admin'
+					password 'xxxx'
+				}
+			} 
+            maven { name "M2" ; url 'https://plugins.gradle.org/m2/' }
+        }
+    }
+}
+
+~~~
+
+build.gradle
+
+~~~gradle
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'org.gradle.base'
+version = '1.0-SNAPSHOT'
+
+// 发布项目到仓库中
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+            artifact sourceJar
+        }
+    }
+    // 配置发布的地址
+    repositories {
+        // 一. 这种方式是最简便的方式
+        mavenLocal()
+        // 二. 或者使用自己配置本地路径，第一与第二使用一种就可以了
+//            maven{
+//                def localMavenRepo = 'file://C:/Krest WorkSpace/Mvn Resp'
+//                url localMavenRepo
+//            }
+//        3 发布到私服当中
+        maven {
+            allowInsecureProtocol = true
+            name "nexus"
+            url "http://witerk.top:8081/repository/maven-snapshots/"
+            credentials{
+                username 'admin'
+                password 'xxxx'
+            }
+        }
+    }
+}
+~~~
+

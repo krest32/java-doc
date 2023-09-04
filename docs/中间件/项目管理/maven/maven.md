@@ -1095,7 +1095,9 @@ Maven区别对待Java代码和资源文件，maven-resources-plugin则用来处�
             <releases>
                 <!--true或者false表示该仓库是否为下载某种类型构件（发布版，快照版）开启。 -->
                 <enabled />
-                <!--该元素指定更新发生的频率。Maven会比较本地POM和远程POM的时间戳。这里的选项是：always（一直），daily（默认，每日），interval：X（这里X是以分钟为单位的时间间隔），或者never（从不）。-->
+                <!--该元素指定更新发生的频率。Maven会比较本地POM和远程POM的时间戳。
+					这里的选项是：always（一直），daily（默认，每日），interval：X（这里X是以分钟为单位的时间间隔），
+					或者never（从不）。-->
                 <updatePolicy />
                 <!--当Maven验证构件校验文件失败时该怎么做：ignore（忽略），fail（失败），或者warn（警告）。-->
                 <checksumPolicy />
@@ -1258,7 +1260,7 @@ Maven区别对待Java代码和资源文件，maven-resources-plugin则用来处�
 </project>    
 ```
 
-## Maven私服
+## Nexus
 
 ### 概念
 
@@ -1293,6 +1295,7 @@ root@nianyu-virtual-machine:/opt# mkdir nexus && cd nexus
 root@nianyu-virtual-machine:/opt# tar -zxvf nexus-3.46.0-01-unix.tar.gz
 
 -- 解压出两个文件夹
+注意：Jdk版本需要1.8， 然后配置内存
 nexus-3.25.1-04：用于实现 nexus 功能
 sonatype-work：用于存储数据
 ~~~
@@ -1302,9 +1305,9 @@ sonatype-work：用于存储数据
 ![目标文件](img/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dkMjAxNDYxMA==,size_16,color_FFFFFF,t_70.png)
 
 ~~~
--Xms128M
--Xmx128M
--XX:MaxDirectMemorySize=256M
+-Xms512M
+-Xmx512M
+-XX:MaxDirectMemorySize=1024M
 ~~~
 
 
@@ -1353,39 +1356,31 @@ nexus-3.25.1-04/bin 目录，可以看见 **nexus 文件**，这就是 Nexus 服
 cat /user/local/software/sonatype-work/nexus3/admin.password
 ```
 
-### 使用
+### Maven配置
 
-Maven Setting配置
+Setting配置
 
 ~~~xml
 <?xml version="1.0" encoding="UTF-8"?>
-
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
     <localRepository>E:\MavenRepository</localRepository>
+    <offline>false</offline>
     <pluginGroups></pluginGroups>
     <proxies></proxies>
     <servers>
-        
         <server>
-            <id>maven-releases</id>
+            <id>nexus</id>
             <username>admin</username>
-            <password>密码</password>
-        </server>
-        <server>
-            <id>maven-snapshots</id>
-            <username>admin</username>
-            <password>密码</password>
+            <password>xxxx</password>
         </server>
     </servers>
-
     <mirrors>
         <mirror>
-            <id>maven-public</id>
-            <!--表示所有jar包都走这里 -->
+            <id>nexus</id>
             <mirrorOf>*</mirrorOf>
-            <name>maven-public</name>
             <url>http://witerk.top:8081/repository/maven-public/</url>
         </mirror>
     </mirrors>
@@ -1408,7 +1403,7 @@ Maven Setting配置
 
 
 
-Pom配置
+### Pom配置
 
 发布自定义jar包
 
@@ -1427,20 +1422,69 @@ Pom配置
 </distributionManagement>
 ~~~
 
-拉取jar信息
+拉取jar配置
 
 ~~~xml
-<repositories>
-    <repository>
-        <id>maven-nexus</id>
-        <url>http://witerk.top:8081/repository/maven-public/</url>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
+    <repositories>
+        <repository>
+            <id>nexus-release</id>
+            <name>nexus-release</name>
+            <url>http://witerk.top:8081/repository/maven-public/</url>
+            <!--<layout>default</layout>-->
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+~~~
+
+插件
+
+~~~xml
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!-- 打jar包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- 打包源码插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 ~~~
 
