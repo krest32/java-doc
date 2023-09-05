@@ -8,7 +8,7 @@
 
 
 
-###  什么是`Java`
+###  概念
 
 1. Java 是一门面向对象编程语言，吸收了 C++ 语言的各种优点，还摒弃了 C++ 里难以理解的多继承、指针等概念，
 2. Java 语言具有功能强大和简单易用两个特征。
@@ -34,7 +34,7 @@
 
 
 
-### `Java`和`C++`的区别
+### 对比`C、C++`
 
 - 都是面向对象的语言，都支持封装、继承和多态
 - Java 不提供指针来直接访问内存，程序内存更加安全
@@ -82,23 +82,27 @@
 
 
 
-### 什么是跨平台性？原理是什么
+### 跨平台性的原理
 
 ​		所谓跨平台性，是指java语言编写的程序，一次编译后，可以在多个系统平台上运行。
 
 ​		实现原理：Java程序是通过java虚拟机在系统平台上运行的，只要该系统可以安装相应的java虚拟机，该系统就可以运行java程序。
 
-### 为什么说 Java 语言“编译与解释并存”？
+### 编译与解释
 
 + 编译型语言（如C# / C / C++ / Go）是指编译器针对特定的操作系统将源代码一次性翻译成可被该平台执行的机器码；
 + 解释型语言（如Java / Python）是指解释器对源程序逐行解释成特定平台的机器码并立即执行。
 + Java 通过编译器先编译成 .class 文件，再解释成 Java 执行器可运行的语言
 
-### 什么是字节码？采用字节码的最大好处是什么
+### 字节码
 
-**字节码**：
+#### 概念
 
-​		Java源代码经过编译器编译后产生的文件（即扩展为.class的文件 > 一种十六进制的文件），只面向虚拟机。在一定程度上解决了传统解释型语言执行效率低的问题，同时又保留了解释型语言可移植的特点。所以Java程序运行时比较高效。
+字节码：Java源代码经过编译器编译后产生的文件（即扩展为.class的文件 > 一种十六进制的文件），只面向虚拟机。
+
+#### 好处
+
+字节码在一定程度上解决了传统解释型语言执行效率低的问题，同时又保留了解释型语言可移植的特点。所以Java程序运行时比较高效。
 
 ![image-20220208122548845](img/image-20220208122548845.png)
 
@@ -106,25 +110,45 @@
 
 
 
-**Java执行顺序**：
+### Java执行顺序：
 
 ```java
-	Java源代码 -> 
+Java源代码 -> 
 编译器 -> 
-	jvm可执行的Java字节码 -> 
+jvm可执行的Java字节码 -> 
 jvm中解释器 -> 
-    机器可执行的二进制机器码 -> 
-    程序运行。
+机器可执行的二进制机器码 -> 
+程序运行。
 ```
 
-### Oracle JDK 和 Open JDK 的对比
+### Oracle JDK 和 Open JDK 
 
-1. `Oracle JDK`版本将每三年发布一次，而`Open JDK`版本每三个月发布一次；
-2. `Open JDK` 是一个参考模型并且是完全开源的，而`Oracle JDK`是`Open JDK`的一个实现，并不是完全开源的；
-3. `Oracle JDK `比 `Open JDK` 更稳定，但`Oracle JDK`有更多的类和一些错误修复。如果开发企业/商业软件，建议选择`Oracle JDK`。
-4. 在响应性和`JVM`性能方面，`Oracle JDK`与`Open JDK`相比提供了更好的性能；
-5. `Oracle JDK`不会为即将发布的版本提供长期支持，用户每次都必须通过更新到最新版本获得支持来获取最新版本；
-6. `Oracle JDK`根据二进制代码许可协议获得许可，而`Open JDK`根据`GPL v2`许可获得许可。
+#### 背景介绍
+
+OpenJDK 比 Oracle JDK 早出现一些。OpenJDK 是在 20o6 年由 Sun Microsystems 发起的个开源Java SE平台实现顶目。它是为了响应开源社区对Java技术的需求，以及为了确保Java技术的生命周期和可扩展性。
+2o10年，Oracle 公司收购了Sun Microsystems，成为了Java 的所有者。自那以来，Oracle继续开发和维护OpenJDK，并且推出了OracleJDK，这是一个商业版本的JavaSE平台实现。
+因此，可以说 OpenjDK是早期出现的，Oracle DK是后来出现的。然而，现在两者都是主要的 Java SE平台实现，都被广泛使用。
+
+#### 二者区别
+
+OpenjDK和OracleJDK是Java开发具包的两人主要实现。两者者都是Java sE平台规范的实现，包含了Java 虚拟机（JVM）、Java 编程语言和 Java 库。然而，它们之间有一些重要的区别：
+
++ 开源vs商业：OpenJDK是一个完全开源的项目，其代码可以自由使用、修改和分发，而Oracle JDK是一人商业产品，其代码不能被修改和分发。
++ 技术支持：Oracle JDK是一个商业产品，因此它提供了专业的技术支持，而 OpenJDK只提供社区支持。
++ 版权许可证： Oracle JDK 使用的是商业版权许可证，而 OpenJDK 使用的是 GPLv2 开源许可证。
++ 新特性：OracleDK可能比 OpenJDK先含有一些新特性，因为 Oracle JDK是其主要的收入来源。
+
+#### 其他
+
+除了 OpenJDK 和 Oracle JDK 以外，还有其他的 Java SE 平台实现。
+
+例如，有一些其他的开源 JDK，如 AdoptOpenJDK 和 Amazon Corretto。这些实现通常是基于OpenJDK构建的，并提供了目己的特性和改进。
+
+此外，还有一些非开源的 JDK，如 Azul Systems 的 Zulu JDK 和 BellSoft 的 Liberica JDK。这些实现通常是基于OpenJDK构建的，并且提供了自已的特性和改进。
+
+因此，除了 OpenJDK 和 Oracle JDK 以外，还有其他的 Java SE 平台实现可供选择。然而最终的选择应该根据您的需求和坏境而定，
+
+
 
 ### Java 1.8的新特性？
 
@@ -139,12 +163,6 @@ jvm中解释器 ->
 
 
 #### 1. Lambda表达式
-
-为了支持函数式编程，Java 8引入了Lambda表达式
-
-~~~java
-Arrays.asList( "a", "b", "d" ).forEach( e -> System.out.println( e ) );
-~~~
 
 Lambda表达式的优点很明显，在代码层次上来说，使代码变得非常的简洁。缺点也很明显，代码不易读
 
@@ -242,10 +260,8 @@ Arrays.asList("a1", "a2", "a3")
 ————————————————
 
 并行流：就是把一个内容分成多个数据快，并用不同的线程分别处理每个数据块的流。并行流能够在多个线程上执行操作。
-主要是为了解决处理大量元素时的性能问题。
+主要是为了解处理大量元素时的性能问题。
 ~~~
-
-
 
 #### 7. 新的时间包
 
@@ -260,10 +276,6 @@ TemporalAdjust ：时间校正器
 DateTimeFormatter ：格式化时间/日期
 ZonedDate，ZonedTime，ZonedDateTime ： 时区
 ~~~
-
-
-
-
 
 ### 为什么固守 Java 8？
 
@@ -283,8 +295,6 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 2. Java 11 的 ZGC 是个有吸引力的特性，它的设计目标是：支持TB级内存容量，GC 暂停时间低（<10ms），对整个程序吞吐量的影响小于 15%，如果真的实现了，程序员就可以可劲儿造对象，而不用考虑 GC 了，可惜这仍然是个实验性质的版本。 
 3. 如果要升级 JDK 11，考虑更多的应该是 GC 性能上将近 16% 的优化
 4. 版本兼容性问题，类似WebSphere这样的程序，Spring 仅支持 1.5 版本，所以在选择上面，JDK 11 虽然可能会仅仅会位于第二推荐位，JDK 8，依旧是首选
-
-
 
 
 
@@ -357,7 +367,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
   - 接口(interface)
   - 数组([])
 
-#### switch 是否能作用在 String 上，可以使用Long么？
+#### switch 使用注意
 
 1. 在 Java 5 以前，switch (expr) 中，expr 只能是 byte、short、char、int。
 
@@ -403,9 +413,15 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 
 
-#### null 是什么？
+#### null
 
 ​		null不是一个合法的Object实例，它仅仅表明该引用类型目前没有指向任何对象，所以编辑器没有分配内存。
+
+常见用途：
+
+1. 初始化对象
+2. 表示无效或者缺失的值
+3. 释放内存
 
 
 
@@ -495,7 +511,7 @@ ZonedDate，ZonedTime，ZonedDateTime ： 时区
 
 ### 数组
 
-#### 什么是数组？
+#### 概念
 
 ​		数组是一种线性表数据结构，在内存中是一组连续的存储单元，利用指针来进行寻址，一个数组一般有两个重要的参数：数组的起始指针和数组的长度。数组用于储存多个**相同类型**数据。组成数组的各个变量称为数组的元素，用于区分数组的各个元素的数字编号称为下标。
 
@@ -629,8 +645,6 @@ public class Test {
 
 ​		**为什么说static块可以用来优化程序性能**，是因为它的特性:只会在类加载的时候执行一次。因此，很多时候会将一些只需要进行一次的初始化操作都放在static代码块中进行。
 
-
-
 #### static的独特之处
 
 1. 被static修饰的变量或者方法是独立于该类的任何对象，这些变量和方法**不属于任何一个实例对象，而是被类的实例对象所共享**。
@@ -697,82 +711,6 @@ public static void main(String[] args) {
 ```
 
 
-
-### 枚举
-
-#### 产生原因
-
-​		在`JDK1.5`之前，例如，想定义一个Color类，它只能有RED、GREEN、BLUE 3种值，其他的任何值都是非法的，那么`JDK1.5`之前虽然可以构造这样的代码，但是要做很多的工作，就可能带来很多不安全的问题。而`JDK1.5`之后引入的枚举类型就能解决这些问题。
-
-所以枚举的原因是：
-
-1. 枚举本身线程安全，可以用于单例
-2. 将有限的常量固定下来，避免其他人非法创建值
-3. 每一个常量可以附带信息和行为，封装性好方便使用
-4. 枚举需要的内容空间很小，如果使用枚举集合，会非常高效
-
-#### 使用方法
-
-是`JDK1.5`才加入的新特性，`enum` 定义的枚举类默认继承了` java.lang.Enum`，而不是继承 Object 类
-
-当批量定义常量的时候，可以使用枚举,
-
-同时，在枚举中还可以定义普通方法、抽象方法
-
-枚举类的所有实例都必须放在第一行展示，不需使用 new 关键字，不需显式调用构造器。**自动添加 public static final 修饰**
-
-~~~Java
-enum Season {    
-    SPRRING,    
-    SUMMER,    
-    AUTUM,    
-    WINTER
-}
-public static void main(String[] args) {        
-    System.out.println(Season.SPRRING);
-}
-~~~
-
-
-
-~~~java
-package com.mikan;
-/**
- * @author Mikan
- * @date 2015-08-29 12:06
- */
-public enum Operator {
- 
-    ADD {
-        @Override
-        public int calculate(int a, int b) {
-            return a + b;
-        }
-    },
-    SUBTRACT {
-        @Override
-        public int calculate(int a, int b) {
-            return a - b;
-        }
-    },
-    MULTIPLY {
-        @Override
-        public int calculate(int a, int b) {
-            return a * b;
-        }
-    },
-    DIVIDE {
-        @Override
-        public int calculate(int a, int b) {
-            if (b == 0) {
-                throw new IllegalArgumentException("divisor must not be 0");
-            }
-            return a / b;
-        }
-    };
-    public abstract int calculate(int a, int b);
-}
-~~~
 
 ### String
 
@@ -905,6 +843,86 @@ String name="小明";
 单位时间内：
 
 减少空间->减少触发GC的次数->减少Stop the world activity的次数->提高系统性能
+
+
+
+### 枚举
+
+#### 产生原因
+
+​		在`JDK1.5`之前，例如，想定义一个Color类，它只能有RED、GREEN、BLUE 3种值，其他的任何值都是非法的，那么`JDK1.5`之前虽然可以构造这样的代码，但是要做很多的工作，就可能带来很多不安全的问题。而`JDK1.5`之后引入的枚举类型就能解决这些问题。
+
+所以枚举的原因是：
+
+1. 枚举本身线程安全，可以用于单例
+2. 将有限的常量固定下来，避免其他人非法创建值
+3. 每一个常量可以附带信息和行为，封装性好方便使用
+4. 枚举需要的内容空间很小，如果使用枚举集合，会非常高效
+
+#### 使用方法
+
+是`JDK1.5`才加入的新特性，`enum` 定义的枚举类默认继承了` java.lang.Enum`，而不是继承 Object 类
+
+当批量定义常量的时候，可以使用枚举,
+
+同时，在枚举中还可以定义普通方法、抽象方法
+
+枚举类的所有实例都必须放在第一行展示，不需使用 new 关键字，不需显式调用构造器。**自动添加 public static final 修饰**
+
+~~~Java
+enum Season {    
+    SPRRING,    
+    SUMMER,    
+    AUTUM,    
+    WINTER
+}
+public static void main(String[] args) {        
+    System.out.println(Season.SPRRING);
+}
+~~~
+
+
+
+~~~java
+package com.mikan;
+/**
+ * @author Mikan
+ * @date 2015-08-29 12:06
+ */
+public enum Operator {
+ 
+    ADD {
+        @Override
+        public int calculate(int a, int b) {
+            return a + b;
+        }
+    },
+    SUBTRACT {
+        @Override
+        public int calculate(int a, int b) {
+            return a - b;
+        }
+    },
+    MULTIPLY {
+        @Override
+        public int calculate(int a, int b) {
+            return a * b;
+        }
+    },
+    DIVIDE {
+        @Override
+        public int calculate(int a, int b) {
+            if (b == 0) {
+                throw new IllegalArgumentException("divisor must not be 0");
+            }
+            return a / b;
+        }
+    };
+    public abstract int calculate(int a, int b);
+}
+~~~
+
+### 
 
 ### 面向对象概述
 
