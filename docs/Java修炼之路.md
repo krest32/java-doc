@@ -172,7 +172,7 @@
    4. `Java` 序列化的缺点有哪些？
 
 2. 分布式系统序列化的发展历史？
-   1. Soap协议
+   1. Soap+Xml
    2. Restful + Json
    3. 二进制高效率
 
@@ -240,38 +240,39 @@
 6. 哪些集合类是线程安全的？
 7. 关于`FastFail`机制是什么？它有什么作用 ？
 8. 怎么确保一个集合不能被修改？
-9. 如何边遍历边移除 Collection 中的元素？
-10. `ArrayList` 与 `LinkedList` 之间的区别?
-11. `ArrayList` 的插入删除性能一定会比 `LinkedList` 慢么？
-12. `ArrayList` 和` Vector `的区别是什么？
-13. 为什么 `ArrayList` 的` elementData` 加上 `transient`修饰？
+9. 谈谈你对于iterator的理解？
+10. 如何边遍历边移除 Collection 中的元素？
+11. `ArrayList` 与 `LinkedList` 之间的区别?
+12. `ArrayList` 的插入删除性能一定会比 `LinkedList` 慢么？
+13. `ArrayList` 和` Vector `的区别是什么？
+14. 为什么 `ArrayList` 的` elementData` 加上 `transient`修饰？
     + 重写了`writeObject `方法，只序列化已存入的元素，这样加快了序列化的速度
-14. List 和 Set 之间的区别是什么？
-15. Queue是什么？
-16. BlockingQueue 是什么？
-17. Queue中的poll()、remove()、take()方法有什么区别？
-18. 什么是哈希？
-19. 解决哈希冲入都有哪些方式呀？（四种）
-20. 谈谈 `HashMap` 的原理？
-21. 说一下`HashMap`的几个参数：负载因子、初试容量？
-22. 为什么不之间使用 `HashCode` 作为 table 下标？
-23. `HashMap` 的 扩容流程？
-24. 为什么`HashMap`扩容时候，是原本大小的2倍？
-25. 为什么负载因子是0.75？
-26. `HashMap`在扩容上有哪些优化？
+15. List 和 Set 之间的区别是什么？
+16. Queue是什么？
+17. BlockingQueue 是什么？
+18. Queue中的poll()、remove()、take()方法有什么区别？
+19. 什么是哈希？
+20. 解决哈希冲入都有哪些方式呀？（四种）
+21. 谈谈 `HashMap` 的原理？
+22. 说一下`HashMap`的几个参数：负载因子、初试容量？
+23. 为什么不之间使用 `HashCode` 作为 table 下标？
+24. `HashMap` 的 扩容流程？
+25. 为什么`HashMap`扩容时候，是原本大小的2倍？
+26. 为什么负载因子是0.75？
+27. `HashMap`在扩容上有哪些优化？
     + 1.7以前都需要重新计算哈希，
     + 1.8以后，借助2备扩容机值，不需要重新计算哈希值，低位元素在原来位置，高位元素在原来位置+原来容量的大小
-27. `HashMap`中的链表转化红黑树需要哪两个条件？
-28. 为什么`String`和`Integer`适合作为`Map`的`Key`?
-29. 可以使用`Object`对象作为`key`么？
-30. 关于 `TreeMap` 的理解说一下？新元素插入需要提起准备什么？
-31. HashMap的那些操作会导致线程不安全？
-32. `HashTable` 中 `key` `value` 为什么不能为`null`，而 `HashMap` 中却可以？
-33. `HashTable`与`HashMap`之间的区别是什么？
-34. `CopyOnWriteArrayList` 的具体实现原理 ？
-35. `ConcurrentHashMap` 的底层实现原理 ？
-36. 什么是迭代器 ？为什么要使用迭代器？
-37. 使用迭代器的好处是什么？
+28. `HashMap`中的链表转化红黑树需要哪两个条件？
+29. 为什么`String`和`Integer`适合作为`Map`的`Key`?
+30. 可以使用`Object`对象作为`key`么？
+31. 关于 `TreeMap` 的理解说一下？新元素插入需要提起准备什么？
+32. HashMap的那些操作会导致线程不安全？
+33. `HashTable` 中 `key` `value` 为什么不能为`null`，而 `HashMap` 中却可以？
+34. `HashTable`与`HashMap`之间的区别是什么？
+35. `CopyOnWriteArrayList` 的具体实现原理 ？
+36. `ConcurrentHashMap` 的底层实现原理 ？
+37. 什么是迭代器 ？为什么要使用迭代器？
+38. 使用迭代器的好处是什么？
 
 ### 网络编程
 
