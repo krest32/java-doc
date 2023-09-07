@@ -371,25 +371,27 @@
 2. 什么是线程安全？
 3. 如何保证线程安全？（3种方法）
 4. 线程过多会导致什么问题？
-5. synchronized 与 lock 区别？
-6. 什么是锁消除？
-7. 什么是锁的自旋？
+5. 什么是锁消除？
+6. 什么是锁的自旋？
+7. 重量级锁的实现原理？
 8. 什么是锁的升级？
-9. 重量级锁的实现原理？
-10. 谈谈你对 `AQS` 的理解吧？主要是它的一个实现原理？
-11. Atomic 的运行原理 ？`CAS` 原理是什么？ 
-12. `ABA`问题？
-13. `CAS`带来的其他问题？
+9. synchronized 、volatile、CAS对比
+10. synchronized 与 lock 区别？
+11. 谈谈你对 `AQS` 的理解吧？主要是它的一个实现原理？
+12. Atomic 的运行原理 ？`CAS` 原理是什么？ 
+13. `ABA`问题？
+14. `CAS`带来的其他问题？
     1. 循环时间过长
     2. `ABA`问题 -> `AtomicStampedReference `
     3. 只能保证一个共享变量的原子操作
-14. 死锁、活锁、饥饿的区别？
-15. 并发工具类Semaphore、`CountDownLatch`、`CyclicBarrier` 之间的区别？
-16. 线程 B 怎么知道线程 A 修改了变量？ 线程之间的通信 （好多种方案）
+15. 死锁、活锁、饥饿的区别？
+16. 并发工具类Semaphore、`CountDownLatch`、`CyclicBarrier` 之间的区别？
+17. 线程 B 怎么知道线程 A 修改了变量？ 线程之间的通信 （好多种方案）
     1.  volatile
     2. static
-17. `volatile` 如何实现共享变量多线程的可见性？
-18. `volatile` 如何实现`happens-before`规则？（内存屏障）
+18. `volatile` 如何实现共享变量多线程的可见性？
+19. `volatile` 如何实现`happens-before`规则？（内存屏障）
+20. CPU 缓存原理
 
 #### 线程池相关
 
