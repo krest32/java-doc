@@ -295,31 +295,6 @@ Datetime与TimeStamp详细区别
 
 ### 查看引擎
 
-查看命令
-
-- 如何用命令查看
-  - 看你的mysql现在已提供什么存储引擎：show engines；
-  - 看你的mysql当前默认的存储引擎：show variables like ‘%storage_engine%’;
-
-~~~bash
-# 查看搜索引擎
-show engines
-~~~
-
-![image-20210630220953825](img/image-20210630220953825.png)
-
-
-
-~~~bash
-# 修改搜索引擎
-alter table tableName engine = 存储引擎名;
-
-# 显示索引的状态
-SHOW ENGINE INNODB STATUS;
-~~~
-
-
-
 ### 存储引擎种类
 
 常用的存储引擎有以下：
@@ -332,13 +307,13 @@ SHOW ENGINE INNODB STATUS;
 
 **概述**：
 
-Memory采用的逻辑介质是 内存 ， 响应速度很快 ，但是当mysqld守护进程崩溃的时候 数据会丢失 。另外，要求存储的数据是数据长度不变的格式，比如，Blob和Text类型的数据不可用(长度不固定的)。
+Memory采用的逻辑介质是内存，响应速度很快，但是当mysqld守护进程崩溃的时候 数据会丢失 。另外，要求存储的数据是数据长度不变的格式，比如，Blob和Text类型的数据不可用(长度不固定的)。
 
 **主要特征**：
 
 + Memory同时 支持哈希（HASH）索引 和 B+树索引 。
-+ Memory表至少比MyISAM表要 快一个数量级 。
-+ MEMORY 表的大小是受到限制 的。表的大小主要取决于两个参数，分别是max_rows 和max_heap_table_size 。其中，max_rows可以在创建表时指定；max_heap_table_size的大小默认为16MB，可以按需要进行扩大。
++ Memory表至少比MyISAM表要快一个数量级 。
++ MEMORY 表的大小是受到限制的。表的大小主要取决于两个参数，分别是max_rows 和max_heap_table_size。其中，max_rows可以在创建表时指定；max_heap_table_size的大小默认为16MB，可以按需要进行扩大。
 + 数据文件与索引文件分开存储。
 + 缺点：
   + 其数据易丢失，生命周期短。
@@ -346,17 +321,17 @@ Memory采用的逻辑介质是 内存 ， 响应速度很快 ，但是当mysqld�
 
 **使用Memory存储引擎的场景：**
 
-1.  目标数据比较小 ，而且非常 频繁的进行访问 ，在内存中存放数据，如果太大的数据会造成 内存溢出 。可以通过参数 max_heap_table_size 控制Memory表的大小，限制Memory表的最大的大小。
-2.  如果 数据是临时的 ，而且 必须立即可用 得到，那么就可以放在内存中。
-3. 存储在Memory表中的数据如果突然间 丢失的话也没有太大的关系 。
+1.  目标数据比较小，而且非常频繁的进行访问，在内存中存放数据，如果太大的数据会造成内存溢出。可以通过参数 max_heap_table_size 控制Memory表的大小，限制Memory表的最大的大小。
+2.  如果数据是临时的，而且必须立即可用得到，那么就可以放在内存中。
+3. 存储在Memory表中的数据如果突然间丢失的话也没有太大的关系 。
 
 ### MyISAM 引擎
 
 **主要的非事务处理存储引擎**
 
-+ MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)等，但MyISAM 不支持事务、行级锁、外键 ，有一个毫无疑问的缺陷就是 崩溃后无法安全恢复 。
++ MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)等，但MyISAM不支持事务、行级锁、外键，有一个毫无疑问的缺陷就是崩溃后无法安全恢复 。
 + 5.5之前默认的存储引擎
-+ 优势是访问的 速度快 ，对事务完整性没有要求或者以SELECT、INSERT为主的应用
++ 优势是访问的速度快 ，对事务完整性没有要求或者以SELECT、INSERT为主的应用
 + 针对数据统计有额外的常数存储。故而 count(*) 的查询效率很高
 + 数据文件结构：
   + 表名.frm 存储表结构
@@ -578,16 +553,6 @@ Memory采用的逻辑介质是 内存 ， 响应速度很快 ，但是当mysqld�
   - 基于一个范围的检索，一般查询返回结果集小于表中记录数的30%
   - 基于非唯一性索引的检索
 
-
-### 百万级别以上的数据删除
-
-查询MySQL官方手册得知删除数据的速度和创建的索引数量是成正比的。
-
-1. 所以我们想要删除百万数据的时候可以先删除索引（此时大概耗时三分多钟）
-2. 然后删除其中无用数据（此过程需要不到两分钟）
-3. 删除完成后重新创建索引(此时数据较少了)创建索引也非常快，约十分钟左右。
-4. 与之前的直接删除绝对是要快速很多，更别说万一删除中断,一切删除会回滚。那更是坑了。
-
 ### 前缀索引
 
 ​		语法：`index(field(10))`，使用字段值的前10个字符建立索引，默认是使用字段的全部内容建立索引。
@@ -805,137 +770,6 @@ SQL 标准定义了四个隔离级别：
 
 InnoDB 存储引擎在 **分布式事务** 的情况下一般会用到**SERIALIZABLE(可串行化)**隔离级别。
 
-
-
-### 事务控制
-
-~~~SQL
-create table goods_innodb(  
-    id int NOT NULL AUTO_INCREMENT,    
-    name varchar(20) NOT NULL,
-    primary key(id)
-)ENGINE=innodb DEFAULT CHARSET=utf8;
-~~~
-
-
-
-~~~SQl
-# 执行事务
-start transaction;
-	insert into goods_innodb(id,name)values(null,'Meta20');
-commit;
-~~~
-
-​		上面的操作中，我们是手动开启事务的，在我们还没有commit提交事务的时候，我们可以复制一个窗口进行查询goods_innodb表，发现数据是还没有插入进去的，只有我们手动执行了commit操作，才是事务提交成功，数据才会保存到表中。所以，在InnoDB中是存在事务的。
-
-
-
-### 指令实操
-
-
-
-~~~sql
--- 查看事务的隔离级别
-SHOW VARIABLES LIKE 'tx_isolation';
-+---------------+-----------------+
-| Variable_name | Value      |
-+---------------+-----------------+
-| tx_isolation | REPEATABLE-READ |
-+---------------+-----------------+
-1 row in set (0.00 sec)
-
--- 设置事务的隔离级别
-SET [GLOBAL|SESSION] TRANSACTION ISOLATION LEVEL 隔离级别;
-
-#其中，隔离级别格式：
-> READ UNCOMMITTED
-> READ COMMITTED
-> REPEATABLE READ
-> SERIALIZABLE
-
-
-~~~
-
-## 数据库设计建议
-
-### 关于库
-
-1. 【强制】库的名称必须控制在32个字符以内，只能使用英文字母、数字和下划线，建议以英文字母开头。
-2. 【强制】库名中英文 一律小写 ，不同单词采用 下划线 分割。须见名知意。
-3. 【强制】库的名称格式：业务系统名称_子系统名。
-4. 【强制】库名禁止使用关键字（如type,order等）。
-5. 【强制】创建数据库时必须 显式指定字符集 ，并且字符集只能是utf8或utf8mb4。创建数据库SQL举例：CREATE DATABASE crm_fund  DEFAULT CHARACTER SET 'utf8' ;
-6. 【建议】对于程序连接数据库账号，遵循权限最小原则使用数据库账号只能在一个DB下使用，不准跨库。程序使用的账号 原则上不准有drop权限 。
-7. 【建议】临时库以 tmp_ 为前缀，并以日期为后缀；备份库以  bak_ 为前缀，并以日期为后缀。
-
-### 关于表、列
-
-1. 【强制】表和列的名称必须控制在32个字符以内，表名只能使用英文字母、数字和下划线，建议以 英文字母开头 。
-2. 【强制】 表名、列名一律小写 ，不同单词采用下划线分割。须见名知意。
-3. 【强制】表名要求有模块名强相关，同一模块的表名尽量使用 统一前缀 。比如：crm_fund_item
-4. 【强制】创建表时必须 显式指定字符集 为utf8或utf8mb4。
-5. 【强制】表名、列名禁止使用关键字（如type,order等）。
-6. 【强制】创建表时必须 显式指定表存储引擎 类型。如无特殊需求，一律为InnoDB。
-7. 【强制】建表必须有comment。
-8. 【强制】字段命名应尽可能使用表达实际含义的英文单词或 缩写 。如：公司 ID，不要使用corporation_id, 而用corp_id 即可。
-9. 【强制】布尔值类型的字段命名为 is_描述 。如member表上表示是否为enabled的会员的字段命名为 is_enabled。
-10. 【强制】禁止在数据库中存储图片、文件等大的二进制数据通常文件很大，短时间内造成数据量快速增长，数据库进行数据库读取时，通常会进行大量的随机IO操作，文件很大时，IO操作很耗时。通常存储于文件服务器，数据库只存储文件地址信息。
-11. 【建议】建表时关于主键： 表必须有主键 (1)强制要求主键为id，类型为int或bigint，且为auto_increment 建议使用unsigned无符号型。 (2)标识表里每一行主体的字段不要设为主键，建议设为其他字段如user_id，order_id等，并建立unique key索引。因为如果设为主键且主键值为随机插入，则会导致innodb内部页分裂和大量随机I/O，性能下降。
-12. 【建议】核心表（如用户表）必须有行数据的 创建时间字段 （create_time）和 最后更新时间字段（update_time），便于查问题。
-13. 【建议】表中所有字段尽量都是 NOT NULL 属性，业务可以根据需要定义 DEFAULT值 。 因为使用NULL值会存在每一行都会占用额外存储空间、数据迁移容易出错、聚合函数计算结果偏差等问题。
-14. 【建议】所有存储相同数据的 列名和列类型必须一致 （一般作为关联列，如果查询时关联列类型不一致会自动进行数据类型隐式转换，会造成列上的索引失效，导致查询效率降低）。
-15. 【建议】中间表（或临时表）用于保留中间结果集，名称以 tmp_ 开头。备份表用于备份或抓取源表快照，名称以 bak_ 开头。中间表和备份表定期清理。
-16. 【示范】一个较为规范的建表语句：
-
-~~~sql
-CREATE TABLE user_info (
-    `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `user_id` bigint(11) NOT NULL COMMENT '用户id',
-    `username` varchar(45) NOT NULL COMMENT '真实姓名',
-    `email` varchar(30) NOT NULL COMMENT '用户邮箱',
-    `nickname` varchar(45) NOT NULL COMMENT '昵称',
-    `birthday` date NOT NULL COMMENT '生日',
-    `sex` tinyint(4) DEFAULT '0' COMMENT '性别',
-    `short_introduce` varchar(150) DEFAULT NULL COMMENT '一句话介绍自己，最多50个汉字',
-    `user_resume` varchar(300) NOT NULL COMMENT '用户提交的简历存放地址',
-    `user_register_ip` int NOT NULL COMMENT '用户注册时的源ip',
-    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-    `user_review_status` tinyint NOT NULL COMMENT '用户资料审核状态，1为通过，2为审核中，3为未通过，4为还未提交审核',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uniq_user_id` (`user_id`),
-    KEY `idx_username`(`username`),
-    KEY `idx_create_time_status`(`create_time`, `user_review_status`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT = '网站用户基本信息'
-~~~
-
-### 关于索引
-
-1. 【强制】InnoDB表必须主键为id int/bigint auto_increment，且主键值 禁止被更新。
-2. 【强制】InnoDB和MyISAM存储引擎表，索引类型必须为 BTREE 。
-3. 【建议】主键的名称以  pk_ 开头，唯一键以  uni_ 或  uk_ 开头，普通索引以  idx_ 开头，一律使用小写格式，以字段的名称或缩写作为后缀。
-4. 【建议】多单词组成的columnname，取前几个单词首字母，加末单词组成column_name。如:sample 表 member_id 上的索引：idx_sample_mid。
-5. 【建议】单个表上的索引个数 不能超过6个 。
-6. 【建议】在建立索引时，多考虑建立 联合索引 ，并把区分度最高的字段放在最前面。
-7. 【建议】在多表 JOIN 的SQL里，保证被驱动表的连接列上有索引，这样JOIN 执行效率最高。
-8. 【建议】建表或加索引时，保证表里互相不存在 冗余索引 。 比如：如果表里已经存在key(a,b)，则key(a)为冗余索引，需要删除。
-
-### SQL编写
-
-1. 【强制】程序端SELECT语句必须指定具体字段名称，禁止写成 *。
-2. 【建议】程序端insert语句指定具体字段名称，不要写成INSERT INTO t1 VALUES(…)。
-3. 【建议】除静态表或小表（100行以内），DML语句必须有WHERE条件，且使用索引查找。
-4. 【建议】INSERT INTO…VALUES(XX),(XX),(XX).. 这里XX的值不要超过5000个。 值过多虽然上线很快，但会引起主从同步延迟。
-5. 【建议】SELECT语句不要使用UNION，推荐使用UNION ALL，并且UNION子句个数限制在5个以内。
-6. 【建议】线上环境，多表 JOIN 不要超过5个表。
-7. 【建议】减少使用ORDER BY，和业务沟通能不排序就不排序，或将排序放到程序端去做。ORDERBY、GROUP BY、DISTINCT 这些语句较为耗费CPU，数据库的CPU资源是极其宝贵的。
-8. 【建议】包含了ORDER BY、GROUP BY、DISTINCT 这些查询的语句，WHERE 条件过滤出来的结果集请保持在1000行以内，否则SQL会很慢。
-9. 【建议】对单表的多次alter操作必须合并为一次对于超过100W行的大表进行alter table，必须经过DBA审核，并在业务低峰期执行，多个alter需整合在一起。 因为alter table会产生 表锁 ，期间阻塞对于该表的所有写入，对于业务可能会产生极
-   大影响。
-10. 【建议】批量操作数据时，需要控制事务处理间隔时间，进行必要的sleep。
-11. 【建议】事务里包含SQL不超过5个。因为过长的事务会导致锁数据较久，MySQL内部缓存、连接消耗过多等问题。
-12. 【建议】事务里更新语句尽量基于主键或UNIQUE KEY，如UPDATE… WHERE id=XX;否则会产生间隙锁，内部扩大锁定范围，导致系统性能下降，产生死锁。
-
 ## 数据库锁
 
 ### 对MySQL的锁了解吗
@@ -1140,3 +974,82 @@ Innodb_row_lock_waits: 系统启动后到现在总共等待的次数
 
 最简单的事情就是将大的事务简化为小的事务
 
+## 数据库设计建议
+
+### 关于库
+
+1. 【强制】库的名称必须控制在32个字符以内，只能使用英文字母、数字和下划线，建议以英文字母开头。
+2. 【强制】库名中英文 一律小写 ，不同单词采用 下划线 分割。须见名知意。
+3. 【强制】库的名称格式：业务系统名称_子系统名。
+4. 【强制】库名禁止使用关键字（如type,order等）。
+5. 【强制】创建数据库时必须 显式指定字符集 ，并且字符集只能是utf8或utf8mb4。创建数据库SQL举例：CREATE DATABASE crm_fund  DEFAULT CHARACTER SET 'utf8' ;
+6. 【建议】对于程序连接数据库账号，遵循权限最小原则使用数据库账号只能在一个DB下使用，不准跨库。程序使用的账号 原则上不准有drop权限 。
+7. 【建议】临时库以 tmp_ 为前缀，并以日期为后缀；备份库以  bak_ 为前缀，并以日期为后缀。
+
+### 关于表、列
+
+1. 【强制】表和列的名称必须控制在32个字符以内，表名只能使用英文字母、数字和下划线，建议以 英文字母开头 。
+2. 【强制】 表名、列名一律小写 ，不同单词采用下划线分割。须见名知意。
+3. 【强制】表名要求有模块名强相关，同一模块的表名尽量使用 统一前缀 。比如：crm_fund_item
+4. 【强制】创建表时必须 显式指定字符集 为utf8或utf8mb4。
+5. 【强制】表名、列名禁止使用关键字（如type,order等）。
+6. 【强制】创建表时必须 显式指定表存储引擎 类型。如无特殊需求，一律为InnoDB。
+7. 【强制】建表必须有comment。
+8. 【强制】字段命名应尽可能使用表达实际含义的英文单词或 缩写 。如：公司 ID，不要使用corporation_id, 而用corp_id 即可。
+9. 【强制】布尔值类型的字段命名为 is_描述 。如member表上表示是否为enabled的会员的字段命名为 is_enabled。
+10. 【强制】禁止在数据库中存储图片、文件等大的二进制数据通常文件很大，短时间内造成数据量快速增长，数据库进行数据库读取时，通常会进行大量的随机IO操作，文件很大时，IO操作很耗时。通常存储于文件服务器，数据库只存储文件地址信息。
+11. 【建议】建表时关于主键： 表必须有主键 (1)强制要求主键为id，类型为int或bigint，且为auto_increment 建议使用unsigned无符号型。 (2)标识表里每一行主体的字段不要设为主键，建议设为其他字段如user_id，order_id等，并建立unique key索引。因为如果设为主键且主键值为随机插入，则会导致innodb内部页分裂和大量随机I/O，性能下降。
+12. 【建议】核心表（如用户表）必须有行数据的 创建时间字段 （create_time）和 最后更新时间字段（update_time），便于查问题。
+13. 【建议】表中所有字段尽量都是 NOT NULL 属性，业务可以根据需要定义 DEFAULT值 。 因为使用NULL值会存在每一行都会占用额外存储空间、数据迁移容易出错、聚合函数计算结果偏差等问题。
+14. 【建议】所有存储相同数据的 列名和列类型必须一致 （一般作为关联列，如果查询时关联列类型不一致会自动进行数据类型隐式转换，会造成列上的索引失效，导致查询效率降低）。
+15. 【建议】中间表（或临时表）用于保留中间结果集，名称以 tmp_ 开头。备份表用于备份或抓取源表快照，名称以 bak_ 开头。中间表和备份表定期清理。
+16. 【示范】一个较为规范的建表语句：
+
+~~~sql
+CREATE TABLE user_info (
+    `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+    `user_id` bigint(11) NOT NULL COMMENT '用户id',
+    `username` varchar(45) NOT NULL COMMENT '真实姓名',
+    `email` varchar(30) NOT NULL COMMENT '用户邮箱',
+    `nickname` varchar(45) NOT NULL COMMENT '昵称',
+    `birthday` date NOT NULL COMMENT '生日',
+    `sex` tinyint(4) DEFAULT '0' COMMENT '性别',
+    `short_introduce` varchar(150) DEFAULT NULL COMMENT '一句话介绍自己，最多50个汉字',
+    `user_resume` varchar(300) NOT NULL COMMENT '用户提交的简历存放地址',
+    `user_register_ip` int NOT NULL COMMENT '用户注册时的源ip',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    `user_review_status` tinyint NOT NULL COMMENT '用户资料审核状态，1为通过，2为审核中，3为未通过，4为还未提交审核',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_user_id` (`user_id`),
+    KEY `idx_username`(`username`),
+    KEY `idx_create_time_status`(`create_time`, `user_review_status`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT = '网站用户基本信息'
+~~~
+
+### 关于索引
+
+1. 【强制】InnoDB表必须主键为id int/bigint auto_increment，且主键值 禁止被更新。
+2. 【强制】InnoDB和MyISAM存储引擎表，索引类型必须为 BTREE 。
+3. 【建议】主键的名称以  pk_ 开头，唯一键以  uni_ 或  uk_ 开头，普通索引以  idx_ 开头，一律使用小写格式，以字段的名称或缩写作为后缀。
+4. 【建议】多单词组成的columnname，取前几个单词首字母，加末单词组成column_name。如:sample 表 member_id 上的索引：idx_sample_mid。
+5. 【建议】单个表上的索引个数 不能超过6个 。
+6. 【建议】在建立索引时，多考虑建立 联合索引 ，并把区分度最高的字段放在最前面。
+7. 【建议】在多表 JOIN 的SQL里，保证被驱动表的连接列上有索引，这样JOIN 执行效率最高。
+8. 【建议】建表或加索引时，保证表里互相不存在 冗余索引 。 比如：如果表里已经存在key(a,b)，则key(a)为冗余索引，需要删除。
+
+### SQL编写
+
+1. 【强制】程序端SELECT语句必须指定具体字段名称，禁止写成 *。
+2. 【建议】程序端insert语句指定具体字段名称，不要写成INSERT INTO t1 VALUES(…)。
+3. 【建议】除静态表或小表（100行以内），DML语句必须有WHERE条件，且使用索引查找。
+4. 【建议】INSERT INTO…VALUES(XX),(XX),(XX).. 这里XX的值不要超过5000个。 值过多虽然上线很快，但会引起主从同步延迟。
+5. 【建议】SELECT语句不要使用UNION，推荐使用UNION ALL，并且UNION子句个数限制在5个以内。
+6. 【建议】线上环境，多表 JOIN 不要超过5个表。
+7. 【建议】减少使用ORDER BY，和业务沟通能不排序就不排序，或将排序放到程序端去做。ORDERBY、GROUP BY、DISTINCT 这些语句较为耗费CPU，数据库的CPU资源是极其宝贵的。
+8. 【建议】包含了ORDER BY、GROUP BY、DISTINCT 这些查询的语句，WHERE 条件过滤出来的结果集请保持在1000行以内，否则SQL会很慢。
+9. 【建议】对单表的多次alter操作必须合并为一次对于超过100W行的大表进行alter table，必须经过DBA审核，并在业务低峰期执行，多个alter需整合在一起。 因为alter table会产生 表锁 ，期间阻塞对于该表的所有写入，对于业务可能会产生极
+   大影响。
+10. 【建议】批量操作数据时，需要控制事务处理间隔时间，进行必要的sleep。
+11. 【建议】事务里包含SQL不超过5个。因为过长的事务会导致锁数据较久，MySQL内部缓存、连接消耗过多等问题。
+12. 【建议】事务里更新语句尽量基于主键或UNIQUE KEY，如UPDATE… WHERE id=XX;否则会产生间隙锁，内部扩大锁定范围，导致系统性能下降，产生死锁。
