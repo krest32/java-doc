@@ -41,79 +41,53 @@
 SELECT
     column_name,
     column_name
-FROM
-    table_name;
+FROM table_name;
 
-SELECT
-    *
-FROM
-    table_name;
+SELECT  *
+FROM table_name;
 
 # DISTINCT 关键词用于返回唯一不同的值。
 SELECT
-    DISTINCT column_name,
-    column_name
-FROM
-    table_name;
+    DISTINCT column_name, column_name
+FROM table_name;
 
 # WHERE 子句用于提取那些满足指定条件的记录。
 SELECT
     column_name,
     column_name
-FROM
-    table_name
-WHERE
-    column_name operator value;
+FROM table_name
+WHERE column_name operator value;
 
 # AND & OR 运算符用于基于一个以上的条件对记录进行过滤。
-SELECT
-    *
-FROM
-    Websites
-WHERE
-    country = 'CN'
-    AND alexa > 50;
+SELECT *
+FROM Websites
+WHERE country = 'CN' AND alexa > 50;
     
-SELECT
-    *
-FROM
-    Websites
-WHERE
-    country = 'USA'
-    OR country = 'CN';
+SELECT *
+FROM Websites
+WHERE country = 'USA' OR country = 'CN';
     
 # 结合 and 和 or
-SELECT
-    *
-FROM
-    Websites
-WHERE
-    alexa > 15
-    AND (
-        country = 'CN'
-        OR country = 'USA'
-    );
+SELECT *
+FROM  Websites
+WHERE alexa > 15
+    AND (country = 'CN' OR country = 'USA' );
 
 # 选取数据库中的部分数据
-SELECT
-    *
-FROM
-    Websites
-LIMIT
-    2;
+SELECT  *
+FROM Websites
+LIMIT 2;
     
     
 SELECT
     TOP 50 PERCENT *
-FROM
-    Websites;
+FROM  Websites;
 
 # 进行排序
 SELECT
     column_name,
     column_name
-FROM
-    table_name
+FROM table_name
 ORDER BY
     column_name,
     column_name ASC | DESC;
@@ -132,10 +106,8 @@ VALUES
 INSERT INTO
     Websites (name, country)
 SELECT
-    app_name,
-    country
-FROM
-    apps;
+    app_name,  country
+FROM apps;
 ~~~
 
 ### Update
@@ -175,10 +147,8 @@ WHERE
 # 选取 name 以一个任意字符开始，然后是 "oogle" 的所有客户：
 SELECT
     *
-FROM
-    Websites
-WHERE
-    name LIKE '_oogle';
+FROM Websites
+WHERE name LIKE '_oogle';
 
 ~~~
 

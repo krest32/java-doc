@@ -32,11 +32,11 @@ mysql中的in语句是把外表和内表作hash 连接，而exists语句是对�
 
 ### varchar(50)中50的涵义
 
-最多存放50个字符，varchar(50)和(200)存储hello所占空间一样，但后者在排序时会消耗更多内存，因为order by col采用fixed_length计算col长度(memory引擎也一样)。在早期 MySQL 版本中， 50 代表字节数，现在代表字符数。
+最多存放50个字符，varchar(50)和(200)存储hello所占空间一样，但后者在排序时会消耗更多内存，因为order by col采用fixed_length计算col长度(memory引擎也一样)。在早期 MySQL 版本中，50代表字节数，现在代表字符数。
 
 
 
-### int(20) 中 20 的涵义
+### int(20) 中20的涵义
 
 是指显示字符的长度。20表示最大显示宽度为20，但仍占4字节存储，存储范围不变；
 
