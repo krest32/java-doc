@@ -447,7 +447,7 @@ ELK架构为数据分布式存储、可视化查询和日志解析创建了一�
 
 
 
-## 如何部署ES？
+## 部署ES
 
 ### 6.1 ES部署（无需安装）
 
@@ -484,25 +484,20 @@ ELK架构为数据分布式存储、可视化查询和日志解析创建了一�
    脚本说明： 
    http://blog.csdn.net/laoyang360/article/details/51900235
 
-## 7. ES对外接口（开发人员关注）
+## ES对外接口（开发人员关注）
 
-### 1.  JAVA API接口
+### RESTful API接口
 
-http://www.ibm.com/developerworks/library/j-use-elasticsearch-java-apps/index.html
+[常见的增、删、改、查操作实现](http://blog.csdn.net/laoyang360/article/details/51931981) 
 
-### 2. RESTful API接口
+### ES遇到问题怎么办？
 
-常见的增、删、改、查操作实现： 
-http://blog.csdn.net/laoyang360/article/details/51931981
-
-## 8.ES遇到问题怎么办？
-
-1. 国外：https://discuss.elastic.co/ 
-2. 国内：http://elasticsearch.cn/
+1. [国外社区](https://discuss.elastic.co/) 
+2. [国内中文社区](http://elasticsearch.cn/)
 
 
 
-## 9. 基本操作
+## 基本操作
 
 ### Window 启动
 
@@ -1021,7 +1016,7 @@ POST _analyze
 
 
 
-## 10 Spring整合ES
+## Spring整合ES
 
 ES 有两个端口
 
@@ -1206,9 +1201,9 @@ public class EsTest {
 
 ~~~
 
-## 11. 整合系统
+## 整合系统
 
-### 1. 确认关系映射（数据模型）
+### 确认关系映射（数据模型）
 
 ~~~Json
 PUT blogs
@@ -1264,9 +1259,9 @@ PUT blogs
 }
 ~~~
 
-## 12搜索引擎
+## 搜索引擎
 
-### 1.  建立查询接口
+### 建立查询接口
 
 ~~~java
   /**
@@ -1281,7 +1276,7 @@ PUT blogs
     }
 ~~~
 
-### 2. 封装所有可能的检索条件作为对象
+### 封装所有可能的检索条件作为对象
 
 ~~~java
 /**
@@ -1344,7 +1339,7 @@ public class SearchParam {
 
 ~~~
 
-### 3.建立的检索结果，并返回对象
+### 建立的检索结果，并返回对象
 
 ~~~java
 /**
@@ -1402,7 +1397,7 @@ public class ResponseParam {
 
 ~~~
 
-### 4.建立接口实现方法
+### 建立接口实现方法
 
 ~~~java
  /**
@@ -1424,7 +1419,7 @@ public class ResponseParam {
 
 
 
-### 5 .ES中优先测试检索规律
+### ES中优先测试检索规律
 
 ~~~Json
 GET product/_search
@@ -1503,7 +1498,7 @@ GET product/_search
 }
 ~~~
 
-### 6. 复杂查询的规律
+### 复杂查询的规律
 
 ![image-20201114191443160](img/20201114191443.png)
 
@@ -1572,7 +1567,7 @@ GET blogs/_search
 
 ~~~
 
-### 7. 对结果进行聚合分析
+### 对结果进行聚合分析
 
 #####  普通聚合
 
@@ -1586,7 +1581,7 @@ GET blogs/_search
 
 
 
-### 8. 使用Java构建复杂的DSL语句
+### 使用Java构建复杂的DSL语句
 
 1. 程序结构
 
@@ -2258,11 +2253,9 @@ Hadoop contrib/index
 
 
 
-# Docker中安装Elasticsearch7.6.2
+# Docker中安装ES
 
-## 安装docker
 
-你要安装完成docker，不再说明了。
 
 ## 安装Elasticsearch
 

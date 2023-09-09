@@ -2272,62 +2272,63 @@ start.bat 3366
 ## 安装
 
 ~~~bash
-
-[bigdata@linux ~]$ wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel62-3.4.3.tgz
+# 3.4.3 版本太旧
+wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel62-3.4.3.tgz
 #  将压缩包解压到指定目录
-[bigdata@linux backup]$ tar -xf mongodb-linux-x86_64-rhel62-3.4.3.tgz -C ~/
+tar -xf mongodb-linux-x86_64-rhel62-3.4.3.tgz -C
 # 将解压后的文件移动到最终的安装目录
-[bigdata@linux ~]$ mv mongodb-linux-x86_64-rhel62-3.4.3/ /usr/local/mongodb
+mv mongodb-linux-x86_64-rhel62-3.4.3/ /usr/local/mongodb
 #  在安装目录下创建data文件夹用于存放数据和日志
-[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/
+cd mongodb
 #  在data文件夹下创建db文件夹，用于存放数据
-[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/db/
+mkdir conf
+mkdir data
 # 在data文件夹下创建logs文件夹，用于存放日志
-[bigdata@linux mongodb]$ mkdir /usr/local/module/mongodb/data/logs/
-# 在logs文件夹下创建log文件
-[bigdata@linux mongodb]$ touch /usr/local/module/mongodb/data/logs/ mongodb.log
-#  在data文件夹下创建mongodb.conf配置文件
-[bigdata@linux mongodb]$ touch /usr/local/module/mongodb/data/mongodb.conf
+mkdir logs
+touch log/mongo.log
+
+# 增加配置文件
+cd conf
+touch mongodb.conf
 # 在mongodb.conf文件中输入如下内容
-[bigdata@linux mongodb]$ vim ./data/mongodb.conf
-
-#数据库路径
-dbpath=/usr/local/module/mongodb/data/db/
-
-#日志输出文件路径
-logpath=/usr/local/module/mongodb/data/logs/mongodb.log
-
-#错误日志采用追加模式
-logappend=true
-
-#启用日志文件，默认启用
-journal=true
-
-#这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
-quiet=true
-
-#端口号 默认为27017
-port=27017
-
-#允许远程访问
-bind_ip=0.0.0.0
-
-#开启子进程
-fork=true
-
-#开启认证，必选先添加用户，先不开启（不用验证账号密码）
-#auth=true
+vim ./data/mongodb.conf
 ~~~
+
+
+
+~~~conf
+storage:
+    dbPath: "/usr/local/software/mongodb/data/"
+systemLog:
+    destination: file
+    path: "/usr/local/software/mongodb/logs/mongo.log"
+    logAppend: true
+net:
+    port: 27017
+    bindIpAll: true
+processManagement:
+    fork: true
+security:
+  authorization: enabled
+~~~
+
+
 
 ## 启动
 
 ~~~bash
  启动MongoDB服务器
-[bigdata@linux mongodb]$ sudo /usr/local/module/mongodb/bin/mongod -config /usr/local/module/mongodb/data/mongodb.conf
+bin/mongod -f conf/mongodb.conf
 // 访问MongoDB服务器
-[bigdata@linux mongodb]$ /usr/local/module/mongodb/bin/mongo
+/bin/mongo
 // 停止MongoDB服务器
-[bigdata@linux mongodb]$ sudo /usr/local/module/mongodb/bin/mongod -shutdown -config /usr/local/module/mongodb/data/mongodb.conf
+bin/mongod -shutdown -f conf/mongodb.conf
+
+vim /etc/profile
+export PATH=$PATH:/usr/local/software/mongodb/bin
+
+mongod --version
+
 ~~~
 
 
@@ -2378,90 +2379,16 @@ use admin
 db.createUser({ user: "root", pwd: "root", roles: [{ role: "root", db: "admin" }] })            #创建管理员用户
 db.auth("root", "root") 如果返回1，则表示成功。
 exit
+
 修改mongo配置
-sudo vi /etc/mongod.conf 修改为#security:为security: authorization: enabled 
-systemctl  restart mongo
+ vi /etc/mongod.conf 修改为#security:为security: authorization: enabled 
+systemctl restart mongo
 
 创建数据库用户，拥有有读写权限
 mongo -u root -p root
 use test
-db.createUser({user:'admin',pwd:'admin123', roles:[{role:'readWrite',db:'test'}]}) 
+db.createUser({user:'krest',pwd:'Bob.131xxx', roles:[{role:'readWrite',db:'test'}]}) 
 exit
-
-验证数据库
-mongo
-use test
-db.auth("admin","admin123")
-db.test.insert({"m":"2"})
-db.test.find({})
-
-~~~
-
-
-
-
-
-## 基本操作
-
-~~~bash
-// 1.数据库的切换：use  数据库名
-use my_test
-// 2.创建集合：db.集合名.insert({_id:'1001'})  --- 在向集合中插入文档时就已经创建了集合
-db.admin.insert({
-   _id:'1005',
-     userName: '鲁肃',
-     password: '123456',
-     address: '镇江'
-})
-db.student.insert({
-   _id:'s101',
-     sname: '张三',
-     ssex: '男',
-     sage: 21
-})
-// 3.查询集合：db.集合名.find({})  --- 若find不带参数表示查询所有文档
-db.admin.find()
-// 4. 统计集合中文档的数量 ：db.集合名.find().count()
-db.admin.find().count()
-// 5.更新集合中的文档：db.集合名.update({条件},{$set:{key:value}})
-db.admin.update({_id:'1004'},{$set:{password:'aaaa'}})
-// 6. 删除属性(key)：db.集合名.update({条件},{$unset:{key:value}}
-db.admin.update({_id:'1003'},{$unset:{address:'南京'}})
-// 7. 增加属性：db.集合名.update({条件},{$set:{key:value}}
-db.admin.update({_id:'1003'},{$set:{hobby:['下棋','骑马','KTV']}})
-// 8. 删除文档：db.集合名.remove({条件})
-db.admin.remove({_id:'1005'})
-db.student.find()
-//9. 删除集合：db.集合名.drop()
-
-
-//创建一个数组：保存若干对象
-var arr = []
-for(let i=1;i<=2000;i++)
-{
-    arr.push({
-             _id:'100'+i,
-             title: 'A0'+i,
-             num: i
-        })
-}
-//将数组arr中的元素插入到集合numbers中
-db.numbers.insert(arr)
-db.numbers.find()
-// 10. 查询numbers集合中num值等于500的文档(记录)
-db.numbers.find({num:500})
-// 11. 查询numbers集合中num值大于500的文档
-db.numbers.find({num:{$gt:500}})
-// 12. 查询numbers集合中num值小于500的文档
-db.numbers.find({num:{$lt:500}})
-// 13. 查询numbers集合中num值小于40,小于50的文档
-db.numbers.find({num:{$gt:40,$lt:50}})
-//14. 用limit设置显示数据的上限
-db.numbers.find().limit(15)  //表示最多显示15条记录
-//15. 分页显示：skip(index)---进行定位
-db.numbers.find().skip(0).limit(10)  //从索引为0的记录开始连续显示10条记录
-db.numbers.find().skip(10).limit(10)
-db.numbers.find().skip(20).limit(10)
 ~~~
 
 
