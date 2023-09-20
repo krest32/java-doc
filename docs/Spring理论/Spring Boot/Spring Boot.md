@@ -72,7 +72,7 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 
 
 
-### 你如何理解 Spring Boot 配置加载顺序 ？
+### Spring Boot配置的加载顺序 ？
 
 在 Spring Boot 里面，可以使用以下几种方式来加载配置。
 
@@ -89,7 +89,7 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 1. bootstrap.properties
 2. application.properties 
 
-### 什么是 YAML？优缺点是什么？
+### 什么是YAML？优缺点是什么？
 
 ​		YAML 是一种人类可读的数据序列化语言。它通常用于配置文件。如果我们想要在配置文件中添加复杂的属性，YAML 文件就更加结构化，而且更少混淆。可以看出 YAML 具有分层配置数据。
 
@@ -103,13 +103,13 @@ Spring Boot 3.0.0 第一个里程碑版本 M1 发布，有两个重大的变更�
 
 1.  @PropertySource 注解导入自定义的 YAML 配置。
 
-### Spring Boot 是否可以使用 XML 配置 ?
+### Spring Boot是否可以使用XML配置 ?
 
-​		Spring Boot 推荐使用 Java 配置而非 XML 配置，但是 Spring Boot 中也可以使用 XML 配置，通过 @ImportResource 注解可以引入一个 XML 配置。
+Spring Boot 推荐使用 Java 配置而非 XML 配置，但是 Spring Boot 中也可以使用 XML 配置，通过 @ImportResource 注解可以引入一个 XML 配置。
 
-### spring boot 核心配置文件是什么？bootstrap.properties 和 application.properties 有何区别 ?
+### spring boot核心配置文件是什么？bootstrap和 application有何区别 ?
 
-​		单纯做 Spring Boot 开发，可能不太容易遇到 bootstrap.properties 配置文件，但是在结合 Spring Cloud 时，这个配置就会经常遇到了，特别是在需要加载一些远程配置文件的时侯。
+单纯做 Spring Boot 开发，可能不太容易遇到 bootstrap.properties 配置文件，但是在结合 Spring Cloud 时，这个配置就会经常遇到了，特别是在需要加载一些远程配置文件的时侯。
 
 spring boot 核心的两个配置文件：
 
@@ -120,13 +120,9 @@ spring boot 核心的两个配置文件：
 
 ### 什么是 Spring Profiles？
 
-​		Spring Profiles 允许用户根据配置文件（dev，test，prod 等）来注册 bean，方便程序配置文件或者环境的切换。
+Spring Profiles 允许用户根据配置文件（dev，test，prod 等）来注册 bean，方便程序配置文件或者环境的切换。
 
 
-
-### 如何在自定义端口上运行 Spring Boot 应用程序？
-
-​		为了在自定义端口上运行 Spring Boot 应用程序，您可以在application.properties 中指定端口。server.port = 8090
 
 
 
@@ -594,9 +590,9 @@ profile
 
 
 
-### Spring Boot 中如何解决跨域问题 ?
+### Spring Boot中如何解决跨域问题 ?
 
-​		跨域可以在前端通过 JSONP 来解决，但是 JSONP 只可以发送 GET 请求，无法发送其他类型的请求，在 RESTful 风格的应用中，就显得非常鸡肋，因此我们推荐在后端通过 （CORS，Cross-origin resource sharing） 来解决跨域问题。这种解决方案并非 Spring Boot 特有的，在传统的 SSM 框架中，就可以通过 CORS 来解决跨域问题，只不过之前我们是在 XML 文件中配置 CORS ，现在可以通过实现WebMvcConfigurer接口然后重写addCorsMappings方法解决跨域问题。
+跨域可以在前端通过 JSONP 来解决，但是JSONP只可以发送 GET 请求，无法发送其他类型的请求，在 RESTful 风格的应用中，就显得非常鸡肋，因此我们推荐在后端通过 （CORS，Cross-origin resource sharing） 来解决跨域问题。这种解决方案并非 Spring Boot 特有的，在传统的 SSM 框架中，就可以通过 CORS 来解决跨域问题，只不过之前我们是在 XML 文件中配置 CORS ，现在可以通过实现WebMvcConfigurer接口然后重写addCorsMappings方法解决跨域问题。
 
 ```java
 @Configuration
@@ -654,13 +650,13 @@ public class CorsConfig {
 
 ### 如何在 Spring Boot 中禁用 Actuator 端点安全性？
 
-​		默认情况下，所有敏感的 HTTP 端点都是安全的，只有具有 ACTUATOR 角色的用户才能访问它们。安全性是使用标准的 HttpServletRequest.isUserInRole 方法实施的。 我们可以使用来禁用安全性。只有在执行机构端点在防火墙后访问时，才建议禁用安全性。
+默认情况下，所有敏感的 HTTP 端点都是安全的，只有具有 ACTUATOR 角色的用户才能访问它们。安全性是使用标准的 HttpServletRequest.isUserInRole 方法实施的。 我们可以使用来禁用安全性。只有在执行机构端点在防火墙后访问时，才建议禁用安全性。
 
 
 
 ### 我们如何监视所有 Spring Boot 微服务？
 
-​		Spring Boot 提供监视器端点以监控各个微服务的度量。这些端点对于获取有关应用程序的信息（如它们是否已启动）以及它们的组件（如数据库等）是否正常运行很有帮助。但是，使用监视器的一个主要缺点或困难是，我们必须单独打开应用程序的知识点以了解其状态或健康状况。想象一下涉及 50 个应用程序的微服务，管理员将不得不击中所有 50 个应用程序的执行终端。为了帮助我们处理这种情况，我们将使用位于的开源项目。 它建立在 Spring Boot Actuator 之上，它提供了一个 Web UI，使我们能够可视化多个应用程序的度量。
+Spring Boot 提供监视器端点以监控各个微服务的度量。这些端点对于获取有关应用程序的信息（如它们是否已启动）以及它们的组件（如数据库等）是否正常运行很有帮助。但是，使用监视器的一个主要缺点或困难是，我们必须单独打开应用程序的知识点以了解其状态或健康状况。想象一下涉及 50 个应用程序的微服务，管理员将不得不击中所有 50 个应用程序的执行终端。为了帮助我们处理这种情况，我们将使用位于的开源项目。 它建立在 Spring Boot Actuator 之上，它提供了一个 Web UI，使我们能够可视化多个应用程序的度量。
 
 
 
@@ -704,16 +700,10 @@ SpringData 项目所支持的关系数据存储技术：
 
 1. 添加配置类
 2. 添加 service服务
-3. 通过 AutoConfiguration 类，添加 service 的Bean 到IOC 容器当中
+3. 通过 AutoConfiguration 类，添加 service 的Bean到IOC容器当中
 4. 添加配置文件spring.factory添加自动的一个配置路径
 5. mvn install 
 6. 新建项目，引用 starter 即可
-
-
-
-
-
-
 
 
 

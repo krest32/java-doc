@@ -130,7 +130,7 @@ Spring 应用一般有以下组件：
 - 最小的代价和最小的侵入性使松散耦合得以实现。
 - `IOC`容器支持加载服务时的饿汉式初始化和懒加载。
 
-### Spring IoC 的实现机制
+### Spring IoC的实现机制
 
 Spring 中的 IoC 的实现原理就是工厂模式加反射机制。
 
@@ -177,7 +177,7 @@ class Client {
 
 
 
-### Spring 的 IoC支持哪些功能
+### IoC支持哪些功能
 
 Spring 的 IoC 设计支持以下功能：
 
@@ -193,7 +193,7 @@ Spring 的 IoC 设计支持以下功能：
 
 
 
-### `BeanFactory` 和 `ApplicationContext` 有什么区别？
+### `BeanFactory`和`ApplicationContext`有什么区别？
 
 ​		BeanFactory和ApplicationContext是Spring的两大核心接口，都可以当做Spring的容器。其中ApplicationContext是BeanFactory的子接口。
 
@@ -211,15 +211,13 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 2、**加载方式**
 
-​		**BeanFactroy**采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化。这样，我们就不能发现一些存在的Spring的配置问题。如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常。
-
-​		**ApplicationContext，它是在容器启动时，一次性创建了所有的Bean**。这样，在容器启动时，我们就可以发现Spring中存在的配置错误，这样有利于检查所依赖属性是否注入。 ApplicationContext启动后预载入所有的单实例Bean，通过预载入单实例bean ,确保当你需要的时候，你就不用等待，因为它们已经创建好了。
-
-​		相对于基本的BeanFactory，ApplicationContext 唯一的不足是占用内存空间。当应用程序配置Bean较多时，程序启动较慢。
++ **BeanFactroy**采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化。这样，我们就不能发现一些存在的Spring的配置问题。如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常。
++ **ApplicationContext，它是在容器启动时，一次性创建了所有的Bean**。这样，在容器启动时，我们就可以发现Spring中存在的配置错误，这样有利于检查所依赖属性是否注入。 ApplicationContext启动后预载入所有的单实例Bean，通过预载入单实例bean ,确保当你需要的时候，你就不用等待，因为它们已经创建好了。
++ 相对于基本的BeanFactory，ApplicationContext 唯一的不足是占用内存空间。当应用程序配置Bean较多时，程序启动较慢。
 
 3、**创建方式**
 
-​		**BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。**
+**BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。**
 
 4、**注册方式**
 
@@ -238,29 +236,29 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 
 
-### 什么是Spring的依赖注入？
+### 什么是依赖注入？
 
-​		**控制反转IoC是一个很大的概念，可以用不同的方式来实现。其主要实现方式有两种：依赖注入和依赖查找**
+**控制反转IoC是一个很大的概念，可以用不同的方式来实现。其主要实现方式有两种：依赖注入和依赖查找**
 
-​		依赖注入：相对于IoC而言，依赖注入(DI)更加准确地描述了IoC的设计理念。所谓依赖注入（Dependency Injection），即**组件之间的依赖关系由容器在应用系统运行期来决定，也就是由容器动态地将某种依赖关系的目标对象实例注入到应用系统中的各个关联的组件之中。组件不做定位查询，只提供普通的Java方法让容器去决定依赖关系**。
+依赖注入：相对于IoC而言，依赖注入(DI)更加准确地描述了IoC的设计理念。所谓依赖注入（Dependency Injection），即**组件之间的依赖关系由容器在应用系统运行期来决定，也就是由容器动态地将某种依赖关系的目标对象实例注入到应用系统中的各个关联的组件之中。组件不做定位查询，只提供普通的Java方法让容器去决定依赖关系**。
 
 
 
 ### 依赖注入的基本原则
 
-​		依赖注入的基本原则是**：应用组件不应该负责查找资源或者其他依赖的协作对象。配置对象的工作应该由IoC容器负责**，“查找资源”的逻辑应该从应用组件的代码中抽取出来，交给IoC容器负责。容器全权负责组件的装配，它会把符合依赖关系的对象通过属性（JavaBean中的setter）或者是构造器传递给需要的对象。
+依赖注入的基本原则是**：应用组件不应该负责查找资源或者其他依赖的协作对象。配置对象的工作应该由IoC容器负责**，“查找资源”的逻辑应该从应用组件的代码中抽取出来，交给IoC容器负责。容器全权负责组件的装配，它会把符合依赖关系的对象通过属性（JavaBean中的setter）或者是构造器传递给需要的对象。
 
 
 
 ### 依赖注入有什么优势
 
-​		依赖注入之所以更流行是因为它是一种更可取的方式：**让容器全权负责依赖查询，受管组件只需要暴露JavaBean的setter方法或者带参数的构造器或者接口，使容器可以在初始化时组装对象的依赖关系**。
+依赖注入之所以更流行是因为它是一种更可取的方式：**让容器全权负责依赖查询，受管组件只需要暴露JavaBean的setter方法或者带参数的构造器或者接口，使容器可以在初始化时组装对象的依赖关系**。
 
 
 
 ### 有哪些不同类型的依赖注入实现方式？
 
-​		依赖注入是时下最流行的IoC实现方式，依赖注入分为接口注入（Interface Injection），Setter方法注入（Setter Injection）和构造器注入（Constructor Injection）三种方式。其中**接口注入由于在灵活性和易用性比较差，现在从Spring4开始已被废弃**。
+依赖注入是时下最流行的IoC实现方式，依赖注入分为接口注入（Interface Injection），Setter方法注入（Setter Injection）和构造器注入（Constructor Injection）三种方式。其中**接口注入由于在灵活性和易用性比较差，现在从Spring4开始已被废弃**。
 
 + **构造器依赖注入**（官方推荐方式）：构造器依赖注入通过容器触发一个类的构造器来实现的，
   + 缺点是：该类有一系列参数，每个参数代表一个对其他类的依赖，如果注入多想很多，那么参数列表就会很长，可能会不够灵活
@@ -273,7 +271,7 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
   + 不能被检测出是否有循环依赖
   + 被Final修饰的属性，无法赋值
 
-### 构造器依赖注入和 Setter方法注入的区别
+### 构造器依赖注入和Setter方法注入
 
 | **构造函数注入**           | **setter** **注入**        |
 | -------------------------- | -------------------------- |
@@ -286,13 +284,13 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 ## Spring Beans
 
-### 什么是 Spring beans？
+### 什么是Spring bean？
 
 ​		Spring beans 是那些形成Spring应用的主干的java对象。它们被Spring IOC容器初始化，装配，和管理。这些beans通过容器中配置的元数据创建。比如，以XML文件中 的形式定义。
 
-### 一个 Spring Bean 定义 包含什么？
+### 一个Spring Bean定义包含什么？
 
-​		一个Spring Bean 的定义包含容器必知的所有配置元数据，包括如何创建一个bean，它的生命周期详情及它的依赖。
+一个Spring Bean 的定义包含容器必知的所有配置元数据，包括如何创建一个bean，它的生命周期详情及它的依赖。
 
 ### 如何给 Spring 容器提供配置元数据？Spring有几种配置方式
 
@@ -304,7 +302,7 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 ### Spring 配置文件包含了哪些信息
 
-​		Spring配置文件是个XML 文件，这个文件包含了类信息，描述了如何配置它们，以及如何相互调用。
+Spring配置文件是个XML 文件，这个文件包含了类信息，描述了如何配置它们，以及如何相互调用。
 
 ### Spring基于xml注入bean的几种方式
 
@@ -315,7 +313,7 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 ### 你怎样定义类的作用域？
 
-​		当定义一个 在Spring里，我们还能给这个bean声明一个作用域。它可以通过bean 定义中的scope属性来定义。如，当Spring要在需要的时候每次生产一个新的bean实例，bean的scope属性被指定为prototype。另一方面，一个bean每次使用的时候必须返回同一个实例，**这个bean的scope 属性 必须设为 singleton。**
+当定义一个 在Spring里，我们还能给这个bean声明一个作用域。它可以通过bean定义中的scope属性来定义。如，当Spring要在需要的时候每次生产一个新的bean实例，bean的scope属性被指定为prototype。另一方面，一个bean每次使用的时候必须返回同一个实例，**这个bean的scope属性 必须设为 singleton。**
 
 ### 解释Spring支持的几种bean的作用域
 
@@ -349,9 +347,7 @@ Spring框架支持以下五种bean的作用域：
 
 ![img](img/20201228122952.png)
 
-​		bean在Spring容器中从创建到销毁经历了若干阶段，每一阶段都可以针对Spring如何管理bean进行个性化定制。
-
-​		正如你所见，在bean准备就绪之前，bean工厂执行了若干启动步骤。
+bean在Spring容器中从创建到销毁经历了若干阶段，每一阶段都可以针对Spring如何管理bean进行个性化定制。正如你所见，在bean准备就绪之前，bean工厂执行了若干启动步骤。
 
 我们对上图进行详细描述：
 
@@ -365,25 +361,23 @@ Spring框架支持以下五种bean的作用域：
 5. 执行`Bean`的初始化方法
 6. 如果继承`BeanPostProcessor`，执行初始化之后的方法；
 
-此时，bean已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；
-
-​		如果bean实现了DisposableBean接口，Spring将调用它的destroy()接口方法。同样，如果bean使用destroy-method声明了销毁方法，该方法也会被调用。
+此时，bean已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；如果bean实现了DisposableBean接口，Spring将调用它的destroy()接口方法。同样，如果bean使用destroy-method声明了销毁方法，该方法也会被调用。
 
 
 
 ### 哪些是重要的bean生命周期方法？ 你能重载它们吗？
 
-​		有两个重要的bean 生命周期方法，第一个是setup ， 它是在容器加载bean的时候被调用。第二个方法是 teardown 它是在容器卸载类的时候被调用。
+有两个重要的bean生命周期方法，第一个是setup，它是在容器加载bean的时候被调用。第二个方法是 teardown 它是在容器卸载类的时候被调用。
 
-​		bean 标签有两个重要的属性（init-method和destroy-method）。用它们你可以自己定制初始化和注销方法。它们也有相应的注解（@PostConstruct和@PreDestroy）。
+bean标签有两个重要的属性（init-method和destroy-method）。用它们你可以自己定制初始化和注销方法。它们也有相应的注解（@PostConstruct和@PreDestroy）。
 
 
 
 ### 什么是Spring的内部bean？什么是Spring inner beans？
 
-​		在Spring框架中，当一个bean仅被用作另一个bean的属性时，它能被声明为一个内部bean。内部bean可以用setter注入“属性”和构造方法注入“构造参数”的方式来实现，内部bean通常是匿名的，**它们的Scope一般是prototype**。
+在Spring框架中，当一个bean仅被用作另一个bean的属性时，它能被声明为一个内部bean。内部bean可以用setter注入“属性”和构造方法注入“构造参数”的方式来实现，内部bean通常是匿名的，**它们的Scope一般是prototype**。
 
-### 在 Spring中如何注入一个java集合？
+### 在Spring中如何注入一个java集合？
 
 Spring提供以下几种集合的配置元素：
 
@@ -399,9 +393,9 @@ Spring提供以下几种集合的配置元素：
 
 ​		装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。
 
-### 解释不同方式的自动装配，spring 自动装配 bean 有哪些方式？
+### 解释不同方式的自动装配，spring 自动装配bean有哪些方式？
 
-​		在spring中，对象无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象，使用autowire来配置自动装载模式。
+在spring中，对象无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象，使用autowire来配置自动装载模式。
 
 在Spring框架xml配置中共有5种自动装配：
 
@@ -411,11 +405,11 @@ Spring提供以下几种集合的配置元素：
 - constructor：利用构造函数进行装配，并且构造函数的参数通过byType进行装配。
 - autodetect：自动探测，如果有构造方法，通过 construct的方式自动装配，否则使用 byType的方式自动装配。
 
-### 使用 @Autowired 注解自动装配的过程是怎样的？
+### 使用 @Autowired 注解自动装配的过程？
 
-​		使用@Autowired注解来自动装配指定的bean。在使用@Autowired注解之前需要在Spring配置文件进行配置，<context:annotation-config />。
+使用@Autowired注解来自动装配指定的bean。在使用@Autowired注解之前需要在Spring配置文件进行配置，<context:annotation-config />。
 
-​		在启动spring IoC时，容器自动装载了一个AutowiredAnnotationBeanPostProcessor后置处理器，**当容器扫描到@Autowied、@Resource或@Inject时，就会在IoC容器自动查找需要的bean，并装配给该对象的属性。**在使用@Autowired时，首先在容器中查询对应类型的bean：
+在启动spring IoC时，容器自动装载了一个AutowiredAnnotationBeanPostProcessor后置处理器，**当容器扫描到@Autowied、@Resource或@Inject时，就会在IoC容器自动查找需要的bean，并装配给该对象的属性。**在使用@Autowired时，首先在容器中查询对应类型的bean：
 
 - 如果查询结果刚好为一个，就将该bean装配给@Autowired指定的数据；
 - 先通过ByType的方式来查找，如果查询的结果不止一个，那么@Autowired会根据名称来查找；
@@ -438,8 +432,6 @@ Spring提供以下几种集合的配置元素：
 ### 你可以在Spring中注入一个null 和一个空字符串吗？
 
 可以。
-
-
 
 ### 循环依赖
 
@@ -485,7 +477,7 @@ Spring解决循环依赖是有前置条件的
 
 
 
-### BeanFactory 和 FactoryBean区别？
+### BeanFactory和FactoryBean区别？
 
 + BeanFactory：生成单例Bean的工厂，提供Bean的创建管理
 + FactoryBean：可以返回创建Bean的工厂，如果实现了FactoryBean接口，那么就可以扩展一些创建Bean的规则
@@ -496,11 +488,11 @@ Spring解决循环依赖是有前置条件的
 
 ### 什么是基于Java的Spring注解配置? 给一些注解的例子
 
-​		基于Java的配置，允许你在少量的Java注解的帮助下，进行你的大部分Spring配置而非通过XML文件。
+基于Java的配置，允许你在少量的Java注解的帮助下，进行你的大部分Spring配置而非通过XML文件。
 
-​		以@Configuration 注解为例，它用来标记类可以当做一个bean的定义，被Spring IOC容器使用。
+以@Configuration 注解为例，它用来标记类可以当做一个bean的定义，被Spring IOC容器使用。
 
-​		另一个例子是@Bean注解，它表示此方法将要返回一个对象，作为一个bean注册进Spring应用上下文。
+另一个例子是@Bean注解，它表示此方法将要返回一个对象，作为一个bean注册进Spring应用上下文。
 
 ```java
 @Configuration
