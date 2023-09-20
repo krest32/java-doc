@@ -76,7 +76,7 @@ Spring 总共大约有 20 个模块， 由 1300 多个不同的文件构成。 �
 - **spring Web：**提供了针对 Web 开发的集成特性，例如文件上传，利用 servlet listeners 进行 ioc 容器初始化和针对 Web 的 ApplicationContext。
 - **spring test：**主要为测试提供支持的，支持使用JUnit或TestNG对Spring组件进行单元测试和集成测试。
 
-### Spring 框架中都用到了哪些设计模式？
+### Spring框架中都用到了哪些设计模式？
 
 1. 工厂模式：BeanFactory就是简单工厂模式的体现，用来创建对象的实例；
 2. 单例模式：Bean默认为单例模式。
@@ -84,13 +84,13 @@ Spring 总共大约有 20 个模块， 由 1300 多个不同的文件构成。 �
 4. 模板方法：用来解决代码重复的问题。比如. RestTemplate, JmsTemplate, JpaTemplate。
 5. 观察者模式：定义对象键一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都会得到通知被制动更新，如Spring中listener的实现–ApplicationListener。
 
-### 详细讲解一下spring context 模块
+### 详细讲解一下spring context模块
 
 ​		这是基本的Spring模块，提供spring 框架的基础功能，BeanFactory 是任何以spring为基础的应用的核心。Spring 框架建立在此模块之上，它使Spring成为一个容器。
 
 ​		Bean 工厂是工厂模式的一个实现，提供了控制反转功能，用来把应用的配置和依赖从真正的应用代码中分离。最常用的就是org.springframework.beans.factory.xml.XmlBeanFactory ，它根据XML文件中的定义加载beans。该容器从XML 文件读取配置元数据并用它去创建一个完全配置的系统或应用。
 
-### Spring 应用程序有哪些不同组件？
+### Spring应用程序有哪些不同组件？
 
 Spring 应用一般有以下组件：
 
@@ -100,7 +100,7 @@ Spring 应用一般有以下组件：
 - Spring 面向切面编程（AOP） - 提供面向切面编程的功能。
 - 用户程序 - 它使用接口。
 
-### 使用 Spring 有哪些方式？
+### 使用Spring有哪些方式？
 
 使用 Spring 有以下方式：
 

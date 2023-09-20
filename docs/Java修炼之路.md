@@ -1034,7 +1034,7 @@
 1. 什么是`IOC`，什么样的原因会出现`IOC`？
 2. `IOC`的实现机制？
 3. `IOC`优缺点？
-4. `BeanFactory` 和 `ApplicationContext` 的区别？
+4. `BeanFactory`和`ApplicationContext`的区别？
    + 依赖关系、加载方式
 5. 什么是依赖查找？
 6. 什么是依赖注入？
@@ -1046,13 +1046,13 @@
 #### Bean
 
 1. 什么是`Bean`？
-2. 如何为 `Spring` 容器提供配置元数据？
+2. 如何为`Spring`容器提供配置元数据？
 3. 如何定义`Bean`的作用域？
 4. 详解 `bean` 的生命周期？
 5. 什么是bean的自动装配？
 6. Spring有哪些自动装配的方式？（通过xml的方式对bean进行装配）
-7. `@Autowired` 自动装配的过程？
-8. 可以在Spring注入 null 或者 空字符串么？
+7. `@Autowired`自动装配的过程？
+8. 可以在Spring注入null或者空字符串么？
 9. 当容器中有多个同类型的bean，如何指定注入哪一个Bean？（使用@Qualifier）
 10. 自动装配有哪些局限性？
 11. Bean的特点：作用域、线程安全
