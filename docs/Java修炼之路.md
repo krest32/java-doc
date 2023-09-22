@@ -1157,9 +1157,9 @@
 1. 为什么会存在配置中心？
 2. `Spring Config` 对比 `Nacos`？
 
-#### 服务调用：`feign`
+#### 服务调用：`Openfeign`
 
-1. `feign` 的工作原理是什么样的？
+1. 工作原理是什么样的？
 1. Feign与RPC之间的关系是什么样的？
 1. 常见的RPC框架都有哪些？
 
@@ -1195,7 +1195,7 @@
 
 #### 链路追踪：Sleuth 
 
-
+#### 分布式任务：Seata 
 
 ### Spring Security
 
@@ -1297,16 +1297,16 @@
 
 #### 一致性哈希
 
-#### Seesion 共享
+#### Seesion共享
 
 1. 什么是Session 共享问题？
 2. 如何解决Session共享问题（4种），然后这些方案会有什么问题？
-   1. session 复制
-   2. Nignx 负债均衡策略 ip_hash，但是这个方法违背了负载均衡的思想
-   3. cookie 记录session信息
+   1. session复制
+   2. Nignx负债均衡策略 ip_hash，但是这个方法违背了负载均衡的思想
+   3. cookie记录session信息
    4. spring session
 
-3. Spring session 的实现原理是什么？
+3. Spring session的实现原理是什么？
 
 #### 时钟同步
 
@@ -1946,6 +1946,16 @@ undertow是RedHat（红帽公司）的开源产品，采用java开发，是一�
 + 也有可能是每个 sql 消耗资源并不多，但是突然之间，有大量的 session 连进来导致 cpu 飙升，这种情况就需要跟应用一起来分析为何连接数会激增，再做出相应的调整，比如说限制连接数等
 
 ## 第十章 系统设计
+
+### 常见软件性能
+
++ Nginx：一般3~5万
++ Tomcat：支持数万个并发连接，单机 Tomcat 的 QPS 在 2w 左右
++ Netty：支持数万并发连接，单台服务器能够达到4万次请求解析
++ Redis：单机 QPS 可以达到 8w+
++ MySQL：单机的QPS为大概在4k左右
++ RabbitMQ：单机吞吐量：万级，时效性：微秒
++ RocketMQ：单机吞吐量：十万级，时效性：毫级
 
 ### 高并发系统
 
