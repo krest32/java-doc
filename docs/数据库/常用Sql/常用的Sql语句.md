@@ -1331,3 +1331,39 @@ select * from user where find_in_set(hobby, 'yanggb1,yanggb2,yanggb3')
 
 表达式：substring_index(column,str,count)
 示例语句：SELECT substring_index(‘www.baidu.com’,‘Goole’,2)
+
+
+
+### 行转列
+
+#### 数据准备
+
+~~~sql
+
+INSERT INTO demo.numbers (id, number) VALUES (1, '1,2,3');
+create table demo.numbers
+(
+    id     int          null,
+    number varchar(255) null
+);
+
+SELECT a.id,
+       a.number,
+       substring_index(
+               substring_index(
+                       a.number,
+                       ',',
+                       b.help_topic_id + 1
+                   ),
+               ',', - 1
+           ) AS shareholder
+FROM numbers a
+JOIN mysql.help_topic b
+ 	ON b.help_topic_id < (length(a.number) - length(REPLACE(a.number, ',', '')) + 1);
+
+~~~
+
+#### 结果示例
+
+![image-20230926101933315](img/image-20230926101933315.png)
+
