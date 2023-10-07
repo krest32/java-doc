@@ -709,7 +709,61 @@ SpringData 项目所支持的关系数据存储技术：
 
 ## 其他
 
-### 开发`https` 接口
+### 默认Tomcat配置
+
+*基于 boot.2x*
+
+一般的 spring boot 中的 tomcat 可以设置的参数有, 以下都是默认值:
+
+~~~bash
+server.tomcat.max-threads=200
+server.tomcat.max-connections=8912
+server.tomcat.accept-count=100
+server.tomcat.max-http-form-post-size=2MB
+server.tomcat.min-spare-threads=10
+# 非请求超时时间
+server.tomcat.connection-timeout=60000
+~~~
+
+参数说明
+
+accept-count：最大等待数
+
+> 官方文档的说明为：当所有的请求处理线程都在使用时，所能接收的连接请求的队列的最大长度。当队列已满时，任何的连接请求都将被拒绝。accept-count的默认值为100。
+> 详细的来说：当调用HTTP请求数达到tomcat的最大线程数时，还有新的HTTP请求到来，这时tomcat会将该请求放在等待队列中，这个acceptCount就是指能够接受的最大等待数，默认100。如果等待队列也被放满了，这个时候再来新的请求就会被tomcat拒绝（connection refused）。
+
+maxThreads：最大线程数
+
+> 每一次HTTP请求到达[Web服务](https://so.csdn.net/so/search?q=Web服务&spm=1001.2101.3001.7020)，tomcat都会创建一个线程来处理该请求，那么最大线程数决定了Web服务容器可以同时处理多少个请求。maxThreads默认200，肯定建议增加。但是，增加线程是有成本的，更多的线程，不仅仅会带来更多的线程上下文切换成本，而且意味着带来更多的内存消耗。JVM中默认情况下在创建新线程时会分配大小为1M的线程栈，所以，更多的线程异味着需要更多的内存。线程数的经验值为：1核2g内存为200，线程数经验值200；4核8g内存，线程数经验值800。但是注意，线程数量越多，就意味着内存占用越高，同时CPU上下文切换郭跃频繁，导致系统稳定性降低
+
+maxConnections：最大连接数
+
+> 官方文档的说明为：这个参数是指在同一时间，tomcat能够接受的最大连接数。对于Java的阻塞式[BIO](https://so.csdn.net/so/search?q=BIO&spm=1001.2101.3001.7020)，默认值是maxthreads的值；如果在BIO模式使用定制的Executor执行器，默认值将是执行器中maxthreads的值。对于Java 新的NIO模式，maxConnections 默认值是10000。
+> 对于windows上APR/native IO模式，maxConnections默认值为8192，这是出于性能原因，如果配置的值不是1024的倍数，maxConnections 的实际值将减少到1024的最大倍数。
+> 如果设置为-1，则禁用maxconnections功能，表示不限制tomcat容器的连接数。
+> maxConnections和accept-count的关系为：当连接数达到最大值maxConnections后，系统会继续接收连接，但不会超过acceptCount的值。
+
+我们可以把tomcat比做一个火锅店，流程是取号、入座、叫服务员，可以做一下三个形象的类比：
+
+- **acceptCount 最大等待数**
+
+  > 可以类比为火锅店的排号处能够容纳排号的最大数量；排号的数量不是无限制的，火锅店的排号到了一定数据量之后，服务往往会说：已经客满。
+
+- **maxConnections 最大连接数**
+
+  > 可以类比为火锅店的大堂的餐桌数量，也就是可以就餐的桌数。如果所有的桌子都已经坐满，则表示餐厅已满，已 经达到了服务的数量上线，不能再有顾客进入餐厅了。
+
+- **maxThreads：最大线程数**
+
+  > 可以类比为厨师的个数。每一个厨师，在同一时刻，只能给一张餐桌炒菜，就像极了JVM中的一条线程
+
+
+
+
+
+
+
+### 开发`https`接口
 
 前言：实际工作中为了提高数据传输的安全性，采用HTTPS通讯，简单来说，HTTPS协议是由[SSL](https://so.csdn.net/so/search?q=SSL&spm=1001.2101.3001.7020)+HTTP协议构建的可进行加密传输，相比http协议安全。SSL证书需要到CA机构申请证书，仅为测试可以使用jdk生成自签证书。
 
