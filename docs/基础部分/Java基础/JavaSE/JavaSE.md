@@ -2073,10 +2073,19 @@ void add(int field, int amount); //给指定字段添加或减去amount个时间
 
 ```
  Date parse(String source)            // String --> Date   
- String format(Date date)    	          // Date --> String 
+ String format(Date date)    	          // Date --> String
+ 日期格式化时，yyyy表示当天所在的年，
+ 而大写的YYYY代表是week in which year ( JDK7之后引入的概念）,
+ 意思是当天所在的周属于的年份，
+ 一周从周日开始，周六结束，只要本周跨年，返回的YYYY就是下一年。
 ```
 
-
+3. new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+   1. 在日期格式中分清楚大写的M和小写m，大写的H和小写的h分别指代的意义。说明：日期格式中的这两对字母表意如下：
+   2. 表示月份的是大写的M；
+   3. 表示分钟是小写的m；
+   4. 24小时制的大写的H；
+   5. 12小时制的则是小写的h；
 
 ### 日期的格式化方式
 

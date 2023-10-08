@@ -7,7 +7,7 @@
 + XML 被设计用来传输和存储数据。
 + HTML 被设计用来显示数据。
 
-### 什么是Xml？
+### 什么是Xml
 
 - XML 指可扩展标记语言（EXtensible Markup Language）。
 - XML 是一种很像HTML的标记语言。

@@ -48,7 +48,7 @@
 + [三个线程顺序打印ABC?我有十二种做法！](https://juejin.cn/post/7149006608209543176)
 + [携程酒店慢查询治理之路](https://zhuanlan.zhihu.com/p/576875838?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1568932550311129088&utm_source=wechat_session)
 + [十二张图详解淘宝架构变迁](https://zhuanlan.zhihu.com/p/442552241)
-+ [月活 12.8 亿的微信如何防止崩溃？| 后台过载保护策略](https://zhuanlan.zhihu.com/p/520699351)
++ [月活12.8亿的微信如何防止崩溃？| 后台过载保护策略](https://zhuanlan.zhihu.com/p/520699351)
 + [怎么提高自己的系统设计和架构理论水平？](https://www.zhihu.com/question/395652253/answer/2458366961)
 + [高性能 Java 计算服务的性能调优实战](https://zhuanlan.zhihu.com/p/564562925?utm_campaign=shareopn&utm_medium=social&utm_oi=976755020490846208&utm_psn=1556193749054758912&utm_source=wechat_session)
 
