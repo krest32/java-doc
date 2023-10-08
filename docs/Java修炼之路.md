@@ -975,14 +975,14 @@
 
 #### Mybatis
 
-1. 为什么要使用 `Mybatis` ？
+1. 为什么要使用`Mybatis`？
 2. 对比`Hibernate`的优缺点？
    1. `Mybatis`解决了传统`JDBC`开发的什么问题？
 3. `Mybatis`的适用场景？
 4. `MyBatis`的工作流程（查询数据的原理）？
 5. `#{}`与`?{}`之间有什么区别？
 6. Mybatis的缓存机制？
-   1. `Mybatis` 的一级缓存与二级缓存有什么理解 ？
+   1. `Mybatis`的一级缓存与二级缓存有什么理解 ？
    2. 一级缓存基于SqlSession
    3. 二级缓存基于所有Sqlsession之间的共享，如果服务是单体的，完全可以开启
    4. （`session`、`nameSpace<cache>标签`）
