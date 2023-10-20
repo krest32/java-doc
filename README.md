@@ -19,7 +19,7 @@
 + [元动力课堂的课件(他们家还不错，文档挺好)](https://www.ydlclass.com/doc21xnv/)
 + [《Go学习路线图》让你少走弯路，Let's Go ！持续更新中...](https://juejin.cn/post/7119123646471208968)
 + [后端架构师技术图谱](https://juejin.cn/post/6844903602369232904)
-+ [深度学习路线](https://blog.csdn.net/tefuirnever/category_9336737.html)
++ [AI学习网站](https://www.showmeai.tech/)
 
 ## 优秀技术文章推荐
 
