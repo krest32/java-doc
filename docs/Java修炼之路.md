@@ -203,7 +203,7 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 2. 日志的输出级别有哪些？
 3. 最近关于log4j的bug有了解过么？
 4. 漏洞补救措施，漏洞解决措施？
-5. 为什么要使用用Slf4j日志门面？
+5. 为什么要使用Slf4j日志门面？
 #### 异常
 
 1. 谈谈你对`Java`异常的理解？
@@ -213,15 +213,17 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
    4. 异常的处理方案？
 2. Finally 语句一定会被执行么？
 3. 你们系统中异常是如何处理的？
-4. `try... catch.... finally`中` finally`使用`return`为什么是禁止的？
-6. throw和throws的区别是什么？
-7. 说说你经常遇到的异常有哪些？
-8. 生产中，异常的最佳生产实践
-   1. finally中释放资源
-   2. 优先处理明确的异常
-   3. 不要忽略异常
-   4. 不要记录并抛出异常（经常被忽略）
-   5. 使用标准异常
+   1. `try... catch.... finally`中` finally`使用`return`为什么是禁止的？
+   2. throw和throws的区别是什么？
+   3. 说说你经常遇到的异常有哪些？
+   4. 生产中，异常的最佳生产实践
+      1. finally中释放资源
+
+   5. 优先处理明确的异常
+   6. 不要忽略异常
+   7. 不要记录并抛出异常（经常被忽略）
+   8. 使用标准异常
+
 
 #### 泛型
 
@@ -234,7 +236,7 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 ### 集合容器
 
 1. 谈谈你对`java.util`集合框架的理解？
-   1. 什么是集合框架？-
+   1. 什么是集合框架？
    2. Java.util包下，有哪些集合框架？
 
 2. 集合底层的数据结构是什么样子的？
@@ -281,16 +283,16 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 ### 网络编程
 
 1. 什么是网络编程？
-2. 概念理解：`IP`、端口、`URI`、`URL`分别是什么？
+2. 概念理解：IP、端口、URI、URL分别是什么？
 3. 什么是网路协议分层，为什么要进行协议分层？
-4. `TCP`、`UDP` 区别？
+4. TCP、UDP 区别？
 
    1. TCP通常应用层协议：http、https、FTP、SMTP、SSH
    2. UDP通常应用层协议：NTP（适用于网络同步）、DHCP（动态路配置IP地址由）
-5. `TCP/IP`五层协议是什么？对应的每一层干了什么？比如应用层、传输层、网络层？
+5. TCP/IP五层协议是什么？对应的每一层干了什么？比如应用层、传输层、网络层？
 7. 三次握手与四次握手？
 
-   1. 四次握手等待2ML的原因
+   1. 四次握手等待 2ML 的原因
    2. 建立可靠连接，确保数据传输完毕
 8. 如果连接的过程中，连接中断了，怎么办？
 9. `TCP`报文有了解过么？
@@ -342,22 +344,22 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 #### 线程相关
 
 1. 创建线程的几种方式？
-2. `runnable`接口与`callable`接口之间的区别？
-3. `run()`和`start()`之间的区别？
-4. 两次调用`start()`的结果？
-5. `Callable`、`Future`、`FutureTask `的区别 ？ 
-6. `Future`、`FutureTask` 与 `Completefutere` 的区别？
+2. runnable接口与callable接口之间的区别？
+3. run()和start()之间的区别？
+4. 两次调用start()的结果？
+5. Callable、Future、FutureTask的区别 ？ 
+6. Future、FutureTask与Completefutere的区别？
 7. 线程的生命周期及五种状态？
 8. 线程的调度算法的两种？
 9. 请说出与线程同步以及线程调度相关的方法？
-10. 常用的线程操作方法`sleep`、`wait`、`notify`、`notifyAll`，简单聊一下他们的使用？
+10. 常用的线程操作方法sleep、wait、notify、notifyAll，简单聊一下他们的使用？
 11. Thread.sleep(0)，执行后会发生生么？
-12. 为什么`wait`、`notify`、`notifyAll`是 `Object`方法？
-13. 关于`sleep() `方法与`yeild()`方法有什么区别？
-14. 什么时候使用`join()`方法
+12. 为什么wait、notify、notifyAll是Object方法？
+13. 关于sleep()方法与yeild()方法有什么区别？
+14. 什么时候使用join()方法
 15. 什么情况下会终止正在运行的线程？
 16. 如何正确停止一个正在运行的线程？
-17. `interrupted()`和`stop()`方法有什么区别？
+17. interrupted()和stop()方法有什么区别？
 18. 如何实现多线程之间的通讯和协作（两种方案）？
 19. 线程死锁的理解？
 
@@ -373,45 +375,46 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 8. 什么是锁的升级？
 9. synchronized、volatile、CAS对比
 10. synchronized与lock区别？
-11. 谈谈你对`AQS`的理解吧？主要是它的一个实现原理？
-12. Atomic的运行原理？`CAS`原理是什么？ 
-13. `ABA`问题？
-14. `CAS`带来的其他问题？
+11. 谈谈你对AQS的理解吧？主要是它的一个实现原理？
+12. AQS为什么要采用双端队列？
+13. Atomic的运行原理？CAS原理是什么？ 
+14. ABA问题？
+15. CAS带来的其他问题？
     1. 循环时间过长
-    2. `ABA`问题 -> `AtomicStampedReference `
+    2. ABA问题 ->AtomicStampedReference
     3. 只能保证一个共享变量的原子操作
-15. 死锁、活锁、饥饿的区别？
-16. 并发工具类`Semaphore`、`CountDownLatch`、`CyclicBarrier` 之间的区别？
-17. 线程 B 怎么知道线程 A 修改了变量？ 线程之间的通信 （好多种方案）
+16. 死锁、活锁、饥饿的区别？
+17. 并发工具类Semaphore、CountDownLatch、CyclicBarrier之间的区别？
+18. 线程 B 怎么知道线程 A 修改了变量？ 线程之间的通信 （好多种方案）
     1.  volatile
     2. static
-18. `volatile` 如何实现共享变量多线程的可见性？
-19. `volatile` 如何实现`happens-before`规则？（内存屏障）
-20. CPU 缓存原理
+19. volatile如何实现共享变量多线程的可见性？
+20. volatile如何实现happens-before规则？（内存屏障）
+21. CPU缓存原理
 
 #### 线程池相关
 
 1. 线程池的 7 大参数？核心线程可以被销毁么？
-2. `submit`和`excute`有什么区别？
+2. submit和excute有什么区别？
    1. submit 执行 callable，submit 可以有返回值、异常
    2. excute 执行 runnable、excute 没有返回值异常
 3. 关闭线程池以及马上关闭线程池的方法是什么？它们之间有什么区别？
-   1. `Showdown()`
-   2. `Terminated()`
-   3. `ShutdownNow()`
+   1. Showdown()
+   2. Terminated()
+   3. ShutdownNow()
 4. 线程池的饱和策略有哪四种？
 5. 新任务到线程池以后，它的运行流程怎么样？
 
 #### 并发工具类
 
 1. 并发工具类？
-   1. `CountDownLatch`
-   2. `CyclicBarrier`
-   3. `Semaphore`
-2. `int++`是线程安全的么？
-3. `ThreadLocal`的使用场景？
-4. 关于 `ThreadLocal` 可能引发的内存泄漏的问题，原因是什么？
-5. `ForkJoin`有用过么？思想是什么？
+   1. CountDownLatch
+   2. CyclicBarrier
+   3. Semaphore
+2. int++是线程安全的么？
+3. ThreadLocal的使用场景？
+4. 关于ThreadLocal可能引发的内存泄漏的问题，原因是什么？
+5. ForkJoin有用过么？思想是什么？
 
 #### 其他
 
@@ -428,28 +431,28 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 
 1. 谈谈你读JVM的理解？（概念、作用、发展历史、现如今发展趋势）
 2. 常见的商用虚拟机？阿里JVM的特点？
-   1. `IBM j9`
-   2. `JRockit`
-   3. `HosSpot`（主要研究方向）
-   4. `TaoBbao JVM`
-   5. `graavl VM`
+   1. IBM j9
+   2. JRockit
+   3. HosSpot（主要研究方向）
+   4. TaoBbao JVM
+   5. graavl VM
 
 #### JVM 内存区域
 
-1. 谈谈`JVM`主要组成部分和作用？
-2. 运行是数据区都有哪些部分组成？各自都有什么功能？
+1. 谈谈JVM主要组成部分和作用？
+2. 运行时数据区都有哪些部分组成？各自都有什么功能？
    + 堆、栈、本地方法栈、方法区、程序计时器
-3. `JVM`的运行流程是什么？
+3. JVM的运行流程是什么？
 4. 堆和栈的区别是什么？
 5. 方法区
    1. 方法区的作用
-   2. 方法区的`GC`机制有什么特点？
+   2. 方法区的GC机制有什么特点？
 6. 常量池
    1. 常量池的三种分类？
    2. 三种常量池分别存放了什么东西？
    3. 常量池各自的存放位置在哪？
    4. 字符串常量池为什么会被放在堆空间中？
-7. 为什么叫`HotSpot`？
+7. 为什么叫HotSpot？
 
 #### 对象信息
 
