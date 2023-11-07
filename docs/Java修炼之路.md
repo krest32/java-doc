@@ -194,18 +194,16 @@ IT的工作并没有你想的那么高大上，它工作的本质其实就是记
 
 #### 常用 Api
 
-1. 说一说Java中Date类的缺陷？
-2. 说一说Date、Calendar、LocalDateTime三者之间的区别？
-3. 为什么 SimpleDateFormat 线程不安全
+1. 说一说Date、Calendar、LocalDateTime三者之间的区别？
+2. 为什么SimpleDateFormat线程不安全
 
 #### 日志
 
 1. 为什么要使用日志框架？
 2. 日志的输出级别有哪些？
 3. 最近关于log4j的bug有了解过么？
-4. 最近关于`log4j`的`bug`有了解过么？
-5. 漏洞补救措施，漏洞解决措施？
-6. 为什么要是用Slf4j日志门面？
+4. 漏洞补救措施，漏洞解决措施？
+5. 为什么要使用用Slf4j日志门面？
 #### 异常
 
 1. 谈谈你对`Java`异常的理解？
