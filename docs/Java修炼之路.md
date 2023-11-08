@@ -2471,42 +2471,42 @@ undertow是RedHat（红帽公司）的开源产品，采用java开发，是一�
 
 ### 基础部分
 
-#### `Html`
+#### Html
 
-#### `CSS`
+#### CSS
 
-#### `JS/TS`
+#### JS/TS
 
 ### UI开发框架
 
-1. `Element UI` -> `Vue2`
-2. `Element Plus` -> `Vue3`
+1. Element UI ->Vue2
+2. Element Plus -> Vue3
 
 ### 前端开发框架
 
 #### 概念
 
 1. 三种开发框架的对比
-1. 目前来说 `React` 和 `Vue` 都比较流行，`Angular` 在市场的上份额反而越来越小
+1. 目前来说React和Vue都比较流行，Angular在市场的上份额反而越来越小
 
-#### 1.` Vue`
+#### 1.Vue
 
-1. `Vue2` 、`Vue3`
-2. `Vuex`
-3. `Axios`
-4. `Vue router`
-5. `Vite`
-6. `Nuxt`
+1. Vue2、Vue3
+2. Vuex
+3. Axios
+4. Vue router
+5. Vite
+6. Nuxt
 
-#### 2. `React`
+#### 2. React
 
-#### 3. `Angular` 
+#### 3. Angular 
 
 ### 微前端
 
-#### `Single-SPA`
+#### Single-SPA
 
-#### `QianKun`
+#### QianKun
 
 ### 个人建站工具
 
