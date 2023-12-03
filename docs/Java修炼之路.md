@@ -200,10 +200,10 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 #### 序列化与反序列化
 
 1. 谈谈对于序列化的理解？
-   1. 序列化有什么用？`serivalVersionUUID`作用？ 
-   2. `transient`的作用？
-   3. 被`transient 修饰变量的初始值会是什么？
-   4. `Java`序列化的缺点有哪些？
+   1. 序列化有什么用？serivalVersionUUID作用？ 
+   2. transient的作用？
+   3. 被transient 修饰变量的初始值会是什么？
+   4. Java序列化的缺点有哪些？
 
 2. 分布式系统序列化的发展历史？
    1. Soap+Xml
@@ -215,7 +215,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 1. 对于反射的理解，应用场景有哪些？
 2. 反射的优缺点有哪些？
 3. 获取反射的3种方法？
-4. 如何提高反射的效率 ？
+4. 如何提高反射的效率？
 
 #### 常用 Api
 
@@ -238,7 +238,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
    4. 异常的处理方案？
 2. Finally 语句一定会被执行么？
 3. 你们系统中异常是如何处理的？
-   1. try... catch.... finally中finally使用return为什么是禁止的？
+   1. try... catch.... finally 中 finally 使用return为什么是禁止的？
    2. throw和throws的区别是什么？
    3. 说说你经常遇到的异常有哪些？
    4. 生产中，异常的最佳生产实践
@@ -294,14 +294,14 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
     + 1.7以前都需要重新计算哈希，
     + 1.8以后，借助2备扩容机值，不需要重新计算哈希值，低位元素在原来位置，高位元素在原来位置+原来容量的大小
 28. HashMap中的链表转化红黑树需要哪两个条件？
-29. 为什么`String`和`Integer`适合作为`Map`的`Key`?
-30. 可以使用`Object`对象作为`key`么？
-31. 关于`TreeMap`的理解说一下？新元素插入需要提起准备什么？
+29. 为什么String和Integer适合作为Map的Key?
+30. 可以使用Object对象作为key么？
+31. 关于TreeMap的理解说一下？新元素插入需要提起准备什么？
 32. HashMap的那些操作会导致线程不安全？
-33. `HashTable`中`key`、`value`为什么不能为`null`，而`HashMap`中却可以？
-34. `HashTable`与`HashMap`之间的区别是什么？
-35. `CopyOnWriteArrayList`的具体实现原理 ？
-36. `ConcurrentHashMap`的底层实现原理 ？
+33. HashTable中key、value为什么不能为null，而HashMap中却可以？
+34. HashTable与HashMap之间的区别是什么？
+35. CopyOnWriteArrayList的具体实现原理 ？
+36. ConcurrentHashMap的底层实现原理 ？
 37. 什么是迭代器 ？为什么要使用迭代器？
 38. 使用迭代器的好处是什么？
 
@@ -310,7 +310,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 1. 什么是网络编程？
 2. 概念理解：IP、端口、URI、URL分别是什么？
 3. 什么是网路协议分层，为什么要进行协议分层？
-4. TCP、UDP 区别？
+4. TCP、UDP区别？
 
    1. TCP通常应用层协议：http、https、FTP、SMTP、SSH
    2. UDP通常应用层协议：NTP（适用于网络同步）、DHCP（动态路配置IP地址由）
@@ -410,7 +410,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
     3. 只能保证一个共享变量的原子操作
 16. 死锁、活锁、饥饿的区别？
 17. 并发工具类Semaphore、CountDownLatch、CyclicBarrier之间的区别？
-18. 线程 B 怎么知道线程 A 修改了变量？ 线程之间的通信 （好多种方案）
+18. 线程B怎么知道线程A修改了变量？ 线程之间的通信 （好多种方案）
     1.  volatile
     2. static
 19. volatile如何实现共享变量多线程的可见性？
@@ -419,7 +419,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 
 #### 线程池相关
 
-1. 线程池的 7 大参数？核心线程可以被销毁么？
+1. 线程池的7大参数？核心线程可以被销毁么？
 2. submit和excute有什么区别？
    1. submit 执行 callable，submit 可以有返回值、异常
    2. excute 执行 runnable、excute 没有返回值异常
@@ -541,7 +541,7 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 #### 虚拟机异常
 
 1. 如何解决线上频繁GC的问题？
-   1. Full Gc过多？通过jstack
+   1. Full GC过多？通过jstack
    2. CPU过高？死循环？
    3. 接口耗时？
 
@@ -552,9 +552,9 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
       2. 为什么CPU又升高了，到底是哪里占用了CPU ？
       3. 运行的多线程有死锁吗？有阻塞吗？
       4. 程序运行耗时很长，是哪里耗时比较长呢？如何监测呢？
-      5. 这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？
+      5. 这个类从哪个jar包加载的？为什么会报各种类相关的 Exception？
       6. 我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？
-      7. 遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？
+      7. 遇到问题无法在线上debug，难道只能通过加日志再重新发布吗？
       8. 有什么办法可以监控到 JVM 的实时运行状态？
    2. 常用指令？
       + trace：统计调用链的用时占比
@@ -579,37 +579,37 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 
 ### 数据类型
 
-#### 1. `Json`
+#### 1. Json
 
-1. 什么是 `Json`？
-2. `Json` 对比 `Xml` ？
+1. 什么是 Json？
+2. Json对比Xml ？
 
-#### 2. `Xml`
+#### 2. Xml
 
-1. 什么是`Xml`？
-2. `Xml` 有什么特点？
+1. 什么是Xml？
+2. Xml有什么特点？
 
-#### 3. `Csv`
+#### 3. Csv
 
-1. 什么是 `Csv` ？
-2. `Csv` 有什么特点 ？
+1. 什么是Csv？
+2. Csv有什么特点 ？
 
-#### 4. `Yml`
+#### 4. Yml
 
-1. 什么是`Yml`？
-   1. `yml`严格的空格反而不适合在设备之间进行传输
+1. 什么是Yml？
+   1. yml严格的空格反而不适合在设备之间进行传输
 
-2. `Yml` 对比 `Properties` 的优点？
-3. `Yml` 缩进只能使用 空格，不能使用 `Tab`
+2. Yml对比Properties的优点？
+3. Yml缩进只能使用空格，不能使用Tab
 
-#### 5.`Properties`
+#### 5.Properties
 
-1. 什么是`Properties`？
+1. 什么是Properties？
 2. 它有什么特点？
 
-#### 6.`ProtoBuf`
+#### 6.ProtoBuf
 
-1. 什么是`protobuf`?
+1. 什么是protobuf?
 2. 对比其他数据格式的特点？
 3. 使用场景主要有哪些？
 
@@ -617,11 +617,11 @@ IT界有个笑话，写C的看不起写C++的，写C++的看不起写Java的，�
 
 ### 测试
 
-#### `junit`
+#### junit
 
-#### `spring-boot-test`
+#### spring-boot-test
 
-#### `JMH`
+#### JMH
 
 
 
