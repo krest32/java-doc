@@ -432,7 +432,7 @@ export PATH=${PATH}:${MAVEN_HOME}/bin
 
 
 
-# 7z 使用
+# 7z使用
 
 ~~~bash
 安装 yum install p7zip -y
@@ -6407,7 +6407,7 @@ cat id_rsa.pub >> authorized_keys
 
 # Superset
 
-### docker启动
+## docker启动
 
 ~~~bash
 docker pull amancevice/superset:0.37.2
@@ -6531,7 +6531,15 @@ systemctl enable tomcat     #允许开机自动启动
 systemctl disable tomcat    #禁止开机自动启动(默认)
 ~~~
 
+## 其他问题
 
+### windows 中文乱码
+
+这是因为tomcat默认编码是UTF-8，但是windows默认的编码格式是GBK，不匹配，所以我们改一下就行了。
+
+我们修改配置肯定是在tomcat的conf文件夹内,修改日志的配置文件【logging.properties】
+
+将【logging.properties】文件中的所有UTF-8都改成GBK即可。
 
 
 
