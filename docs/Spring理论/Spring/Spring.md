@@ -484,7 +484,7 @@ Spring解决循环依赖是有前置条件的
 
 
 
-## Spring注解
+## Spring 注解
 
 ### 什么是基于Java的Spring注解配置? 给一些注解的例子
 
@@ -899,3 +899,895 @@ spring事务的原理是AOP，进行了切面增强，那么失效的根本原�
 5. 异常被catch掉，事务不会回滚（或者抛出的异常没有被定义，默认为RuntimeExcelption）
 
 6. 多线程情况下，开启了新的线程去执行数据库操作，那么这个情况下，两个线程获取得到的数据库操作对象肯定不同，那么Transactional也会失效x
+
+
+
+
+
+## Spring 扩展接口
+
+### 加载顺序说明
+
+![在这里插入图片描述](D:\project\java-doc\docs\Spring理论\Spring\img\interface.png)
+
+
+
+### ApplicationContextInitializer
+
+用于在 Spring 应用上下文 (ApplicationContext) 刷新之前对其进行编程式配置。这个接口在 Spring 应用启动过程中的早期阶段被调用，允许开发者在加载任何 bean 之前对应用上下文进行定制。
+
+#### 应用场景
+
+- **定制应用上下文配置**：通过实现 ApplicationContextInitializer 接口，可以在 Spring 容器加载任何 bean 定义之前调用自定义逻辑，从而允许对配置进行编程式的修改。在应用启动前检查或准备外部资源，如消息队列
+- **环境依赖的设置**：它常用于根据不同的环境（如开发、测试、生产）设置不同的配置参数。例如，可以根据不同的配置文件或环境变量来调整数据源设置。如：根据环境变量动态设置数据库连接参数
+- **与 Spring Profiles 集成**：可以在 ApplicationContextInitializer 中激活或修改 Spring Profiles，从而改变应用程序的行为和配置。
+- **动态字节码注入**：利用这时候class还没被类加载器加载的时机，进行动态字节码注入等操作
+
+#### 生效方式
+
++ 在启动类中用springApplication.addInitializers(new MyApplicationContextInitializer())语句加入
++ 配置文件配置context.initializer.classes=com.tf.demo.MyApplicationContextInitializer
++ Spring SPI 扩展，在spring.factories中加入org.springframework.context.ApplicationContextInitializer=com.tf.demo.MyApplicationContextInitializer
+
+
+
+### BeanDefinitionRegistryPostProcessor
+
+用于在标准初始化之后和 Bean 实例化之前修改应用程序上下文的 Bean 定义。这个接口扩展了 BeanFactoryPostProcessor，提供了更加灵活的操作 Bean 定义的能力
+
+#### 应用场景
+
+- **修改或增加Bean定义**：在 Spring 容器加载了 Bean 定义后，但在实例化 Beans 之前，您可以使用这个接口来修改或添加 Bean 定义。
+- **条件性的Bean注册**：基于特定条件（比如环境变量或配置参数），动态地注册或修改 Bean。
+- **自定义注解处理**：如果你需要开发自己的注解并在 Spring 上下文中处理它们，可以使用这个接口
+
+#### 扩展方式
+
+~~~java
+
+@Component
+public class CustomBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        // 在这里添加或修改Bean定义
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(SomeClass.class);
+        registry.registerBeanDefinition("someBeanName", beanDefinition);
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        // 可以修改已注册的Bean属性
+        // 例如：设置属性，调用自定义初始化方法等
+    }
+}
+
+~~~
+
+
+
+#### 生效方式
+
++ **实现接口**：您需要创建一个类实现 BeanDefinitionRegistryPostProcessor 接口，并重写 postProcessBeanDefinitionRegistry 和 postProcessBeanFactory 方法。
++ **注册到Spring容器**：可以通过注解（如 @Component）或在配置类中显式注册。
++ **执行顺序**：首先执行 postProcessBeanDefinitionRegistry 方法，允许添加或修改 Bean 定义。随后执行 postProcessBeanFactory 方法，这一步通常用于修改已经注册的 Bean 的属性
+
+### BeanFactoryPostProcessor
+
+#### 应用场景
+
+- **修改或替换 Bean 定义**：如果需要对 Spring 容器中的 Bean 定义进行修改或替换，可以实现此接口。
+- **环境检查或配置**：在 Spring 容器实例化 beans 之前，进行一些环境的检查或者对配置信息的修改。
+- **动态注册 Bean 定义**：可以动态地向 Spring 容器添加新的 Bean 定义
+
+#### 扩展方式
+
+```java
+java复制代码public class CustomBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        // 在这里修改 bean 定义或执行其他逻辑
+    }
+}
+```
+
+#### 使用案例
+
+```java
+public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+    private String url;
+    private String username;
+    private String password;
+
+    // 构造函数和属性的 setter
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        BeanDefinition bd = beanFactory.getBeanDefinition("dataSource");
+        MutablePropertyValues pv = bd.getPropertyValues();
+        if (pv.contains("url")) {
+            pv.add("url", url);
+        }
+        if (pv.contains("username")) {
+            pv.add("username", username);
+        }
+        if (pv.contains("password")) {
+            pv.add("password", password);
+        }
+    }
+}
+```
+
+
+
+### InstantiationAwareBeanPostProcessor
+
+InstantiationAwareBeanPostProcessor 接口在此基础上增加了3个方法，把可扩展的范围增加了实例化阶段和属性注入阶段。
+
+#### 应用场景
+
+该类主要的扩展点有以下 5 个方法，主要在 bean 生命周期的两大阶段：实例化阶段和初始化阶段 ，下面一起进行说明，按调用顺序为：
+
+- postProcessBeforeInstantiation：实例化 bean 之前，相当于 new 这个 bean 之前，**可用于修改动态环境 RocketMQ 消费者组名称**，以及一些中间件 bean 属性的动态修改
+- postProcessAfterInstantiation：实例化 bean 之后，相当于 new 这个 bean 之后
+- postProcessPropertyValues：bean 已经实例化完成，在属性注入时阶段触发，@Autowired、@Resource等注解原理基于此方法实现
+- postProcessBeforeInitialization：初始化 bean 之前，相当于把 bean 注入 spring 上下文之前
+- postProcessAfterInitialization：初始化 bean 之后，相当于把 bean 注入 spring 上下文之后
+
+#### 扩展方式
+
+```java
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+
+public class CustomBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        // 在实例化之前执行的逻辑
+        // 例如，可以在这里返回一个代理对象
+        return null;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        // 在实例化之后执行的逻辑，但在设置属性之前
+        // 可以用来修改 bean 或执行某些操作
+        return true;
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        // 在初始化（例如 @PostConstruct）之前执行
+        // 可以对 bean 进行修改
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        // 在初始化之后执行
+        // 例如，可以在这里包装 bean 为一个代理
+        return bean;
+    }
+}
+```
+
+#### 使用案例
+
+```java
+@Slf4j
+public class DynamicRocketMQPostProcessor implements InstantiationAwareBeanPostProcessor {
+
+    @Value("${spring.profiles.active}")
+    String envProfile;
+
+    @Autowired
+    Environment env;
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (StringUtils.isEmpty(envProfile) || (!envProfile.contains(DynamicEnvManager.DEV_ENV) && !envProfile.contains(DynamicEnvManager.TEST_ENV))) {
+            return bean;
+        }
+
+        if (bean instanceof RocketMQListener) {
+            try {
+                log.info("postProcessProperties bean -> {} beanName -> {}", bean, beanName);
+                RocketMQListener<?> rocketMQListener = (RocketMQListener<?>) bean;
+                Class<? extends RocketMQListener> rocketmqListener = rocketMQListener.getClass();
+
+                RocketMQMessageListener annotation = rocketmqListener.getAnnotation(RocketMQMessageListener.class);
+
+                //获取 这个代理实例所持有的 InvocationHandler
+                InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);
+
+                // 获取 AnnotationInvocationHandler 的 memberValues 字段
+                Field declaredField = invocationHandler.getClass().getDeclaredField("memberValues");
+
+                // 因为这个字段事 private final 修饰，所以要打开权限
+                declaredField.setAccessible(true);
+
+                // 获取 memberValues
+                Map memberValues = (Map) declaredField.get(invocationHandler);
+
+                // 修改 value 属性值
+                String oldConsumer = annotation.consumerGroup();
+
+                String property = env.getProperty(DynamicEnvManager.GLOBAL_ENV_NAME);
+                if (StringUtils.isBlank(property)) {
+                    property = "";
+                    log.error("postProcessBeforeInitialization env error property -> {}", property);
+                }
+                String newConsumer = oldConsumer + property;
+                memberValues.put("consumerGroup", newConsumer);
+
+                log.info("postProcessBeforeInitialization annotation -> {} oldConsumer -> {} newConsumer -> {} ", annotation, oldConsumer, newConsumer);
+            } catch (Exception e) {
+                log.error("postProcessBeforeInitialization consumerGroup replace error : ", e);
+            }
+        }
+        return bean;
+    }
+
+}
+```
+
+### SmartInstantiationAwareBeanPostProcessor
+
+#### 应用场景
+
+SmartInstantiationAwareBeanPostProcessor 是 Spring 框架中一个更高级的扩展接口，提供了更细粒度的控制来干预和修改 Bean 的实例化过程。这个接口扩展了 InstantiationAwareBeanPostProcessor，增加了三个主要的方法，分别对应于 Bean 生命周期的不同阶段。以下是对这三个方法的优化建议：
+
+- predictBeanType: 此方法主要用于预测 Bean 的类型。当通过 Bean 名称无法确定其类型时，此方法被调用。它在实际 Bean 实例化之前提供了一种机制来推断 Bean 的类型。
+- determineCandidateConstructors:目的与应用场景: 该方法用于确定 Bean 的构造函数。这对于自定义选择合适的构造器来实例化 Bean 特别有用，尤其是在有多个构造函数的情况下。
+- getEarlyBeanReference:目的与应用场景: 该方法在 Bean 实例化后、初始化前被调用，主要用于解决循环依赖的问题，它允许在完全初始化之前提供 Bean 的早期引用。
+
+
+
+#### 扩展方式
+
+~~~java
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import java.lang.reflect.Constructor;
+
+public class CustomSmartBeanPostProcessor implements SmartInstantiationAwareBeanPostProcessor {
+
+    @Override
+    public Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
+        // 在这里，根据beanName或beanClass预测Bean的类型
+        if (beanName.equals("mySpecialBean")) {
+            return MySpecialBeanImpl.class;
+        }
+        return null;
+    }
+
+    @Override
+    public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName) throws BeansException {
+        // 在这里，可以自定义选择哪个构造器用于实例化Bean
+        // 例如，根据特定条件选择合适的构造函数
+        if (beanClass.equals(MyBean.class)) {
+            // 尝试获取MyBean的特定构造函数
+            try {
+                return new Constructor<?>[] { beanClass.getConstructor(MyDependency.class) };
+            } catch (NoSuchMethodException e) {
+                // 处理异常
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        // 在这里处理循环依赖的场景，返回Bean的早期引用
+        // 通常用于AOP代理或特殊处理
+        return bean;
+    }
+
+    // 其他必要的方法实现...
+}
+
+
+~~~
+
+### BeanFactoryAware
+
+#### 应用场景
+
+该类具有一个关键时机点，即在 Bean 实例化之后且属性注入（例如，通过 Setter 方法）之前。此时，通过重写 setBeanFactory 方法，类可以获得 BeanFactory 实例的引用。
+
+在这个阶段，您可以对刚实例化但尚未完全初始化的 Bean 进行特殊处理。这为在 Bean 生命周期的早期阶段进行定制化操作提供了机会。此外，您也可以将 BeanFactory 实例缓存起来，以便于后续操作时重复使用，从而提高效率和灵活性。这种做法特别适用于需要根据运行时条件动态处理或检索 Bean 的场景
+
+#### 扩展方式
+
+~~~java
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+
+public class CustomBeanFactoryAwareClass implements BeanFactoryAware {
+
+    private BeanFactory beanFactory;
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+        // 执行额外的初始化或配置逻辑
+        initializeCustomBeans();
+    }
+
+    private void initializeCustomBeans() {
+        // 在这里，您可以使用 beanFactory 来创建或配置 Bean
+        // 例如，根据条件动态创建 Bean
+        if (/* 某个条件 */) {
+            MyBean myBean = beanFactory.getBean(MyBean.class);
+            // 使用 myBean 进行操作
+        }
+    }
+
+    // 其他自定义方法...
+}
+
+~~~
+
+
+
+### ApplicationContextAwareProcessor
+
+![在这里插入图片描述](D:\project\java-doc\docs\Spring理论\Spring\img\7d882725542a488895c7a658eea96aabtplv-k3u1fbpfcp-jj-mark3024000q75-17057556862485.webp)
+
+针对您提到的ApplicationContextAwareProcessor类及其相关的六个扩展点，可以进行如下优化和概述：
+
+- EnvironmentAware：这个接口允许Bean获取到Spring环境相关的配置。虽然通常可以通过注入的方式直接获得环境参数，但实现这个接口可以在Bean中直接访问环境属性，有助于减少对Spring环境的直接依赖。
+- EmbeddedValueResolverAware：实现此接口使得Bean能够解析String类型的属性值。虽然@Value注解通常被用于注入属性值，但通过缓存StringValueResolver实例，可以在需要时获取这些值，提供更灵活的值解析方式。
+- ResourceLoaderAware：通过这个接口，Bean可以获得ResourceLoader，用于访问类路径内的资源。这使得Bean能够更灵活地处理外部资源，例如配置文件或类路径资源。
+- ApplicationEventPublisherAware：实现这个接口使Bean能够发布事件。虽然可以通过Spring注入来获取ApplicationEventPublisher，但直接在Bean中实现此接口可以简化事件发布流程，增强Bean的事件驱动能力。
+- MessageSourceAware：这个接口主要用于国际化支持，允许Bean访问MessageSource。这对于开发需要支持多语言的应用程序尤其重要。
+- **ApplicationContextAware**：通过实现这个接口，Bean可以直接访问Spring的应用程序上下文ApplicationContext。这使得Bean能够获取和操作其他Bean，以及使用上下文提供的其他功能。这对于需要进行复杂上下文操作的Bean尤为重要
+
+#### 扩展方式
+
+~~~java
+import org.springframework.context.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.env.Environment;
+import org.springframework.context.MessageSource;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StringValueResolver;
+
+public class MyAwareBean implements EnvironmentAware, EmbeddedValueResolverAware,
+        ResourceLoaderAware, ApplicationEventPublisherAware, MessageSourceAware,
+        ApplicationContextAware {
+
+    private Environment environment;
+    private StringValueResolver stringValueResolver;
+    private ResourceLoader resourceLoader;
+    private ApplicationEventPublisher applicationEventPublisher;
+    private MessageSourceAccessor messageSourceAccessor;
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver resolver) {
+        this.stringValueResolver = resolver;
+    }
+
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSourceAccessor = new MessageSourceAccessor(messageSource);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    // 使用注入的依赖来实现一些业务逻辑
+    public void performSomeAction() {
+        // 示例：使用environment获取属性
+        String dbUrl = environment.getProperty("database.url");
+
+        // 示例：使用stringValueResolver解析字符串
+        String resolvedString = stringValueResolver.resolveStringValue("some.value");
+
+        // 示例：使用resourceLoader加载资源
+        // Resource resource = resourceLoader.getResource("classpath:test.txt");
+
+        // 示例：发布事件
+        // applicationEventPublisher.publishEvent(new MyEvent(this));
+
+        // 示例：使用messageSourceAccessor获取国际化消息
+        // String message = messageSourceAccessor.getMessage("some.message.key");
+
+        // 示例：使用applicationContext获取bean
+        // MyOtherBean otherBean = applicationContext.getBean(MyOtherBean.class);
+    }
+}
+
+
+~~~
+
+
+
+### BeanNameAware
+
+#### 应用场景
+
+BeanNameAware的主要应用场景包括：
+
+- 日志记录：Bean可以在日志中记录自己的名字，这对于调试和跟踪Bean的创建及其在容器中的生命周期是非常有用的。
+- 依赖注入：在某些复杂的依赖注入场景中，Bean可能需要知道自己的名字来动态地处理依赖关系，尤其是在存在多个相同类型但需要不同处理的Bean时。
+- 上下文感知：对于需要根据其在容器中的角色或标识来改变行为的Bean，了解自己的名字是很重要的。例如，同一个类的不同实例可能需要根据其在Spring容器中的名字来加载不同的配置。
+- 与其他框架集成：在集成Spring与其他框架（如Quartz, Apache Camel等）时，知道Bean的名字可以帮助在框架之间传递信息，确保正确的配置和交互。
+- 测试和模拟：在测试环境中，可以利用Bean的名字进行模拟或者特定的测试设置。
+
+#### 扩展方式
+
+~~~java
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyCustomBean implements BeanNameAware, InitializingBean {
+
+    private String beanName;
+
+    @Autowired
+    private SomeOtherBean someOtherBean;
+
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
+        // 在这里可以进行与bean名字相关的初始化操作
+        System.out.println("Bean的名字是: " + name);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 当所有属性被设置后，Spring会调用这个方法
+        // 可以在这里执行一些初始化的逻辑
+        System.out.println("正在初始化Bean: " + beanName);
+    }
+
+    // Bean的其他业务方法
+    public void doSomething() {
+        // 方法实现
+    }
+
+    // ... 其他可能的方法和逻辑
+}
+
+~~~
+
+
+
+### @PostConstruct
+
+#### 应用场景
+
+- 资源初始化：在数据库连接、读取配置文件或者初始化一些数据结构时使用。
+- 日志记录：应用启动时，记录一些启动日志或者系统状态。
+- 数据预加载：预加载一些必要的数据到缓存中。
+- 检查依赖：确保应用的某些依赖项已经准备就绪。
+
+#### 扩展方式
+
+~~~java
+import javax.annotation.PostConstruct;
+
+public class MyService {
+
+    // 依赖注入的示例字段
+    private DependencyClass dependency;
+
+    public MyService(DependencyClass dependency) {
+        this.dependency = dependency;
+    }
+
+    @PostConstruct
+    public void init() {
+        // 初始化逻辑
+        System.out.println("依赖注入完成，执行初始化操作");
+        // 比如，使用dependency进行一些设置或调用
+    }
+
+    // 类的其他方法...
+}
+
+
+~~~
+
+
+
+### InitializingBean
+
+#### 应用场景
+
+InitializingBean接口用于在设置完一个bean的所有属性之后执行初始化工作。实现InitializingBean接口允许bean在其属性被设置之后，但在任何启动逻辑（如数据库连接）之前执行自定义初始化逻辑。
+
+- 资源初始化：如数据库连接、文件系统的访问或其他需要在属性设置后进行初始化的资源。
+- 自定义配置校验：在bean的属性被注入后，检查或校验这些属性。
+- 复杂的初始化逻辑：执行复杂的初始化逻辑，这些逻辑可能依赖于多个属性
+
+#### 扩展方式
+
+~~~java
+
+import org.springframework.beans.factory.InitializingBean;
+
+public class MyService implements InitializingBean {
+
+    // 依赖注入的示例字段
+    private DependencyClass dependency;
+
+    public void setDependency(DependencyClass dependency) {
+        this.dependency = dependency;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 执行初始化逻辑
+        System.out.println("所有属性设置完成，执行初始化操作");
+        // 例如，使用dependency进行一些设置或调用
+    }
+
+    // 类的其他方法...
+}
+
+
+~~~
+
+
+
+### FactoryBean
+
+#### 应用场景
+
+FactoryBean是一个特殊的bean类型，用于创建复杂对象。当你需要执行复杂的初始化逻辑，或者创建对象过程中需要多个步骤和配置时，使用FactoryBean可以是一个好选择。它允许你在Spring容器内部完全控制bean的创建过程。
+
+- 复杂对象的创建：当一个对象的创建过程非常复杂，例如需要多步构建过程或特定的配置逻辑时。
+- 依赖注入之外的控制：如果需要在标准依赖注入之外控制对象的创建逻辑。
+- 单例与非单例的管理：可以灵活地创建单例或原型（非单例）对象。
+- 创建特定类型的资源：例如连接到特定服务的代理或特殊类型的资源。
+
+#### 扩展方式
+
+~~~java
+
+import org.springframework.beans.factory.FactoryBean;
+
+public class MyFactoryBean implements FactoryBean<MyObject> {
+
+    @Override
+    public MyObject getObject() throws Exception {
+        // 创建并返回一个MyObject实例
+        MyObject myObject = new MyObject();
+        // 可以在这里进行复杂的构建逻辑
+        return myObject;
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        // 返回创建对象的类型
+        return MyObject.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        // 控制是否单例
+        // 返回true表示创建的对象是单例
+        // 返回false表示创建的对象是非单例
+        return true;
+    }
+
+    // 其他可能的自定义方法或逻辑...
+}
+
+
+~~~
+
+
+
+### SmartInitializingSingleton
+
+#### 应用场景
+
+SmartInitializingSingleton接口主要用于在单例bean的全部依赖关系都被满足后执行特定的逻辑。这个接口通常用于在Spring容器的启动阶段的最后一步，所有单例bean都已经创建且依赖关系已经注入后，执行一些后处理操作。
+
+- 后处理逻辑：在所有单例bean初始化完成之后执行一些后处理操作，例如数据校验、缓存预热等。
+- 依赖于多个Bean的初始化：当你的逻辑需要确保多个其他bean已经初始化完成时使用。
+- 异步操作的启动：如启动异步任务，当所有必要的bean都已经准备好。
+- 复杂的启动流程：例如，当应用需要在启动时执行一系列复杂的初始化步骤
+
+#### 扩展方式
+
+~~~java
+
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MySmartSingleton implements SmartInitializingSingleton {
+
+    // 依赖注入的其他Bean
+    private final AnotherBean anotherBean;
+
+    public MySmartSingleton(AnotherBean anotherBean) {
+        this.anotherBean = anotherBean;
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        // 执行一些后处理逻辑
+        System.out.println("所有单例Bean都已经初始化，执行特定操作");
+        // 可以使用anotherBean进行一些操作
+    }
+
+    // 其他方法...
+}
+
+~~~
+
+
+
+### CommandLineRunner
+
+#### 应用场景
+
+CommandLineRunner接口用于在Spring应用启动后执行特定的代码。它提供了一种简单的方法来访问命令行参数，并在Spring应用上下文加载完成后立即执行一些操作。
+
+- 命令行参数处理：解析和处理传递给Spring应用的命令行参数。
+- 启动时数据初始化：在应用启动时加载数据，例如从文件读取数据或者数据库初始化。
+- 启动后的检查：进行一些启动后的健康检查或者环境检查。
+- 启动任务：如启动一个定时任务或触发一些仅需执行一次的操作。
+
+
+
+#### 扩展方式
+
+~~~java
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyCommandLineRunner implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) throws Exception {
+        // 执行一些启动逻辑
+        System.out.println("Spring应用已启动，执行命令行处理");
+        // args包含传递给应用程序的命令行参数
+        for (String arg : args) {
+            System.out.println(arg);
+        }
+    }
+
+    // 其他方法...
+}
+
+~~~
+
+
+
+### DisposableBean
+
+#### 应用场景
+
+DisposableBean接口用于在bean的生命周期结束时执行清理工作，比如释放资源或执行其他清理操作。这通常用于在bean不再需要时，确保以优雅的方式释放资源，如关闭数据库连接、释放文件句柄等。
+
+- 资源释放：关闭打开的资源，例如文件流、数据库连接、网络连接等。
+- 停止后台线程：如果bean启动了任何后台线程，可以在销毁时停止这些线程。
+- 缓存清理：清理任何持久化的缓存或临时数据。
+- 注销注册：如果bean在系统或服务中进行了注册，可以在销毁时注销
+
+#### 扩展方式
+
+~~~~java
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyDisposableBean implements DisposableBean {
+
+    @Override
+    public void destroy() throws Exception {
+        // 执行清理操作
+        System.out.println("Bean正在被销毁，执行清理操作");
+        // 这里可以释放资源，如关闭文件流或数据库连接
+    }
+
+    // 其他方法...
+}
+
+
+~~~~
+
+### ApplicationListener
+
+#### 应用场景
+
+ApplicationListener接口用于实现事件监听机制。这个接口允许应用对各种应用事件（如上下文事件、请求处理事件等）作出响应。它是基于观察者设计模式的实现，允许你在特定事件发生时执行自定义的逻辑。
+
+- 上下文事件监听：监听如上下文初始化、关闭等事件。
+- 自定义事件处理：处理自定义定义的业务事件。
+- 监控与日志：对特定事件进行监控或记录日志。
+- 性能跟踪：追踪应用的关键操作，如请求的处理时间。
+
+#### 扩展方式
+
+```java
+java复制代码import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyApplicationListener implements ApplicationListener<ContextRefreshedEvent> {
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        // 执行一些逻辑，例如在上下文刷新时
+        System.out.println("Spring上下文刷新事件被触发");
+        // 这里可以访问事件源，例如event.getApplicationContext()
+    }
+
+    // 其他方法...
+}
+```
+
+
+
+
+
+## Spring 事件
+
+### 自定义事件的使用
+
+~~~java
+// 事件需要继承ApplicationEvent
+public class MyApplicationEvent extends ApplicationEvent {
+    private Long id;
+    public MyApplicationEvent(Long id) {
+        super(id);
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+}
+
+~~~
+
+**发布自定义事件**：现在自定义事件已经有了，该如何进行发布呢？Spring提供了`ApplicationEventPublisher`进行事件的发布，我们平常使用最多的`ApplicationContext`也继承了该发布器，所以我们可以直接使用applicationContext进行事件的发布。
+
+~~~java
+// 发布MyApplicationEvent类型事件
+applicationContext.publishEvent(new MyApplicationEvent(1L));
+~~~
+
+**处理自定义事件**：现在事件已经发布了，谁负责处理事件呢？当然是监听器了，Spring要求监听器需要实现`ApplicationListener`接口，同时需要`通过泛型参数指定处理的事件类型`。有了监听器需要处理的事件类型信息，Spring在进行事件广播的时候，就能找到需要广播的监听器了，从而准确传递事件了。
+
+```java
+// 需要继承ApplicationListener，并指定事件类型
+public class MyEventListener implements ApplicationListener<MyApplicationEvent> {
+    // 处理指定类型的事件
+    @Override
+    public void onApplicationEvent(MyApplicationEvent event) {
+        System.out.println(Thread.currentThread().getName() + "接受到事件:"+event.getSource());
+    }
+}
+```
+
+### Spring内置事件
+
+#### ContextRefreshedEvent
+
+在`ConfigurableApplicationContext`的`refresh()`执行完成时，会发出`ContextRefreshedEvent`事件。refresh()是Spring最核心的方法，该方法内部完成的Spring容器的启动，是研究Spring的重中之重。在该方法内部，当Spring容器启动完成，会在finishRefresh()发出ContextRefreshedEvent事件，通知容器刷新完成。
+
+**其实这是Spring提供给我们的拓展点**，此时容器已经启动完成，容器中的bean也已经创建完成，对应的属性、init()、Aware回调等，也全部执行。很适合我们做一些系统启动后的准备工作，此时我们就可以监听该事件，作为系统启动后初始预热的契机。其实Spring内部也是这样使用ContextRefreshedEvent的， 比如我们常用的Spring内置的调度器，就是在接收到该事件后，才进行调度器的执行的。
+
+~~~java
+public class ScheduledAnnotationBeanPostProcessor implements ApplicationListener<ContextRefreshedEvent> {
+  	@Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+      if (event.getApplicationContext() == this.applicationContext) {
+        finishRegistration();
+      }
+    }
+}
+
+~~~
+
+
+
+#### ContextStartedEvent
+
+在`ConfigurableApplicationContext`的`start()`执行完成时，会发出ContextStartedEvent事件。
+
+`ContextRefreshedEvent`事件的触发是所有的单例bean创建完成后发布，此时实现了`Lifecycle`接口的bean还没有回调start()，当这些`start()`被调用后，才会发布`ContextStartedEvent`事件。
+
+~~~java
+@Override
+public void start() {
+    this.getLifecycleProcessor().start();
+    this.publishEvent(new ContextStartedEvent(this));
+}
+
+~~~
+
+
+
+#### ContextClosedEvent
+
+在`ConfigurableApplicationContext`的`close()`执行完成时，会发出ContextStartedEvent事件。此时IOC容器已经关闭，但尚未销毁所有的bean。
+
+~~~java
+@Override
+public void close() {
+    synchronized (this.startupShutdownMonitor) {
+        this.doClose();
+    }
+}
+
+protected void doClose() {
+    // 发布ContextClosedEvent事件
+    this.publishEvent(new ContextClosedEvent(this));
+}
+
+~~~
+
+
+
+
+
+#### ContextStoppedEvent
+
+ 在`ConfigurableApplicationContext`的`stop()`执行完成时，会发出ContextStartedEvent事件。
+
+```java
+
+public void stop() {
+    this.getLifecycleProcessor().stop();
+    this.publishEvent(new ContextStoppedEvent(this));
+}
+```
+
+ 该事件在ContextClosedEvent事件触发之后才会触发，此时单例bean还没有被销毁，要先把他们都停掉才可以释放资源，销毁bean。
+
+
+
+## 实际场景
+
+### SpringBoot如何实现缓存预热
+
+在 Spring Boot 启动之后，可以通过以下手段实现缓存预热：
+
+1. 使用启动监听事件实现缓存预热。（ContextRefreshedEvent ）
+2. 使用 @PostConstruct 注解实现缓存预热。
+3. 使用 CommandLineRunner 或 ApplicationRunner 实现缓存预热。
+4. 通过实现 InitializingBean 接口，并重写 afterPropertiesSet 方法实现缓存预热。
+
+
+
