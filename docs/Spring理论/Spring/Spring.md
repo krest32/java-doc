@@ -284,15 +284,15 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 ## Spring Beans
 
-### 什么是Spring bean？
+### Bean定义
 
 ​		Spring beans 是那些形成Spring应用的主干的java对象。它们被Spring IOC容器初始化，装配，和管理。这些beans通过容器中配置的元数据创建。比如，以XML文件中 的形式定义。
 
-### 一个Spring Bean定义包含什么？
+### Bean定义包含内容
 
 一个Spring Bean 的定义包含容器必知的所有配置元数据，包括如何创建一个bean，它的生命周期详情及它的依赖。
 
-### 如何给 Spring 容器提供配置元数据？Spring有几种配置方式
+### Bean配置元数据
 
 这里有三种重要的方法给Spring 容器提供配置元数据。
 
@@ -304,7 +304,7 @@ ApplicationContext接口作为BeanFactory的派生，除了提供BeanFactory所�
 
 Spring配置文件是个XML 文件，这个文件包含了类信息，描述了如何配置它们，以及如何相互调用。
 
-### Spring基于xml注入bean的几种方式
+### xml注入bean的方式
 
 1. Set方法注入；
 2. 构造器注入：①通过index设置参数的位置；②通过type设置参数类型；
@@ -364,6 +364,44 @@ bean在Spring容器中从创建到销毁经历了若干阶段，每一阶段都�
 此时，bean已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；如果bean实现了DisposableBean接口，Spring将调用它的destroy()接口方法。同样，如果bean使用destroy-method声明了销毁方法，该方法也会被调用。
 
 
+### Bean的生命周期主要包括四个部分
+
+1. **实例化（Instantiation）**
+2. **属性赋值（Populate）**
+3. **初始化（Initialization）**
+4. **销毁（Destruction）**
+
+备注：
+
+1. 其中实例化，初始化都存在之前之后的方法增强
+2. 属性赋值前也有接口可修改
+3. 初始化方法需要自定义，默认是没有的
+4. 销毁接口的方法也需要自定义
+
+~~~java
+1. BeanFactoryPostProcessor -> postProcessBeanFactory
+    可以修改 构造方法的入参
+2. InstantiationAwareBeanPostProcessor -> postProcessBeforeInstantiation
+    实例化之前的增强
+3. Bean 实例化
+4. InstantiationAwareBeanPostProcessor -> postProcessAfterInstantiation
+    实力化之后的增强
+5. InstantiationAwareBeanPostProcessor -> postProcessProperties
+    实例化之后，设置 Bean 的属性
+6. Bean 执行 set 方法
+7. BeanNameAware -> setBeanName
+    可以设置 Bean Name
+8. BeanPostProcessor -> postProcessBeforeInitialization
+    Bean 初始化之前方法增强
+9. InitializingBean -> afterPropertiesSet
+    Bean 执行初始化方法
+10. BeanPostProcessor -> postProcessAfterInitialization
+    Bean 初始化之后方法增强
+11. DisposableBean -> destroy
+    Bean 销毁的方法，可以释放资源等
+~~~
+
+
 
 ### 哪些是重要的bean生命周期方法？ 你能重载它们吗？
 
@@ -373,11 +411,13 @@ bean标签有两个重要的属性（init-method和destroy-method）。用它们
 
 
 
-### 什么是Spring的内部bean？什么是Spring inner beans？
+### Spring inner beans？
 
 在Spring框架中，当一个bean仅被用作另一个bean的属性时，它能被声明为一个内部bean。内部bean可以用setter注入“属性”和构造方法注入“构造参数”的方式来实现，内部bean通常是匿名的，**它们的Scope一般是prototype**。
 
-### 在Spring中如何注入一个java集合？
+
+
+### 注入一个java集合
 
 Spring提供以下几种集合的配置元素：
 
@@ -389,11 +429,11 @@ Spring提供以下几种集合的配置元素：
 
 类型用于注入一组键值对，键和值都只能为String类型。
 
-### 什么是bean装配？
+### bean装配？
 
-​		装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。
+装配，或bean 装配是指在Spring 容器中把bean组装到一起，前提是容器需要知道bean的依赖关系，如何通过依赖注入来把它们装配到一起。
 
-### 解释不同方式的自动装配，spring 自动装配bean有哪些方式？
+### 自动装配
 
 在spring中，对象无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象，使用autowire来配置自动装载模式。
 
@@ -405,7 +445,7 @@ Spring提供以下几种集合的配置元素：
 - constructor：利用构造函数进行装配，并且构造函数的参数通过byType进行装配。
 - autodetect：自动探测，如果有构造方法，通过 construct的方式自动装配，否则使用 byType的方式自动装配。
 
-### 使用 @Autowired 注解自动装配的过程？
+### @Autowired自动装配的过程
 
 使用@Autowired注解来自动装配指定的bean。在使用@Autowired注解之前需要在Spring配置文件进行配置，<context:annotation-config />。
 
@@ -417,7 +457,7 @@ Spring提供以下几种集合的配置元素：
 
 
 
-### 自动装配有哪些局限性？
+### 自动装配的局限性
 
 自动装配的局限性是：
 
