@@ -21,3 +21,4 @@
   * [百度地图](./docs/中间件/其他/百度地图/百度地图.md)
   * [Shiro](./docs/中间件/其他/Shiro/Shiro.md)
   * [日志](./docs/中间件/其他/日志/日志.md)
+  * [Guava](./docs/中间件/其他/Guava/Guava.md)
