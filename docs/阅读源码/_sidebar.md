@@ -24,5 +24,6 @@
 * [ClassLoader](./docs/阅读源码/docs/30.ClassLoader.md)
 * [Junit4](./docs/阅读源码/docs/31.Junit4.md)
 * [Log4j2](./docs/阅读源码/docs/32.Log4j2.md)
+* [Validation](./docs/阅读源码/docs/33.Validation.md)
 * [XXL-JOB](./docs/阅读源码/docs/23.XXL-JOB.md)
 * [Nacos](./docs/阅读源码/docs/21.Nacos.md)
