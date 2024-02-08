@@ -1589,7 +1589,12 @@ public class MySmartSingleton implements SmartInitializingSingleton {
 
 ~~~
 
+SmartInitializingSingleton与InitializingBean的区别在于**作用范围**和**回调时机**：
 
++ 作用范围：SmartInitializingSingleton限制了必须是非懒加载的单例bean实现该接口，否则无效，而InitializingBean没有此限制
++ 回调时机：SmartInitializingSingleton#afterSingletonsInstantiated会在所有的单例bean都初始化完成后才会回调，而InitializingBean#afterPropertiesSet则是在该bean完成了属性注入，进入到初始化阶段就会回调，不会等其他的bean初始化完毕（从方法名字也能看出它们的区别）
+
+所以如果我们有一些bean的定制化操作是在所有的bean都初始化完成后才能进行的，那么就可以实现SmartInitializingSingleton这个接口。
 
 ### CommandLineRunner
 
@@ -1697,6 +1702,51 @@ public class MyApplicationListener implements ApplicationListener<ContextRefresh
 ```
 
 
+
+### LifeCycle
+
+接下来要描述的扩展点是Lifecycle，该接口有两个方法start和stop。
+
+~~~java
+public interface Lifecycle {
+
+	void start();
+
+	void stop();
+
+	boolean isRunning();
+
+}
+~~~
+
+实现了该接口的bean，会在Spring容器完成刷新后，回调它的start方法，也就是该bean已经完成初始化被放入到容器后。而stop方法则是在容器关闭时被回调，也就是Spring上下文的close方法被调用的时候。
+
+![image-20240208112134569](img/image-20240208112134569.png)
+
+> **一个例子：Eureka的服务端启动入口**
+>
+> Eureka服务端的EurekaServerInitializerConfiguration实现了Lifecycle 的子接口SmartLifecycle，在start方法中就触发Eureka服务端的启动，里面通过EurekaServerBootstrap的contextInitialized方法进行服务端的初始化工作，而EurekaServerBootstrap顾名思义，就是Eureka服务端启动引导器。
+>
+
+![image-20240208112221113](img/image-20240208112221113-17073625428181.png)
+
+> **Lifecycle的回调时机**
+>
+> 回调时机上面已经说了，Lifecycle#start方法在容器刷新完成后被回调，Lifecycle#stop方法在容器关闭时被回调。
+> 但是Lifecycle#start的回调会发生在Spring发布容器刷新完成事件之前，而Lifecycle#stop，则是在bean销毁之前。
+
+![image-20240208112305716](img/image-20240208112305716.png)
+
+Spring对Lifecycle#start方法和Lifecycle#stop的回调，是通过LifecycleProcessor触发的，LifecycleProcessor顾名思义就是Lifecycle处理器。
+
+LifecycleProcessor是一个接口，有两个方法onRefresh和onClose，LifecycleProcessor的实现类是DefaultLifecycleProcessor。
+
++ LifecycleProcessor的实现类DefaultLifecycleProcessor，在onRefresh方法中，会获取所有实现了Lifecycle接口的bean，回调Lifecycle#start方法
++ 而LifecycleProcessor#onClose方法，则是在容器关闭时，也就是在Spring上下文的close方法里面被回调，回调时机在bean销毁前，里面会回调所有实现了Lifecycle接口的bean的stop方法
+
+Spring会在容器刷新完成后，在发布容器刷新完成事件前，获取到DefaultLifecycleProcessor，回调它的onClose方法。在容器关闭时，在销毁bean之前，会回调DefaultLifecycleProcessor的onClose方法。
+
+![image-20240208112421786](img/image-20240208112421786.png)
 
 
 

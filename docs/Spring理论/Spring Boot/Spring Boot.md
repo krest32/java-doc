@@ -978,13 +978,59 @@ maxConnections：最大连接数
 
 
 
-### Spring Boot 中如何实现定时任务 ?
+### SpringBoot 中如何实现定时任务?
 
-​		定时任务也是一个常见的需求，Spring Boot 中对于定时任务的支持主要还是来自 Spring 框架。
+定时任务也是一个常见的需求，SpringBoot 中对于定时任务的支持主要还是来自 Spring 框架。在 SpringBoot 中使用定时任务主要有两种不同的方式，一个就是使用 Spring 中的 @Scheduled 注解，另一个则是使用第三方框架 Quartz。
 
-​		在 Spring Boot 中使用定时任务主要有两种不同的方式，一个就是使用 Spring 中的 @Scheduled 注解，另一个则是使用第三方框架 Quartz。
++ 使用 Spring 中的 @Scheduled 的方式主要通过 @Scheduled 注解来实现。
++ 使用 Quartz，则按照 Quartz 的方式，定义 Job 和 Trigger 即可。
 
-​		使用 Spring 中的 @Scheduled 的方式主要通过 @Scheduled 注解来实现。
 
-​		使用 Quartz ，则按照 Quartz 的方式，定义 Job 和 Trigger 即可。
 
+## 扩展点
+
+### @AutoConfigureBefore
+
+指定自动配置列的执行先后顺
+
+### @AutoConfigureAfter
+
+### @AutoConfigureOrder
+
+### **@ConditionalOnBean** 
+
+ 仅仅在当前上下文中存在某个对象时，才会实例化一个Bean
+
+### @ConditionalOnClass
+
+某个class位于类路径上，才会实例化一个Bea
+
+### **@ConditionalOnExpression** 
+
+当表达式为true的时候，才会实例化一个Bean。
+
+比如：
+
+    @ConditionalOnExpression("true")
+    
+    @ConditionalOnExpression("${my.controller.enabled:false}")
+### @ConditionalOnMissingBean 
+
+仅仅在当前上下文中不存在某个对象时，才会实例化一个Bean
+
+### @ConditionalOnMissingClass 
+
+某个class类路径上不存在的时候，才会实例化一个Bean
+
+### @ConditionalOnNotWebApplication 
+
+不是web应用
+
+
+### @Import
+
+注解提供了三种用法
+
+1. @Import一个普通类，spring会将该类加载到spring容器。
+2. @Import一个类，该类实现了ImportBeanDefinitionRegistrar接口，在重写的registerBeanDefinitions方法里面，能拿到BeanDefinitionRegistryed的注册器，能手工往beanDefinitionMap中注册beanDefinition
+3. @Import一个类，该类实现了ImportSelector，重写selectImports方法该方法返回了String[]数组的对象，数组里面的类都会注入到spring容器当中
