@@ -948,7 +948,7 @@ spring事务的原理是AOP，进行了切面增强，那么失效的根本原�
 
 ### 加载顺序说明
 
-![在这里插入图片描述](D:\project\java-doc\docs\Spring理论\Spring\img\interface.png)
+![在这里插入图片描述](.\img\interface.png)
 
 
 
@@ -1276,7 +1276,7 @@ public class CustomBeanFactoryAwareClass implements BeanFactoryAware {
 
 ### ApplicationContextAwareProcessor
 
-![在这里插入图片描述](D:\project\java-doc\docs\Spring理论\Spring\img\7d882725542a488895c7a658eea96aabtplv-k3u1fbpfcp-jj-mark3024000q75-17057556862485.webp)
+![在这里插入图片描述](.\img\7d882725542a488895c7a658eea96aabtplv-k3u1fbpfcp-jj-mark3024000q75-17057556862485.webp)
 
 针对您提到的ApplicationContextAwareProcessor类及其相关的六个扩展点，可以进行如下优化和概述：
 
