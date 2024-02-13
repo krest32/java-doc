@@ -944,7 +944,7 @@ spring事务的原理是AOP，进行了切面增强，那么失效的根本原�
 
 
 
-## Spring 扩展接口
+## 功能扩展
 
 ### 加载顺序说明
 
@@ -1424,6 +1424,12 @@ public class MyCustomBean implements BeanNameAware, InitializingBean {
 
 ### @PostConstruct
 
+#### 概述
+
+Constructor(构造方法) -> @Autowired(依赖注入) -> @PostConstruct(注释的方法)
+
+主要是针对添加了这个注解的Bean中的方法执行顺序，并非某个整体流程中的节点
+
 #### 应用场景
 
 - 资源初始化：在数据库连接、读取配置文件或者初始化一些数据结构时使用。
@@ -1455,6 +1461,20 @@ public class MyService {
     // 类的其他方法...
 }
 
+
+~~~
+
+#### 注解失效情况
+
++ Bean实现了BeanFactoryPostProcessor
++ BeanFactory注册bean：通过ConfigurableListableBeanFactory 注入的bean，PostConstruct也会失效，这里可以查看autowireBean和registerSingleton两个方法的官方注释，autowireBean只是帮你注入需要的依赖，registerSingleton只是注册bean到IOC
+
+~~~java
+ @Autowired
+ private ConfigurableListableBeanFactory beanFactory;
+ 
+beanFactory.autowireBean(job);
+beanFactory.registerSingleton(task.getId(), job);
 
 ~~~
 
@@ -1879,5 +1899,19 @@ public void stop() {
 3. 使用 CommandLineRunner 或 ApplicationRunner 实现缓存预热。
 4. 通过实现 InitializingBean 接口，并重写 afterPropertiesSet 方法实现缓存预热。
 
+## 总结
 
+### 功能扩展
+
+Spring框架的功能扩展可以总结为以下几类：
+
+1. 针对容器启动不用阶段的扩展， 这部分内容可以是Spring的各种事件
+
+2. 针对Bean的生命周期的扩展
+
+3. 容器启动后调用的commendLineRunner的调用
+
+4. 作为starter引用
+
+   
 
