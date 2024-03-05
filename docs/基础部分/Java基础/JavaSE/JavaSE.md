@@ -32,8 +32,6 @@
 4. 目前在字节、滴滴等大平台已经有大量被使用的案例，所以 `Golang` 也会越来越热门，所以我们可以使用它作为第二语言进行使用
 5. 其实随着社会的发展，领域会越来越有细分，Go的优秀特性已经被充分证明，不存在谁取代谁问题，因为Go目前的方向就在云原生基础架构方向，所不定未来计算机领域再次被细分，还会产生新的语言也说不定
 
-
-
 ### 对比`C、C++`
 
 - 都是面向对象的语言，都支持封装、继承和多态
@@ -107,8 +105,6 @@
 
 
 
-
-
 ### Java执行顺序：
 
 ```java
@@ -132,20 +128,20 @@ OpenJDK 比 Oracle JDK 早出现一些。OpenJDK 是在 20o6 年由 Sun Microsys
 
 OpenjDK和OracleJDK是Java开发具包的两人主要实现。两者者都是Java sE平台规范的实现，包含了Java 虚拟机（JVM）、Java 编程语言和 Java 库。然而，它们之间有一些重要的区别：
 
-+ 开源vs商业：OpenJDK是一个完全开源的项目，其代码可以自由使用、修改和分发，而Oracle JDK是一人商业产品，其代码不能被修改和分发。
++ 开源vs商业：Open JDK是一个完全开源的项目，其代码可以自由使用、修改和分发，而Oracle JDK是一人商业产品，其代码不能被修改和分发。
 + 技术支持：Oracle JDK是一个商业产品，因此它提供了专业的技术支持，而 OpenJDK只提供社区支持。
 + 版权许可证： Oracle JDK 使用的是商业版权许可证，而 OpenJDK 使用的是 GPLv2 开源许可证。
-+ 新特性：OracleDK可能比 OpenJDK先含有一些新特性，因为 Oracle JDK是其主要的收入来源。
++ 新特性：Oracle JDK可能比 Open JDK先含有一些新特性，因为 Oracle JDK是其主要的收入来源。
 
 #### 其他
 
-除了 OpenJDK 和 Oracle JDK 以外，还有其他的 Java SE 平台实现。
+除了OpenJDK和OracleJDK以外，还有其他的Java SE平台实现。
 
-例如，有一些其他的开源 JDK，如 AdoptOpenJDK 和 Amazon Corretto。这些实现通常是基于OpenJDK构建的，并提供了目己的特性和改进。
+例如，有一些其他的开源JDK，如AdoptOpenJDK和Amazon Corretto。这些实现通常是基于OpenJDK构建的，并提供了目己的特性和改进。
 
-此外，还有一些非开源的 JDK，如 Azul Systems 的 Zulu JDK 和 BellSoft 的 Liberica JDK。这些实现通常是基于OpenJDK构建的，并且提供了自已的特性和改进。
+此外，还有一些非开源的JDK，如Azul Systems的ZuluJDK和BellSoft的Liberica JDK。这些实现通常是基于OpenJDK构建的，并且提供了自已的特性和改进。
 
-因此，除了 OpenJDK 和 Oracle JDK 以外，还有其他的 Java SE 平台实现可供选择。然而最终的选择应该根据您的需求和坏境而定，
+因此，除了OpenJDK和OracleJDK以外，还有其他的Java SE平台实现可供选择。然而最终的选择应该根据您的需求和坏境而定，
 
 
 
@@ -212,7 +208,7 @@ public interface Interface1 {
 
 #### 4. `CompletableFuture`（重点了解）
 
-​		在Java 8中, 新增加了一个包含50个方法左右的类: `CompletableFuture`，提供了非常强大的Future的扩展功能，可以帮助我们简化异步编程的复杂性，提供了函数式编程的能力，可以通过回调的方式处理计算结果，并且提供了转换和组合`CompletableFuture`的方法。
+在Java 8中, 新增加了一个包含50个方法左右的类: `CompletableFuture`，提供了非常强大的Future的扩展功能，可以帮助我们简化异步编程的复杂性，提供了函数式编程的能力，可以通过回调的方式处理计算结果，并且提供了转换和组合`CompletableFuture`的方法。
 
 
 
@@ -3043,11 +3039,11 @@ public void wrapException(String input) throws MyBusinessException {
 
 ### 11. 使用标准异常
 
-​		如果使用内建的异常可以解决问题，就不要定义自己的异常。Java API 提供了上百种针对不同情况的异常类型，在开发中首先尽可能使用 Java API 提供的异常，如果标准的异常不能满足你的要求，这时候创建自己的定制异常。尽可能得使用标准异常有利于新加入的开发者看懂项目代码。
+如果使用内建的异常可以解决问题，就不要定义自己的异常。Java API 提供了上百种针对不同情况的异常类型，在开发中首先尽可能使用 Java API 提供的异常，如果标准的异常不能满足你的要求，这时候创建自己的定制异常。尽可能得使用标准异常有利于新加入的开发者看懂项目代码。
 
 ### 12. 异常会影响性能
 
-​		异常处理的性能成本非常高，每个 Java 程序员在开发时都应牢记这句话。创建一个异常非常慢，抛出一个异常又会消耗1~5ms，当一个异常在应用的多个层级之间传递时，会拖累整个应用的性能。
+异常处理的性能成本非常高，每个 Java 程序员在开发时都应牢记这句话。创建一个异常非常慢，抛出一个异常又会消耗1~5ms，当一个异常在应用的多个层级之间传递时，会拖累整个应用的性能。
 
 - 仅在异常情况下使用异常；
 - 在可恢复的异常情况下使用异常；
