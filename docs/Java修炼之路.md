@@ -316,13 +316,11 @@
 3. run()和start()之间的区别？
 4. 两次调用start()的结果？
 5. Callable、Future、FutureTask的区别 ？ 
-6. Future、FutureTask与Completefutere的区别？
+6. Future、FutureTask 与 Completefutere 的区别？
 7. 线程的生命周期及五种状态？
 8. 线程的调度算法的两种？
 9. 请说出与线程同步以及线程调度相关的方法？
-10. 常用的线程操作方法sleep、wait、notify、notifyAll，简单聊一下他们的使用？
 11. Thread.sleep(0)，执行后会发生生么？
-12. 为什么wait、notify、notifyAll是Object方法？
 13. 关于sleep()方法与yeild()方法有什么区别？
 14. 什么时候使用join()方法
 15. 什么情况下会终止正在运行的线程？
